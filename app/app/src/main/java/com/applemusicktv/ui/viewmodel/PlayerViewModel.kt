@@ -131,7 +131,8 @@ data class PlayerState(
     val lyricsNoticeGeneration: Long = 0L,
     val emptyLyricsNoticeCompletedFor: String? = null,
     val exhaustedEmptyLyricsFor: String? = null,
-    val isFullStream:     Boolean         = false,
+    /** 播放一律按"完整曲目"处理：音源只来自落雪，不需要 MUT，也不再有试听片段。 */
+    val isFullStream:     Boolean         = true,
     val motionUrl:        String?         = null,
     /** A/V-sync EXTRA the user dials on top of everything. 0 normally; the only value shown in the UI. */
     val lyricsOffsetMs:   Long            = 0L,
@@ -1225,11 +1226,11 @@ class PlayerViewModel @Inject constructor(
     /** Setup just finished — safe to bring back whatever was playing before. */
     fun onOnboardingFinished() {
         // Setup may have just added the token; the proxy needs its own copy before
-        // any library call, and _state still says isFullStream=false.
+        // any library call.
         viewModelScope.launch {
             if (hasMUT()) runCatching { repo.syncMUTToServer(mutPrefs.getMUT()) }
             recheckServer().join()
-            _state.update { it.copy(isFullStream = hasMUT()) }
+            _state.update { it.copy(isFullStream = true) }
             restoreState()
         }
     }
@@ -1334,7 +1335,7 @@ class PlayerViewModel @Inject constructor(
             val queue = restored.songs
             val idx = restored.index
             val posMs = if (song == savedSong) prefs.getLong("position_ms", 0L) else 0L
-            val full  = hasMUT()
+            val full  = true   // 落雪音源不需要登录态；试听已移除
             val crossfade = prefs.getBoolean("crossfade_enabled", true)
             val screensaverMin = prefs.getInt("screensaver_min", 10)
             val bgPlay = prefs.getBoolean("background_play", false)
@@ -1400,7 +1401,9 @@ class PlayerViewModel @Inject constructor(
                     _state.update { it.copy(standaloneActive = false) }
                     return@launch
                 }
-                webServer.addLog("LX", "恢复未命中 ${r.song.title} — 回退")
+                webServer.addLog("LX", "恢复未命中 ${r.song.title} — 无可用音源")
+                stopFailedPreparation(r.song)
+                return@launch
             }
             val src = if (standalone) buildStandaloneSource(r.song) ?:
                 tryCatalogRecoverySource(r.song, myGen) else null
@@ -1796,19 +1799,17 @@ class PlayerViewModel @Inject constructor(
                     startPlayback(shouldPlay)
                     return@launch
                 }
-                if (lxMode) webServer.addLog("LX", "未命中 ${song.title} — 回退 Apple")
-                // 落雪失败后：能端内解密就走 DRM，否则走代理直链。
-                val fallback = if (lxMode && useStandalone()) buildStandaloneSource(song) else null
-                if (myGen != playGen) return@launch
+                if (lxMode) {
+                    // 落雪是唯一音源：未命中就到此为止，不再回退 Apple 试听/DRM。
+                    // 试听片段（previewUrl）与 DRM 都需要登录态，本 app 已不再使用。
+                    webServer.addLog("LX", "未命中 ${song.title} — 无可用音源，跳过")
+                    stopFailedPreparation(song)
+                    return@launch
+                }
+                // 落雪被用户关闭时才走原有代理/DRM 路径。
                 val shouldPlay = sourcePreparation.finish(myGen) ?: return@launch
                 attachedSourceGeneration = myGen
-                if (fallback != null) {
-                    usingStandalone = true
-                    player.setMediaSource(fallback)
-                    _state.update { it.copy(standaloneActive = true) }
-                } else {
-                    player.setMediaItem(buildMediaItem(song, uri))
-                }
+                player.setMediaItem(buildMediaItem(song, uri))
                 player.prepare()
                 startPlayback(shouldPlay)
             }
@@ -1863,7 +1864,7 @@ class PlayerViewModel @Inject constructor(
         playSong(song)
     }
 
-    fun playSong(song: Song, useFullStream: Boolean = hasMUT()) {
+    fun playSong(song: Song, useFullStream: Boolean = true) {
         if (!VideoPlaybackPolicy.allows(song)) return
         _userPlaybackRequests.value++
         usingStandalone = false
@@ -1879,7 +1880,7 @@ class PlayerViewModel @Inject constructor(
         playAlbum(dtos.map(repo::songFromDto), startIndex)
     }
 
-    fun playAlbum(inputSongs: List<Song>, startIndex: Int = 0, useFullStream: Boolean = hasMUT(), shuffle: Boolean = false, openPlayer: Boolean = true) {
+    fun playAlbum(inputSongs: List<Song>, startIndex: Int = 0, useFullStream: Boolean = true, shuffle: Boolean = false, openPlayer: Boolean = true) {
         val selection = VideoPlaybackPolicy.selection(inputSongs, startIndex)
         val songs = selection.songs
         if (songs.isEmpty()) return
@@ -2845,7 +2846,13 @@ class PlayerViewModel @Inject constructor(
                                         cfExo.playWhenReady = player.playWhenReady
                                         return@launch
                                     }
-                                    webServer.addLog("LX", "跨淡未命中 ${nextSong.title} — 回退")
+                                    webServer.addLog("LX", "跨淡未命中 ${nextSong.title} — 跳过淡化")
+                                    // 落雪是唯一音源，不做 Apple 试听/DRM 回退：直接放弃这次淡化，
+                                    // 让当前曲目继续播，用户按下一首时再重新解析。
+                                    errListener.onPlayerError(androidx.media3.common.PlaybackException(
+                                        tr(R.string.msg_037), null,
+                                        androidx.media3.common.PlaybackException.ERROR_CODE_IO_UNSPECIFIED))
+                                    return@launch
                                 }
                                 val src = buildStandaloneSource(nextSong)
                                 if (crossfadeExo !== cfExo) return@launch

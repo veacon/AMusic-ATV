@@ -178,8 +178,8 @@
     <string name="msg_175" formatted="false">"After saving your token on your phone, return here to start listening."</string>
     <string name="msg_176" formatted="false">"Start Listening"</string>
     <string name="msg_177" formatted="false">"Verify Later and Continue"</string>
-    <string name="msg_178" formatted="false">"Skip and Preview"</string>
-    <string name="msg_179" formatted="false">"Without a token, playback is limited to 30-second previews."</string>
+    <string name="msg_178" formatted="false">"Continue Without Signing In"</string>
+    <string name="msg_179" formatted="false">"No token needed: browsing and search use the Apple catalog, playback comes from built-in sources, lyrics from NetEase/QQ."</string>
     <string name="msg_180" formatted="false">"Waiting for a local network"</string>
     <string name="msg_181" formatted="false">"Scan with your phone to sign in"</string>
     <string name="msg_182" formatted="false">"Settings"</string>

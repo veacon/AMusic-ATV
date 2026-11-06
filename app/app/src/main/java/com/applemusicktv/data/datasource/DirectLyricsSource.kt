@@ -23,6 +23,7 @@ import javax.inject.Named
 class DirectLyricsSource @Inject constructor(
     private val appleClient: AppleDirectClient,
     private val mutPrefs: MutPreferences,
+    private val thirdParty: ThirdPartyLyrics,
     @Named("direct") private val httpClient: OkHttpClient,
 ) {
 
@@ -53,29 +54,37 @@ class DirectLyricsSource @Inject constructor(
         val bearer = appleClient.getBearer()
         val mut = mutPrefs.getMUT()
         Log.i("DirectLyrics", "getLyrics song=$songId sf=$storefront bearerLen=${bearer.length} mutLen=${mut.length} title='$title' artist='$artist'")
-        if (bearer.isEmpty() || mut.isEmpty()) return@withContext emptyList()
-
-        val headers = mapOf(
-            "Authorization" to "Bearer $bearer",
-            "Media-User-Token" to mut,
-            "Origin" to "https://music.apple.com",
-            "User-Agent" to "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15",
-        )
-
-        // 1. Try Apple TTML (syllable-lyrics then lyrics)
-        val isLibrary = songId.startsWith("i.")
+        // 未登录不再直接返回空：Apple TTML 需要 MUT，但网易云/QQ 不需要。
         val sf = storefront.ifEmpty { "cn" }
 
-        // Apple's lyrics relationships live ONLY on the CATALOG song. A library id (i.*) 400s
-        // ("No relationship found matching 'syllable-lyrics'") on both the library endpoint and
-        // the catalog endpoint (the i.* id isn't a catalog id), so word-sync silently died and we
-        // always fell to lrclib. Resolve i.* → catalog id first, exactly like the proxy does.
-        val catalogId = if (isLibrary) resolveCatalogId(songId) else songId
+        if (bearer.isNotEmpty() && mut.isNotEmpty()) {
+            val headers = mapOf(
+                "Authorization" to "Bearer $bearer",
+                "Media-User-Token" to mut,
+                "Origin" to "https://music.apple.com",
+                "User-Agent" to "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15",
+            )
 
-        val ttmlLines = if (catalogId.isNotEmpty()) tryAppleTtml(catalogId, sf, isLibrary = false, headers) else emptyList()
-        if (ttmlLines.isNotEmpty()) return@withContext ttmlLines.also { store(songId, it) }
+            // 1. Apple TTML (syllable-lyrics then lyrics) — 仅登录态可用，逐字歌词质量最高
+            val isLibrary = songId.startsWith("i.")
 
-        // 2. lrclib fallback
+            // Apple's lyrics relationships live ONLY on the CATALOG song. A library id (i.*) 400s
+            // ("No relationship found matching 'syllable-lyrics'") on both the library endpoint and
+            // the catalog endpoint (the i.* id isn't a catalog id), so word-sync silently died and we
+            // always fell to lrclib. Resolve i.* → catalog id first, exactly like the proxy does.
+            val catalogId = if (isLibrary) resolveCatalogId(songId) else songId
+
+            val ttmlLines = if (catalogId.isNotEmpty()) tryAppleTtml(catalogId, sf, isLibrary = false, headers) else emptyList()
+            if (ttmlLines.isNotEmpty()) return@withContext ttmlLines.also { store(songId, it) }
+        }
+
+        // 2. 网易云 / QQ：本 app 默认的歌词来源
+        if (title.isNotEmpty() && artist.isNotEmpty()) {
+            val third = thirdParty.fetch(title, artist, durationSec)
+            if (third.isNotEmpty()) return@withContext third.also { store(songId, it) }
+        }
+
+        // 3. lrclib fallback
         if (title.isNotEmpty() && artist.isNotEmpty()) {
             val lrc = tryLrclib(title, artist, durationSec)
             if (lrc.isNotEmpty()) return@withContext lrc.also { store(songId, it) }

@@ -178,8 +178,8 @@
     <string name="msg_175" formatted="false">"在手机上保存令牌后，请回到这里开始聆听"</string>
     <string name="msg_176" formatted="false">"开始聆听"</string>
     <string name="msg_177" formatted="false">"稍后验证，进入应用"</string>
-    <string name="msg_178" formatted="false">"跳过，仅试听"</string>
-    <string name="msg_179" formatted="false">"未配置令牌时，仅支持 30 秒试听。"</string>
+    <string name="msg_178" formatted="false">"不登录，直接使用"</string>
+    <string name="msg_179" formatted="false">"无需令牌：浏览与搜索走 Apple 曲库，播放由落雪音源提供，歌词来自网易云/QQ。"</string>
     <string name="msg_180" formatted="false">"等待局域网连接"</string>
     <string name="msg_181" formatted="false">"用手机扫码登录"</string>
     <string name="msg_182" formatted="false">"设置"</string>

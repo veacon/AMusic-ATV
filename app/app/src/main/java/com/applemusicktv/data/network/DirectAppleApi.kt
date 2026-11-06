@@ -232,9 +232,11 @@ data class PlayAsset(
 
 interface DirectAppleApi {
 
-    // Catalog search on the edge host may return HTTP 200 with only artists.
-    // Override this endpoint only; library and editorial APIs keep their host.
-    @GET("https://api.music.apple.com/v1/catalog/{sf}/search")
+    // Catalog search on the *edge* host (amp-api-edge) returns HTTP 200 with an empty
+    // results body, and the legacy api.music.apple.com host demands a Music-User-Token
+    // (401 without one). amp-api.music.apple.com serves the same catalog anonymously,
+    // so search keeps working when nobody is signed in.
+    @GET("https://amp-api.music.apple.com/v1/catalog/{sf}/search")
     suspend fun search(
         @Path("sf") storefront: String,
         @Query("term") term: String,
