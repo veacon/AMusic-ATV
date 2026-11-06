@@ -23,7 +23,8 @@
 | P1.5 音源选型（44 条候选实测） | ✅ 完成 → `probe/音源跑测报告.md` |
 | P1.6 脚本管理（导入/热重载/回滚） | ✅ 完成（设置页「落雪音源」卡片） |
 | P1.7 免登录化（Apple 仅作元数据 / 去令牌 / 去试听 / 歌词换网易云·QQ） | ✅ 完成（模拟器实测通过） |
-| P2 体验收尾（解析态提示、音质选择、登录后主链路验证） | ⬜ 待做 |
+| P1.8 本地资料库（收藏 + QQ/网易云/酷狗歌单导入 + 隐藏登录入口） | ✅ 完成（模拟器实测通过） |
+| P2 体验收尾（解析态提示、音质选择、歌单增量同步） | ⬜ 待做 |
 
 ### P0 关键结论（决定架构的三条）
 
@@ -142,20 +143,51 @@ adb logcat -s LxPoc:*
 实测（MuMu，未填 MUT）：首页出「心情 + 热门专辑排行」；搜索 `love` 出最佳结果；
 《范特西》整盘可播（爱在西元前 tx 320kbps，8.5s）；歌词为网易云同步词（`netease hit score=100 lines=48`）。
 
+## 本地资料库（P1.8）
+
+Apple 的 `/v1/me/library/*` 在未登录时 403，所以资料库整块换成**本地存储**，
+并顺势支持把外部歌单导入进来。
+
+- **存储**：`data/local/LocalLibraryStore`，单个 `filesDir/local_library.json`（Moshi 全量读写，
+  写入走单线程执行器 + 临时文件 rename）。没上 Room —— 几百首的量级不值得引入 ksp 编译负担。
+- **数据**：收藏曲目（`favorites`）+ 本地歌单（`LocalPlaylist`：名称/封面/来源/源链接/曲目）。
+- **四个分类**：歌曲 = 收藏；播放列表 = 自建 + 导入；专辑/艺人 = 由**带 Apple id 的收藏**聚合
+  （导入曲目没有 albumId，点开也没有详情页，所以不参与聚合）。
+- **导入**（`data/local/PlaylistImporter`，参考 GoMusic / music-api-server / Superheroff/musicapi 的做法）：
+
+| 平台 | 接口 | 实测 |
+|---|---|---|
+| QQ 音乐 | `c.y.qq.com/v8/fcg-bin/fcg_v8_playlist_cp.fcg?id=` | 30/30 首，字段 `name/singer/album/interval` |
+| 网易云 | `music.163.com/api/v6/playlist/detail?id=&n=1000` | 200/200 首，含封面与 `dt` |
+| 酷狗 | `mobilecdn.kugou.com/api/v3/special/song?specialid=` | 22/22 首；detail 接口常返回空，歌单名改从分享页 `<title>` 取 |
+| 文本 | 每行 `歌名 - 歌手[- 专辑]` | 用于从别处粘列表 |
+
+- **入口**：资料库「播放列表」第一格是「＋ 导入歌单」；设置页（网页端 8080）也有一个导入表单，
+  在电脑/手机上粘长链接比遥控器输入舒服得多。接口：`POST /playlist-import`（`url` 或 `text`）。
+- **播放**：导入的 Song 用 `imp-<平台>-<id>` 做本地 id，播放时交给落雪按**标题+艺人+时长**搜索，
+  不依赖 Apple 曲库；歌词照旧走网易云/QQ。
+- **收藏**：播放页星标、长按菜单「收藏到资料库」、`AddToDialog` 的 Library 行，全部落到本地。
+
+实测（MuMu，未登录）：三个平台全部导入成功；《千千阙歌》tx 320kbps 13.2s 命中 + 网易云歌词 67 行；
+文本导入的 Yesterday 修复后 wy 5.2s 命中；收藏后重启仍在。
+
 ## 下一步（P2）
 
-1. **登录后主链路验证**：目前端到端验证都走 `LxPocActivity`，真机上「浏览→点歌→播放」还需一次带 token 的实测。
-2. 播放器内「解析中 / 已换源」提示：现在解析要 3–20s，界面只有转圈，用户不知道在换源。
-3. 音质优先设置：`AudioResolver.LADDER` 现在写死 `320k` 起，应暴露给设置页（FLAC 优先 / 省流 128k）。
-4. 清理 DRM 三条分支（`media/widevine/*`、MV、电台）：主链路已不走 Apple 解密，留着只是编译负担。
-5. 首曲提速：脚本预热已在 `Application.startMainServices()` 触发，但 PoC 入口没有；可把预热下沉到 Application.onCreate。
+1. 播放器内「解析中 / 已换源」提示：现在解析要 3–20s，界面只有转圈，用户不知道在换源。
+2. 音质优先设置：`AudioResolver.LADDER` 现在写死 `320k` 起，应暴露给设置页（FLAC 优先 / 省流 128k）。
+3. 清理 DRM 分支（`media/widevine/*`、MV、电台）：主链路已不走 Apple 解密，留着只是编译负担。
+4. 歌单增量同步：现在「重新导入」是整盘覆盖，可以按 `sourceUrl` 做 diff 并保留本地排序。
+5. 导入歌曲补元数据：文本导入没有时长/封面，可用 Apple catalog 搜索回填。
 
 ## 已知问题
 
-- **免登录模式下不可用**：资料库（`/v1/me/*` 403，界面显示未登录占位）、个人化推荐（首页改出榜单）、
-  电台与 MV（Widevine 需令牌）。这些是 Apple 服务端限制，只有登录后才恢复。
+- **免登录模式下不可用**：个人化推荐（首页改出榜单）、电台与 MV（Widevine 需令牌）。
+  这些是 Apple 服务端限制，只有登录后才恢复；资料库已改为本地，不受影响。
 - 酷我(kw)、咪咕(mg) 未覆盖（酷我搜索需 csrf/cookie，咪咕无公开搜索）。
 - tx（QQ 音乐）直链多为 28–38kbps 试听片段，被 `StreamVerifier` 的 200kbps 门槛挡掉，实际覆盖靠 wy/kg。
+- 码率未知时按体积兜底（≥1.8MB 视为完整曲目）：脚本不返 bitrate 的情况原来会被 0kbps 误杀。
+- 酷狗歌单无封面（detail 接口不给 `imgurl`），卡片显示音符占位。
+- 文本导入的歌曲没有时长，落雪只能按标题+艺人匹配，命中率低于平台导入。
 - 直链 TTL ≈ 21 分钟，暂停久后 seek 会 403 → 已实现"报错重解析"（每首一次）。
 - 跨语言曲名（Apple `Wayfarer` vs 平台《山海》）只能靠"艺人+时长"兜底。
 - 部分脚本 resolve 后残留定时器，`evaluate` 等不到空闲 → 超时后 `interruptEvaluation()` 兜底。
