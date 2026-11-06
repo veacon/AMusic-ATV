@@ -81,9 +81,12 @@ fun DevMenuScreen(
 
     Box(modifier.fillMaxSize().background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFFFFFFF), Color(0xFF101012)))) {
         Column(
+            // 顶部/底部留白必须在 verticalScroll 之外：写在里面时它是"可滚动内容"的一部分，
+            // 焦点滚动会把当前行顶到 y=0（导航条下面）或压到屏幕最底，焦点框看不见。
             modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight()
-                .fillMaxWidth().verticalScroll(scrollState)
-                .padding(start = pageHorizontalInset, end = pageHorizontalInset, top = 100.dp, bottom = 48.dp),
+                .fillMaxWidth().padding(top = 100.dp, bottom = 48.dp)
+                .verticalScroll(scrollState)
+                .padding(start = pageHorizontalInset, end = pageHorizontalInset),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -109,6 +112,23 @@ fun DevMenuScreen(
                 Stepper(tr(R.string.msg_187), tr(R.string.msg_188).format(com.applemusicktv.i18n.AppLanguage.locale, state.crossfadeMs / 1000f),
                     tr(R.string.msg_189), { vm.setCrossfade(com.applemusicktv.data.CrossfadePreferences.step(state.crossfadeMs, -1)) },
                     { vm.setCrossfade(com.applemusicktv.data.CrossfadePreferences.step(state.crossfadeMs, 1)) })
+                SettingDivider()
+                val quality = state.audioQuality
+                Stepper(
+                    tx("音质", "Audio quality"),
+                    when (quality) {
+                        com.applemusicktv.data.AudioQuality.STANDARD -> tx("标准 128k", "Standard 128k")
+                        com.applemusicktv.data.AudioQuality.HIGH -> tx("高品质 320k", "High 320k")
+                        com.applemusicktv.data.AudioQuality.LOSSLESS -> tx("无损 FLAC", "Lossless FLAC")
+                    },
+                    when (quality) {
+                        com.applemusicktv.data.AudioQuality.STANDARD -> tx("省流量，弱网更稳", "Saves data; steadier on weak networks")
+                        com.applemusicktv.data.AudioQuality.HIGH -> tx("体积与音质平衡，推荐", "Balanced; recommended")
+                        com.applemusicktv.data.AudioQuality.LOSSLESS -> tx("优先 FLAC，拿不到退 320k", "Prefers FLAC, falls back to 320k")
+                    },
+                    { vm.stepAudioQuality(-1) },
+                    { vm.stepAudioQuality(1) },
+                )
                 if (state.pcServerIp.isNotBlank()) {
                     SettingDivider()
                     Toggle(tr(R.string.msg_190), state.standaloneOn,
@@ -172,7 +192,9 @@ fun DevMenuScreen(
             }
             CacheSettingsSection(state.cacheCapacityGb, state.cacheUsedBytes, state.cacheBusy,
                 state.cacheMessage, vm::setCacheCapacity, vm::clearCache)
-            if (state.hasMUT) SettingsSection(tr(R.string.msg_218)) { PhoneServerRow(state.webServerUrl, playerVm) }
+            // 免登录后这里不再是「账号配置」，而是遥控器输入不便时的唯一入口：
+            // 手机浏览器打开 :8080 可以导入歌单、改播放设置。
+            SettingsSection(tr(R.string.msg_218)) { PhoneServerRow(state.webServerUrl, playerVm) }
             SettingsSection(tx("关于", "About")) {
                 val details = when (update.phase) {
                     "checking" -> tx("正在检查更新…", "Checking for updates…")

@@ -242,7 +242,7 @@
     <string name="msg_239" formatted="false">"This clears your token, favorites, and settings, then closes the app."</string>
     <string name="msg_240" formatted="false">"Reset"</string>
     <string name="msg_241" formatted="false">"Phone Setup Page"</string>
-    <string name="msg_242" formatted="false">"Set up your account and playback on the same network."</string>
+    <string name="msg_242" formatted="false">"Import playlists and adjust playback from your phone on the same network."</string>
     <string name="msg_243" formatted="false">"Connect using Wi-Fi or Ethernet to access the setup page."</string>
     <string name="msg_244" formatted="false">"Open this address in your phone browser."</string>
     <string name="msg_245" formatted="false">"Download Problem Report"</string>
@@ -330,4 +330,6 @@
     <string name="phone_setup_starting">"Starting phone setup…"</string>
     <string name="phone_network_waiting">"Getting a local network address…"</string>
     <string name="fluid_quality_high">High quality</string>
+    <string name="msg_326" formatted="false">"Browse music"</string>
+    <string name="msg_327" formatted="false">"Import a playlist"</string>
 </resources>

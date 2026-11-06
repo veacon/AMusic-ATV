@@ -8,7 +8,7 @@ import kotlinx.coroutines.withContext
  *
  * P0 结论直接固化在这里：
  *  - 单一脚本不可靠（15 个里 6 个已死），必须按源做脚本级联；
- *  - 音质必须逐级降（master → flac → 320k → 128k），第一个可用即停；
+ *  - 音质按设置页的偏好逐级降（无损档 master → flac → 320k），第一个可用即停；
  *  - 每个结果都要用真实字节校验，否则会拿到"假无损"。
  */
 class AudioResolver(
@@ -35,11 +35,11 @@ class AudioResolver(
             "kg" to listOf("lx-01-kulao.js", "lx-04-xinghai.js", "lx-02-hyw.js", "lx-03-fish.js"),
         )
 
-        private val LADDER = listOf("320k", "128k", "flac", "flac24bit", "hires", "master")
-        private const val ACCEPT_KBPS = 200
+        private const val MIN_SCORE = 45
         /** 码率未知时，小于这个体积基本是 30 秒试听片段。 */
         private const val MIN_COMPLETE_BYTES = 1_800_000L
-        private const val MIN_SCORE = 45
+        /** 单个脚本最多试几档音质：脚本内部已自带降级，多试只会重复跑后端的慢请求。 */
+        private const val MAX_QUALITY_TRIES = 2
         /** 单曲解析总预算：P0 最坏 40s 不可接受，超时即放弃并交给上层换源/跳过。 */
         private const val TOTAL_BUDGET_MS = 40_000L
     }
@@ -54,6 +54,7 @@ class AudioResolver(
         artist: String,
         album: String = "",
         durationSec: Int = 0,
+        plan: QualityPlan = QualityPlan.DEFAULT,
         onStep: (String) -> Unit = {},
     ): ResolveResult = withContext(Dispatchers.IO) {
         val t0 = System.currentTimeMillis()
@@ -94,9 +95,9 @@ class AudioResolver(
             }
             for (engine in ordered) {
                 val qualities = engine.sources[cand.source] ?: continue
-                // 只取最高可用音质：脚本内部自带 quality 降级表（master→…→128k），
-                // 我们再逐档调用只会重复跑同一串后端（实测一档就要 10s+）。
-                val ladder = LADDER.filter { it in qualities }.take(1)
+                // 按用户选的档位取前两档：脚本内部自带 quality 降级表，
+                // 逐档调用只会重复跑同一串后端（实测一档就要 10s+）。
+                val ladder = plan.ladder.filter { it in qualities }.take(MAX_QUALITY_TRIES)
                 if (ladder.isEmpty()) continue
                 for (q in ladder) {
                     if (System.currentTimeMillis() - t0 > TOTAL_BUDGET_MS) break
@@ -118,7 +119,7 @@ class AudioResolver(
                         "${probe.kind}/${probe.kbps}kbps ${probe.bytes}B ${probe.err}",
                         System.currentTimeMillis() - tVerify,
                     )
-                    if (probe.ok && acceptable(probe)) {
+                    if (probe.ok && acceptable(probe, plan.minKbps)) {
                         resolvedCount++
                         val stream = AudioStream(
                             url = url,
@@ -148,14 +149,14 @@ class AudioResolver(
     /**
      * 试听片段 vs 完整曲目：
      *  - flac 直接接受；
-     *  - 码率已知时按 [ACCEPT_KBPS] 门槛（低码率试听被挡，宁可换源）；
+     *  - 码率已知时按 [minKbps] 门槛（低码率试听被挡，宁可换源）；
      *  - 码率未知（脚本普遍不返回 bitrate；文本导入的歌也没有时长）时按文件体积判断：
      *    30 秒试听一般 < 1.5MB，完整曲目普遍 > 2MB。这块之前直接按 0kbps 拒掉，
      *    导致 5MB 的正常 mp3 被误杀。
      */
-    private fun acceptable(probe: StreamVerifier.Probe): Boolean =
+    private fun acceptable(probe: StreamVerifier.Probe, minKbps: Int): Boolean =
         probe.kind == "flac" || probe.kind == "flac24bit" ||
-            probe.kbps >= ACCEPT_KBPS ||
+            probe.kbps >= minKbps ||
             (probe.kbps <= 0 && probe.bytes >= MIN_COMPLETE_BYTES)
 
     private fun musicInfo(

@@ -108,6 +108,8 @@ fun LibraryScreen(
     val listReady = state.error == null && hasCurrentItems
 
     var showImport by remember { mutableStateOf(false) }
+    // 在 FadeThrough 外面取好：里面的 section 是解构出来的 val，不能赋值。
+    val openImport: () -> Unit = { section = LibrarySection.Playlists; showImport = true }
     var importing by remember { mutableStateOf(false) }
     var playlistMenu by remember { mutableStateOf<LocalLibraryStore.LocalPlaylist?>(null) }
     val toastContext = androidx.compose.ui.platform.LocalContext.current
@@ -170,7 +172,8 @@ fun LibraryScreen(
                                 }
                                 LibrarySection.Albums  -> AlbumGrid(orderedItems.albums, onAlbumClick, onReturnToTab, tabBarFocused)
                                 LibrarySection.Artists -> ArtistList(orderedItems.artists, onArtistClick, onReturnToTab, tabBarFocused)
-                                LibrarySection.Songs -> SongList(orderedItems.songs, playerVm, vm, onArtistClick, onAlbumClick, onReturnToTab, tabBarFocused)
+                                LibrarySection.Songs -> SongList(orderedItems.songs, playerVm, vm, onArtistClick, onAlbumClick, onReturnToTab, tabBarFocused,
+                                    onImportPlaylist = openImport)
                             }
                             }
                             }
@@ -614,6 +617,7 @@ private fun SongList(
     onAlbumClick: (String) -> Unit = {},
     onReturnToTab: (() -> Unit)? = null,
     tabBarFocused: Boolean = false,
+    onImportPlaylist: (() -> Unit)? = null,
 ) {
     val listState = rememberTabAwareListState(tabBarFocused)
     if (songs.isEmpty()) {
@@ -624,6 +628,22 @@ private fun SongList(
                 Text("任意歌曲上长按 →「收藏到资料库」；歌单可在「播放列表」里导入 QQ 音乐 / 网易云 / 酷狗。",
                     fontSize = 13.sp,
                     color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
+                // 空页如果只有文字，遥控器在资料库页会卡在右上角排序按钮上出不来。
+                if (onImportPlaylist != null) {
+                    Spacer(Modifier.height(6.dp))
+                    Surface(
+                        onClick = onImportPlaylist,
+                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                        colors = ClickableSurfaceDefaults.colors(
+                            containerColor = Color(0xFFFA233B),
+                            focusedContainerColor = Color(0xFFFF4757),
+                        ),
+                        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+                    ) {
+                        Text(tr(R.string.msg_327), fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                            color = Color.White, modifier = Modifier.padding(horizontal = 24.dp, vertical = 11.dp))
+                    }
+                }
             }
         }
         return
@@ -838,6 +858,7 @@ private fun ImportPlaylistDialog(
 ) {
     var text by remember { mutableStateOf("") }
     val fieldFocus = remember { FocusRequester() }
+    val cancelFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { fieldFocus.requestFocus() } }
 
     com.applemusicktv.ui.components.MotionDialog(onDismissRequest = { if (!importing) onDismiss() }) {
@@ -854,6 +875,11 @@ private fun ImportPlaylistDialog(
                 fontSize = 12.sp,
                 color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)),
             )
+            Text(
+                "遥控器输入不便时，可在手机上打开「设置 · 手机配置网页」，用网页里的导入表单完成同样的事。",
+                fontSize = 12.sp,
+                color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA)),
+            )
             Box(
                 Modifier.fillMaxWidth().height(56.dp)
                     .clip(RoundedCornerShape(12.dp))
@@ -867,7 +893,17 @@ private fun ImportPlaylistDialog(
                     singleLine = true,
                     textStyle = TextStyle(color = com.applemusicktv.ui.theme.AppPalette.primary, fontSize = 15.sp),
                     cursorBrush = SolidColor(Color(0xFFFA233B)),
-                    modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus),
+                    modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus)
+                        .onPreviewKeyEvent { ev ->
+                            // 单行输入框会把方向键当光标移动、把返回当输入处理：
+                            // 遥控器一旦进来就既到不了按钮也关不掉弹窗，必须在这里开口子。
+                            if (ev.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                            when (ev.key) {
+                                Key.Back -> { if (!importing) onDismiss(); true }
+                                Key.DirectionDown -> runCatching { cancelFocus.requestFocus() }.isSuccess
+                                else -> false
+                            }
+                        },
                     decorationBox = { inner ->
                         if (text.isEmpty()) Text(
                             "https://y.qq.com/n/ryqq/playlist/…",
@@ -882,6 +918,7 @@ private fun ImportPlaylistDialog(
                 verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     onClick = { if (!importing) onDismiss() },
+                    modifier = Modifier.focusRequester(cancelFocus),
                     shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
                     colors = com.applemusicktv.ui.components.contentActionColors(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D))),
                     border = com.applemusicktv.ui.components.contentActionBorder(RoundedCornerShape(50)),

@@ -251,7 +251,7 @@ internal object MessageCatalog {
         R.string.msg_239 to ("这会清除令牌、收藏和全部设置，并退出应用。" to "This clears your token, favorites, and settings, then closes the app."),
         R.string.msg_240 to ("重置" to "Reset"),
         R.string.msg_241 to ("手机配置网页" to "Phone Setup Page"),
-        R.string.msg_242 to ("在同一网络配置账号与播放设置" to "Set up your account and playback on the same network."),
+        R.string.msg_242 to ("在同一网络用手机导入歌单、调整播放设置" to "Import playlists and adjust playback from your phone on the same network."),
         R.string.msg_243 to ("连接 Wi-Fi 或网线后可访问配置网页。" to "Connect using Wi-Fi or Ethernet to access the setup page."),
         R.string.msg_244 to ("在手机浏览器打开此地址" to "Open this address in your phone browser."),
         R.string.msg_245 to ("下载问题报告" to "Download Problem Report"),
@@ -335,5 +335,7 @@ internal object MessageCatalog {
         R.string.msg_323 to ("最近添加" to "Recently Added"),
         R.string.msg_324 to ("未知" to "Unknown"),
         R.string.playback_section to ("播放" to "Playback"),
+        R.string.msg_326 to ("去浏览音乐" to "Browse music"),
+        R.string.msg_327 to ("导入歌单" to "Import a playlist"),
     )
 }

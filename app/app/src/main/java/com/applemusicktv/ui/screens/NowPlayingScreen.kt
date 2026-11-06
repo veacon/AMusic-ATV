@@ -160,6 +160,8 @@ fun NowPlayingScreen(
     wallPlaybackReturn: Boolean = false,
     onConsumeWallPlaybackReturn: () -> Unit = {},
     onWallStateChanged: (Boolean) -> Unit = {},
+    /** 空播放页的出口：没有任何歌曲时页面本身没有可聚焦控件，必须给遥控器留一条路。 */
+    onBrowse: () -> Unit = {},
 ) {
     val playbackState by playerVm.state.collectAsState()
     val artworkCentered by playerVm.artworkCentered.collectAsState()
@@ -378,7 +380,36 @@ fun NowPlayingScreen(
             val song = state.currentSong
         if (song == null) {
             IdlePlayerBackground(state.fluidQuality,state.reduceMotion,state.lowPowerMode)
-            Box(Modifier.fillMaxSize(),Alignment.Center) {PlayerStatusText(tr(R.string.msg_279),state.lyricsScale,Modifier)}
+            Box(Modifier.fillMaxSize(),Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(22.dp)) {
+                    PlayerStatusText(tr(R.string.msg_279),state.lyricsScale,Modifier)
+                    // 没有歌曲时整页没有可聚焦控件：遥控器上下左右/确认全失效，只剩返回。
+                    // 给一个「去浏览音乐」按钮，进入即聚焦，保证这个 Tab 不会是死路。
+                    val browseFocus = remember { FocusRequester() }
+                    LaunchedEffect(Unit) {
+                        repeat(60) {
+                            withFrameNanos { }
+                            if (runCatching { browseFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
+                        }
+                    }
+                    Surface(
+                        onClick = onBrowse,
+                        modifier = Modifier.focusRequester(browseFocus),
+                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                        colors = ClickableSurfaceDefaults.colors(
+                            containerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D)),
+                            focusedContainerColor = Color(0xFFFA233B),
+                            focusedContentColor = Color.White,
+                        ),
+                        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+                    ) {
+                        Text(tr(R.string.msg_326), fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                            color = com.applemusicktv.ui.theme.AppPalette.primary,
+                            modifier = Modifier.padding(horizontal = 28.dp, vertical = 12.dp))
+                    }
+                }
+            }
             return@FadeThrough
         }
         val wallArt = visibleWallArt

@@ -21,6 +21,9 @@ class PhoneLoginTest {
         val field = unsafeClass.getDeclaredField("theUnsafe").apply { isAccessible = true }
         val repo = unsafeClass.getMethod("allocateInstance", Class::class.java)
             .invoke(field.get(null), MusicRepository::class.java) as MusicRepository
+        val lx = com.applemusicktv.luoxue.LxPlayback(context, com.applemusicktv.data.AudioQualityPreferences(context))
+        val importer = com.applemusicktv.data.local.PlaylistImporter(okhttp3.OkHttpClient(),
+            com.applemusicktv.data.local.LocalLibraryStore(context, com.applemusicktv.data.di.NetworkModule.provideMoshi()))
         return InAppWebServer(context, MutPreferences(context), repo, LyricsOffsetPreferences(context),
             CrossfadePreferences(context), StandalonePreferences(context), ServerPreferences(context), BeatAnalyzer(), com.applemusicktv.data.auth.TokenVerifier { token ->
                 when {
@@ -28,7 +31,7 @@ class PhoneLoginTest {
                     token.startsWith("replacement-") || token.startsWith("phone-") -> com.applemusicktv.data.auth.TokenVerification.Valid
                     else -> com.applemusicktv.data.auth.TokenVerification.Invalid
                 }
-            })
+            }, lx, importer)
     }
 
     @Test fun tutorialPrecedesFormAndAllAdvancedControlsAreCollapsed() {

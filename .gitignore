@@ -32,3 +32,9 @@ app/gradle/gradle-daemon-jvm.properties.bak
 
 # 截图临时目录
 .shots/
+
+# local QA artifacts (adb 遥控器测试脚本与截图)
+/shots/
+/shot*.png
+tools/dpad.sh
+tools/uiinfo.py

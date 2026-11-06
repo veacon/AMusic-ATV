@@ -66,7 +66,7 @@ class AppleAuthorizationTest {
         }
         base.networkInterceptors.single().intercept(chain).close()
         // Exercise the actual fallback, which uses its own unauthenticated client.
-        val source=DirectLyricsSource(apple,prefs,base)
+        val source=DirectLyricsSource(apple,prefs,com.applemusicktv.data.datasource.ThirdPartyLyrics(),base)
         val fallback=OkHttpClient.Builder().addInterceptor {
             assertEquals("lrclib.net",it.request().url.host)
             assertNull(it.request().header("Authorization"));assertNull(it.request().header("Media-User-Token"))

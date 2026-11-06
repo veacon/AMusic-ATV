@@ -12,6 +12,22 @@ data class Candidate(
     var score: Int = 0,
 )
 
+/**
+ * 一次解析要用的音质策略（由设置页的 [com.applemusicktv.data.AudioQuality] 生成）。
+ *
+ * [ladder] 按偏好排列，解析时取第一个脚本确实支持的档位，失败再顺延一档；
+ * [minKbps] 是「完整曲目」的码率下限，用来挡掉 30 秒试听与假无损。
+ */
+data class QualityPlan(
+    val ladder: List<String>,
+    val minKbps: Int,
+) {
+    companion object {
+        /** 未配置时的默认：320k，退 128k。 */
+        val DEFAULT = QualityPlan(listOf("320k", "128k"), 96)
+    }
+}
+
 /** 解析出的可播放音频流。 */
 data class AudioStream(
     val url: String,

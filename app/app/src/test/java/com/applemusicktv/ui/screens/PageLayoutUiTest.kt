@@ -152,12 +152,8 @@ class PageLayoutUiTest {
     }
     @Test fun libraryOuterSidebarAndAllContentSectionsShareTheSettingsEnvelope() {
         val vm=blank(LibraryViewModel::class.java)
-        val account=com.applemusicktv.data.MutPreferences(org.robolectric.RuntimeEnvironment.getApplication()).also {it.setMUT("layout-fixture")}
-        set(vm,"mutPrefs",account);set(vm,"loadedAccount","layout-fixture")
-        val freshness=LibraryRefreshPolicy().also {policy->LibrarySection.entries.forEach(policy::succeeded)}
-        set(vm,"refreshPolicy",freshness)
         val songs=(0..7).map {Song("s$it","Song $it","Artist","",180000,null,null,null)}
-        val flow=MutableStateFlow(LibraryState(hasMut=true,songs=songs,sort=SortState(SortField.DEFAULT,SortDir.ASC),albums=listOf(Album("a","Library album","Artist",artworkUrl=null)),artists=listOf(Artist("r","Library artist",null))))
+        val flow=MutableStateFlow(LibraryState(songs=songs,sort=SortState(SortField.DEFAULT,SortDir.ASC),albums=listOf(Album("a","Library album","Artist",artworkUrl=null)),artists=listOf(Artist("r","Library artist",null))))
         set(vm,"_state",flow);set(vm,"state",flow)
         val pins=MutableStateFlow(emptySet<String>());set(vm,"_pinnedIds",pins);set(vm,"pinnedIds",pins)
         mount(960,600) {LibraryScreen(vm,player())}

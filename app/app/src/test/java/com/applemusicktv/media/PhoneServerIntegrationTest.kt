@@ -37,8 +37,11 @@ class PhoneServerIntegrationTest {
         val type = Class.forName("sun.misc.Unsafe")
         val unsafe = type.getDeclaredField("theUnsafe").apply { isAccessible = true }.get(null)
         val repo = type.getMethod("allocateInstance", Class::class.java).invoke(unsafe, MusicRepository::class.java) as MusicRepository
+        val lx = com.applemusicktv.luoxue.LxPlayback(context, com.applemusicktv.data.AudioQualityPreferences(context))
+        val importer = com.applemusicktv.data.local.PlaylistImporter(okhttp3.OkHttpClient(),
+            com.applemusicktv.data.local.LocalLibraryStore(context, com.applemusicktv.data.di.NetworkModule.provideMoshi()))
         return InAppWebServer(context, MutPreferences(context), repo, LyricsOffsetPreferences(context),
-            CrossfadePreferences(context), StandalonePreferences(context), ServerPreferences(context), BeatAnalyzer(), verifier)
+            CrossfadePreferences(context), StandalonePreferences(context), ServerPreferences(context), BeatAnalyzer(), verifier, lx, importer)
     }
 
     private fun awaitReady(server: InAppWebServer) = runBlocking {

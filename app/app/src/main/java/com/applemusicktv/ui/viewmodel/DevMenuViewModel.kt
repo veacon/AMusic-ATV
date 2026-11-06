@@ -46,6 +46,7 @@ data class DevMenuState(
     val cacheUsedBytes: Long = 0,
     val cacheBusy: Boolean = false,
     val cacheMessage: String = "",
+    val audioQuality: com.applemusicktv.data.AudioQuality = com.applemusicktv.data.AudioQuality.DEFAULT,
     val logs:           List<LogEntry> = emptyList(),
 )
 
@@ -60,6 +61,8 @@ class DevMenuViewModel @Inject constructor(
     private val crossfadePrefs: CrossfadePreferences,
     private val standalonePrefs: StandalonePreferences,
     private val beatAnalyzer: BeatAnalyzer,
+    private val lxPlayback: com.applemusicktv.luoxue.LxPlayback,
+    private val audioQualityPrefs: com.applemusicktv.data.AudioQualityPreferences,
 ) : ViewModel() {
 
     data class UpdateState(val phase: String = "idle", val info: com.applemusicktv.data.updates.UpdateInfo? = null,
@@ -109,8 +112,17 @@ class DevMenuViewModel @Inject constructor(
         crossfadeMs    = crossfadePrefs.getDuration(),
         beatLatencyMs  = beatAnalyzer.latencyMs,
         standaloneOn   = standalonePrefs.isEnabled(),
+        audioQuality   = audioQualityPrefs.get(),
     ))
     val state: StateFlow<DevMenuState> = _state
+
+    fun setAudioQuality(quality: com.applemusicktv.data.AudioQuality) {
+        lxPlayback.setQuality(quality)
+        _state.update { it.copy(audioQuality = audioQualityPrefs.get()) }
+        log("OK", "音质：" + audioQualityPrefs.get().key)
+    }
+
+    fun stepAudioQuality(direction: Int) = setAudioQuality(audioQualityPrefs.get().next(direction))
 
     init {
         viewModelScope.launch {
@@ -118,6 +130,9 @@ class DevMenuViewModel @Inject constructor(
         }
         viewModelScope.launch {
             mutPrefs.accountChanges.collect { _state.update { state -> state.copy(hasMUT = mutPrefs.hasMUT()) } }
+        }
+        viewModelScope.launch {
+            audioQualityPrefs.quality.collect { q -> _state.update { it.copy(audioQuality = q) } }
         }
         refresh()
         viewModelScope.launch {

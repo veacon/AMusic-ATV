@@ -38,6 +38,7 @@ import javax.inject.Singleton
 @Singleton
 class LxPlayback @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val qualityPrefs: com.applemusicktv.data.AudioQualityPreferences,
 ) {
 
     companion object {
@@ -100,6 +101,27 @@ class LxPlayback @Inject constructor(
 
     /** 脚本是否已成功初始化。 */
     fun isReady(): Boolean = initState == 1
+
+    // ── 音质 ────────────────────────────────────────────────────────────────
+
+    fun quality(): com.applemusicktv.data.AudioQuality = qualityPrefs.get()
+
+    /**
+     * 切档后必须清解析缓存：缓存里存的是按旧档位解出来的直链，
+     * 不清会让用户以为设置没生效（尤其从无损切回 320k）。
+     */
+    fun setQuality(quality: com.applemusicktv.data.AudioQuality): com.applemusicktv.data.AudioQuality {
+        if (quality != qualityPrefs.get()) {
+            qualityPrefs.set(quality)
+            synchronized(cache) { cache.clear() }
+            synchronized(inflight) { inflight.clear() }
+            log("音质切换为 ${quality.key}（档位 ${quality.ladder.joinToString("→")}）")
+        }
+        return qualityPrefs.get()
+    }
+
+    fun stepQuality(direction: Int): com.applemusicktv.data.AudioQuality =
+        setQuality(quality().next(direction))
 
     // ── 脚本初始化 ──────────────────────────────────────────────────────────
 
@@ -264,11 +286,13 @@ class LxPlayback @Inject constructor(
         if (!ensureReadyBlocking()) return null
         val r = resolver ?: return null
         val durationSec = (song.durationMs / 1000).toInt()
+        val q = qualityPrefs.get()
         val result = r.resolve(
             title = song.title,
             artist = song.artistName,
             album = song.albumName,
             durationSec = durationSec,
+            plan = QualityPlan(q.ladder, q.minKbps),
         ) { step -> log("${song.title} · $step") }
 
         val stream = result.stream
@@ -307,6 +331,7 @@ class LxPlayback @Inject constructor(
         val o = JSONObject()
         o.put("enabled", isEnabled())
         o.put("ready", isReady())
+        o.put("quality", qualityPrefs.get().key)
         o.put("hitRate", resolver?.hitRate() ?: "-")
         o.put("lastError", lastError ?: "")
         o.put("cached", synchronized(cache) { cache.size })

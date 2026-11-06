@@ -559,6 +559,11 @@ fun AppShell(modifier: Modifier = Modifier, onStartupReady: () -> Unit = {}) {
                         wallPlaybackReturn = wallPlaybackReturn,
                         onConsumeWallPlaybackReturn = { playerHandle[WALL_PLAYBACK_RETURN] = false },
                         onWallStateChanged = { playerHandle[PLAYER_IS_WALL] = it },
+                        onBrowse = {
+                            // 空播放页的出口：回到浏览 Tab（走和标签栏一样的路径，保留返回栈语义）。
+                            selectedTab = TopNavTab.Browse
+                            returnState.selectTab(TopNavTab.Browse)
+                        },
                     )
                 }
             }

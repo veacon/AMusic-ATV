@@ -29,7 +29,7 @@ class LyricsCancellationTest {
         val apple=AppleDirectClient()
         apple.javaClass.getDeclaredField("cachedBearer").apply {isAccessible=true}.set(apple,"fixture-no-network")
         val prefs=MutPreferences(RuntimeEnvironment.getApplication());prefs.setMUT("fixture")
-        val source=DirectLyricsSource(apple,prefs,http)
+        val source=DirectLyricsSource(apple,prefs,com.applemusicktv.data.datasource.ThirdPartyLyrics(),http)
         val fallback=OkHttpClient.Builder().addInterceptor {error("cancelled Apple request must not start public fallback")}.build()
         source.javaClass.getDeclaredField("publicHttp").apply {isAccessible=true}.set(source,fallback)
         try {

@@ -32,7 +32,7 @@ class LyricsStorefrontFallbackTest {
         val apple=AppleDirectClient()
         apple.javaClass.getDeclaredField("cachedBearer").apply { isAccessible=true }.set(apple,"fixture-no-network")
         val prefs=MutPreferences(RuntimeEnvironment.getApplication());prefs.setMUT("fixture")
-        val source=DirectLyricsSource(apple,prefs,client)
+        val source=DirectLyricsSource(apple,prefs,com.applemusicktv.data.datasource.ThirdPartyLyrics(),client)
         assertEquals(1,source.getLyrics("123","").size)
         assertEquals(1,source.getLyrics("456","jp").size)
         assertTrue(urls[0].contains("/catalog/cn/songs/123/"))

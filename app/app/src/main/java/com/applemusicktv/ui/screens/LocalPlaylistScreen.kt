@@ -95,6 +95,8 @@ fun LocalPlaylistScreen(
                 Spacer(Modifier.height(4.dp))
                 Surface(
                     onClick = { if (songs.isNotEmpty()) playerVm.playAlbum(songs, 0) },
+                    modifier = com.applemusicktv.ui.navigation.rememberDetailPlayEntryFocus(
+                        ready = songs.isNotEmpty(), loading = playlist == null),
                     shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = Color(0xFFFA233B),

@@ -242,7 +242,7 @@
     <string name="msg_239" formatted="false">"这会清除令牌、收藏和全部设置，并退出应用。"</string>
     <string name="msg_240" formatted="false">"重置"</string>
     <string name="msg_241" formatted="false">"手机配置网页"</string>
-    <string name="msg_242" formatted="false">"在同一网络配置账号与播放设置"</string>
+    <string name="msg_242" formatted="false">"在同一网络用手机导入歌单、调整播放设置"</string>
     <string name="msg_243" formatted="false">"连接 Wi-Fi 或网线后可访问配置网页。"</string>
     <string name="msg_244" formatted="false">"在手机浏览器打开此地址"</string>
     <string name="msg_245" formatted="false">"下载问题报告"</string>
@@ -330,4 +330,6 @@
     <string name="phone_setup_starting">"正在启动手机配置服务…"</string>
     <string name="phone_network_waiting">"正在获取局域网地址…"</string>
     <string name="fluid_quality_high">高画质</string>
+    <string name="msg_326" formatted="false">"去浏览音乐"</string>
+    <string name="msg_327" formatted="false">"导入歌单"</string>
 </resources>
