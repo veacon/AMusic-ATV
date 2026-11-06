@@ -240,6 +240,32 @@ class InAppWebServer @Inject constructor(
                 method == "GET"  && path == "/netlogs"     -> send(out, 200, "application/json", netLogsJson())
                 method == "GET"  && path == "/lx"          -> send(out, 200, "application/json", lx.statsJson())
                 method == "POST" && path == "/set-lx"      -> { applyLxEnabled(parseField(body, "lx")); redirect(out, "/") }
+                // 脚本管理：导入/删除/重载/回滚，全部走「落盘 → 热重载」，不用重装 APK。
+                method == "POST" && path == "/lx-import"   -> {
+                    val msg = applyLxImport(
+                        name = parseField(body, "name").trim(),
+                        url = parseField(body, "url").trim(),
+                        text = parseField(body, "text"),
+                    )
+                    if (query.getQueryParameter("json") == "1") {
+                        send(out, 200, "application/json", org.json.JSONObject().put("msg", msg).toString())
+                    } else redirect(out, "/")
+                }
+                method == "POST" && path == "/lx-delete"   -> {
+                    val msg = runCatching { kotlinx.coroutines.runBlocking { lx.deleteScript(parseField(body, "name")) } }
+                        .getOrElse { "删除失败：${it.message}" }
+                    addLog("LX", msg); redirect(out, "/")
+                }
+                method == "POST" && path == "/lx-reload"   -> {
+                    val msg = runCatching { kotlinx.coroutines.runBlocking { lx.forceReload() } }
+                        .getOrElse { "重载失败：${it.message}" }
+                    addLog("LX", msg); redirect(out, "/")
+                }
+                method == "POST" && path == "/lx-reset"    -> {
+                    val msg = runCatching { kotlinx.coroutines.runBlocking { lx.resetScripts() } }
+                        .getOrElse { "恢复失败：${it.message}" }
+                    addLog("LX", msg); redirect(out, "/")
+                }
                 method == "GET"  && path == "/report"      -> send(out, 200, "text/plain", bugReport(), "Content-Disposition: attachment; filename=\"amtv-bugreport.txt\"\r\n")
                 method == "POST" && path == "/clear-crash"        -> { com.applemusicktv.util.CrashReporter.clear(context); addLog("OK", "Crash log cleared"); redirect(out, "/") }
                 method == "POST" && path == "/set-token"          -> { val checked = applyToken(parseField(body, "mut").trim()); redirect(out, when (checked) {
@@ -283,6 +309,29 @@ class InAppWebServer @Inject constructor(
         val on = raw.trim() == "1" || raw.trim().equals("true", ignoreCase = true)
         lx.setEnabled(on)
         addLog("OK", "Luoxue audio source ${if (on) "ON" else "OFF"} — takes effect from the next song")
+    }
+
+    /** 导入脚本：优先用粘贴的文本，其次按 URL 下载；文件名缺省时从 URL 末段推断。 */
+    private fun applyLxImport(name: String, url: String, text: String): String {
+        val body = text.trim()
+        val fileName = when {
+            name.isNotBlank() -> if (name.endsWith(".js", true)) name else "$name.js"
+            url.isNotBlank() -> url.substringBefore('?').trimEnd('/').substringAfterLast('/')
+                .ifBlank { "imported.js" }.let { if (it.endsWith(".js", true)) it else "$it.js" }
+            else -> "imported-${System.currentTimeMillis() / 1000}.js"
+        }
+        val msg = try {
+            kotlinx.coroutines.runBlocking {
+                if (body.isNotEmpty()) lx.importScript(fileName, body) else if (url.isNotBlank()) {
+                    lx.importFromUrl(fileName, url)
+                } else "没有内容（文本和 URL 都是空的）"
+            }
+        } catch (e: Throwable) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            "导入失败：${e.message ?: e.javaClass.simpleName}"
+        }
+        addLog(if (msg.startsWith("导入失败")) "ERR" else "LX", msg)
+        return msg
     }
 
     private fun applyBackgroundPlay(raw: String) {
@@ -429,6 +478,7 @@ class InAppWebServer @Inject constructor(
             val cls = when { log.contains("✓") -> "g"; log.contains("✗") -> "r"; else -> "d" }
             "<div class=$cls>${log.replace("<","&lt;")}</div>"
         }.ifEmpty { "<div class=d>No requests yet.</div>" }
+        val lxCard = buildLxCard()
         val page = """<!DOCTYPE html><html lang="${if (language == "zh") "zh-CN" else "en"}"><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>Apple Music 音乐令牌</title><style>
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff;color:#1d1d1f;padding:32px 20px;max-width:620px;margin:auto;line-height:1.6}
@@ -654,6 +704,8 @@ ${if(has)"<form method=POST action=/clear-token><button class='btn btn-s' type=s
 <div style="font-size:10px;color:#555;margin-top:8px">下次启动应用时生效。</div>
 </div>
 
+@AMTV_LX_CARD@
+
 <div class=card>
 <h2>交叉渐变</h2>
 <div class=row><div class=label>当前时长</div><div class=sub2 style=color:#6e6e73>${crossfadeSec}s</div></div>
@@ -688,5 +740,64 @@ ${if(has)"<form method=POST action=/clear-token><button class='btn btn-s' type=s
 </body></html>"""
         return com.applemusicktv.i18n.PhonePage.render(context, page, language)
             .replace("@AMTV_NETWORK_LOGS@", netRows).replace("@AMTV_APP_LOGS@", logRows)
+            .replace("@AMTV_LX_CARD@", lxCard)
     }
+
+    /** 设置页的「落雪音源」卡片：开关 + 脚本清单 + 导入/重载/回滚。 */
+    private fun buildLxCard(): String {
+        val inputStyle = "width:100%;background:#e8e8ed;border:1.5px solid #d2d2d7;border-radius:8px;" +
+            "color:#1d1d1f;font-family:monospace;font-size:13px;padding:10px;outline:none;margin-top:8px"
+        val views = runCatching { lx.scriptViews() }.getOrDefault(emptyList())
+        val on = runCatching { lx.isEnabled() }.getOrDefault(false)
+        val loaded = runCatching { lx.loadedCount() }.getOrDefault(0)
+        val hit = runCatching { lx.hitRate() }.getOrDefault("-")
+        val cache = runCatching { lx.cacheSize() }.getOrDefault(0)
+        val err = runCatching { lx.lastErrorText() }.getOrNull()
+        val rows = views.joinToString("") { v ->
+            val tag = if (v.origin == "asset") "随包" else "已导入"
+            val color = when {
+                v.loaded -> "#248a3d"
+                v.origin == "user" -> "#b22222"
+                else -> "#6e6e73"
+            }
+            val del = if (v.origin == "user") {
+                "<form method=POST action=/lx-delete style=margin:0;flex-shrink:0>" +
+                    "<input type=hidden name=name value=\"${esc(v.file)}\">" +
+                    "<button class=rbtn type=submit>删除</button></form>"
+            } else ""
+            "<div class=row style=\"margin-bottom:8px;align-items:flex-start\">" +
+                "<div style=\"flex:1;min-width:0\">" +
+                "<div class=label style=\"word-break:break-all\">${esc(v.file)}</div>" +
+                "<div class=sub2 style=\"color:$color\">$tag · ${if (v.loaded) "已加载" else "未加载"} · ${v.size / 1024}KB</div>" +
+                "</div>$del</div>"
+        }.ifEmpty { "<div class=sub2>目录为空，点「恢复随包」重新落地。</div>" }
+        return buildString {
+            append("<div class=card><h2>落雪音源</h2>")
+            append("<div class=row><div class=\"dot ${if (on) "dot-g" else "dot-r"}\"></div>")
+            append("<div class=label>${if (on) "已开启，播放优先走音源直链" else "已关闭，走 Apple 直链/代理"}</div></div>")
+            append("<div class=sub2>脚本 $loaded 个 · 命中率 $hit · 缓存 $cache 首")
+            if (!err.isNullOrBlank()) append(" · 最近失败：${esc(err)}")
+            append("</div>")
+            append("<form method=POST action=/set-lx style=margin-top:10px>")
+            append("<input type=hidden name=lx value=\"${if (on) "0" else "1"}\">")
+            append("<button class=\"btn ${if (on) "" else "btn-p"}\" type=submit>${if (on) "关闭音源" else "开启音源"}</button></form>")
+            append("<div style=\"margin-top:14px;font-size:13px;font-weight:600\">脚本列表</div>")
+            append(rows)
+            append("<div style=\"display:flex;gap:8px;margin-top:10px\">")
+            append("<form method=POST action=/lx-reload style=\"flex:1;margin:0\">")
+            append("<button class=\"btn btn-s\" type=submit style=margin:0>重载脚本</button></form>")
+            append("<form method=POST action=/lx-reset style=\"flex:1;margin:0\">")
+            append("<button class=\"btn btn-s\" type=submit style=margin:0>恢复随包</button></form></div>")
+            append("<form method=POST action=/lx-import style=margin-top:14px>")
+            append("<input name=name style=\"$inputStyle\" placeholder=\"文件名，如 my.js（可留空）\">")
+            append("<input name=url style=\"$inputStyle\" placeholder=\"脚本 URL（与下面内容二选一）\">")
+            append("<textarea name=text style=margin-top:8px;min-height:90px\" placeholder=\"或直接粘贴脚本全文\"></textarea>")
+            append("<button class=\"btn btn-p\" type=submit style=margin-top:8px>导入并热重载</button></form>")
+            append("<div style=\"font-size:10px;color:#555;margin-top:8px\">导入的脚本优先于随包版本，APK 升级不会覆盖；「恢复随包」会清空全部本地脚本。换脚本后当前播放保持，下一首生效。</div>")
+            append("</div>")
+        }
+    }
+
+    private fun esc(s: String): String = s
+        .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
 }

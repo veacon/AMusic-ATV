@@ -44,7 +44,6 @@ class LxPlayback @Inject constructor(
         /** 直链实测 TTL ≈21 分钟，留足余量。 */
         private const val CACHE_TTL_MS = 12 * 60_000L
         private const val CACHE_MAX = 24
-        private const val SCRIPT_DIR = "luoxue"
     }
 
     private val http: OkHttpClient by lazy {
@@ -62,6 +61,7 @@ class LxPlayback @Inject constructor(
 
     private val search by lazy { PlatformSearch(http) }
     private val verifier by lazy { StreamVerifier(http) }
+    private val store by lazy { LxScriptStore(context) }
     private val engines = mutableListOf<LxScriptEngine>()
     @Volatile private var resolver: AudioResolver? = null
 
@@ -115,8 +115,11 @@ class LxPlayback @Inject constructor(
             lastInitAttempt = System.currentTimeMillis()
             engines.forEach { runCatching { it.close() } }
             engines.clear()
-            val dir = File(context.filesDir, SCRIPT_DIR).apply { mkdirs() }
-            runCatching { seedScripts(dir) }
+            // 先把 assets 同步到 filesDir（能感知 APK 升级后脚本更新），
+            // 再按目录里的文件启动——目录即事实来源，用户导入的直接生效。
+            val synced = runCatching { store.syncFromAssets() }.getOrDefault(emptyList())
+            if (synced.isNotEmpty()) log("脚本同步 ${synced.size} 个：${synced.joinToString()}")
+            val dir = store.dir()
             val files = dir.listFiles { f -> f.isFile && f.name.endsWith(".js", true) }?.sortedBy { it.name }
             if (files.isNullOrEmpty()) {
                 initState = 2
@@ -149,18 +152,58 @@ class LxPlayback @Inject constructor(
         }
     }
 
-    /** 只在目标不存在时落地，避免覆盖用户热更新的脚本。 */
-    private fun seedScripts(dir: File) {
-        val names = context.assets.list(SCRIPT_DIR) ?: return
-        for (name in names) {
-            val target = File(dir, name)
-            if (target.exists() && target.length() > 0) continue
-            runCatching {
-                context.assets.open("$SCRIPT_DIR/$name").use { input ->
-                    target.outputStream().use { input.copyTo(it) }
-                }
-            }
+    /** 脚本重载：关引擎、清缓存，下一次解析时重建（脚本换掉不用重装 APK）。 */
+    fun reload(reason: String) {
+        synchronized(initLock) {
+            engines.forEach { runCatching { it.close() } }
+            engines.clear()
+            resolver = null
+            synchronized(cache) { cache.clear() }
+            synchronized(inflight) { inflight.clear() }
+            initState = 0
+            lastInitAttempt = 0
         }
+        log("脚本重载：$reason")
+    }
+
+    /** 手动重载：重建引擎并返回结果（设置页「重载脚本」用它，避免只清不建）。 */
+    suspend fun forceReload(): String = withContext(Dispatchers.IO) {
+        reload("手动重载")
+        val ok = ensureReadyBlocking()
+        "已重载：${engines.size} 个脚本${if (ok) "" else "（初始化失败，见日志）"}"
+    }
+
+    /** 导入脚本（文本或已下载内容），成功后热重载。 */
+    suspend fun importScript(name: String, text: String): String = withContext(Dispatchers.IO) {
+        val f = store.import(name, text)
+        reload("导入 ${f.name}")
+        val ok = ensureReadyBlocking()
+        if (ok) "已导入 ${f.name}（${f.length()}B），引擎已重建" else "已导入 ${f.name}，但引擎初始化失败"
+    }
+
+    suspend fun deleteScript(name: String): String = withContext(Dispatchers.IO) {
+        val ok = store.delete(name)
+        if (!ok) return@withContext "未找到 $name"
+        reload("删除 $name")
+        ensureReadyBlocking()
+        "已删除 $name"
+    }
+
+    suspend fun resetScripts(): String = withContext(Dispatchers.IO) {
+        val n = store.resetToAssets()
+        reload("恢复随包脚本（清理 $n 个）")
+        val ok = ensureReadyBlocking()
+        "已清理 $n 个本地脚本，恢复为随包版本${if (ok) "" else "（引擎未就绪）"}"
+    }
+
+    /** 从 URL 拉脚本并导入（自用场景：音源作者发新脚本，直接贴链接）。 */
+    suspend fun importFromUrl(name: String, url: String): String = withContext(Dispatchers.IO) {
+        val req = okhttp3.Request.Builder().url(url).build()
+        val body = http.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) error("HTTP ${resp.code}")
+            resp.body?.string() ?: error("空响应")
+        }
+        importScript(name, body)
     }
 
     // ── 解析 ────────────────────────────────────────────────────────────────
@@ -245,6 +288,21 @@ class LxPlayback @Inject constructor(
 
     // ── 诊断 ────────────────────────────────────────────────────────────────
 
+    /** 给设置页用的一行脚本视图（origin=asset 表示随包且未改动）。 */
+    data class ScriptView(val file: String, val origin: String, val loaded: Boolean, val size: Long)
+
+    fun scriptViews(): List<ScriptView> {
+        val loaded = engines.map { it.fileName }.toSet()
+        return runCatching { store.list() }.getOrDefault(emptyList())
+            .map { ScriptView(it.name, it.origin, it.name in loaded, it.size) }
+    }
+
+    fun loadedCount(): Int = engines.size
+    fun hitRate(): String = resolver?.hitRate() ?: "-"
+    fun lastErrorText(): String? = lastError
+    fun cacheSize(): Int = synchronized(cache) { cache.size }
+    fun scriptDir(): String = runCatching { store.dir().absolutePath }.getOrDefault("-")
+
     fun statsJson(): String {
         val o = JSONObject()
         o.put("enabled", isEnabled())
@@ -266,6 +324,20 @@ class LxPlayback @Inject constructor(
             )
         }
         o.put("engines", arr)
+        // 脚本仓库视角：目录里有什么、谁托管的、有没有真正加载成功。
+        val loaded = engines.map { it.fileName }.toSet()
+        val scripts = JSONArray()
+        for (s in store.list()) {
+            scripts.put(
+                JSONObject()
+                    .put("file", s.name)
+                    .put("origin", s.origin)
+                    .put("size", s.size)
+                    .put("loaded", s.name in loaded)
+            )
+        }
+        o.put("scripts", scripts)
+        o.put("dir", store.dir().absolutePath)
         return o.toString()
     }
 

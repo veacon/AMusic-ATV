@@ -29,3 +29,6 @@ app/.kotlin/
 # 本机 SDK 路径，不入库
 app/local.properties
 app/gradle/gradle-daemon-jvm.properties.bak
+
+# 截图临时目录
+.shots/

@@ -16,8 +16,11 @@
 |---|---|
 | 可行性分析（架构/接口/鉴权/版权/技术五维 + 模块处置清单） | ✅ 完成 → `落雪音源改造可行性分析.md` |
 | P0 探针（15 个脚本实测、命中率、真实码率） | ✅ 完成 → `probe/P0-实测报告.md` |
-| 垂直切片 PoC（QuickJS + 搜索匹配 + 直链播放） | ✅ 代码完成，**APK 编译通过**，真机待验证 |
-| P1 接入主播放链路 | ⬜ 未开始 |
+| 垂直切片 PoC（QuickJS + 搜索匹配 + 直链播放） | ✅ 完成（模拟器实测命中 320kbps） |
+| P1 接入主播放链路（播放/跨淡/过期重解析） | ✅ 完成 |
+| P1.5 音源选型（44 条候选实测） | ✅ 完成 → `probe/音源跑测报告.md` |
+| P1.6 脚本管理（导入/热重载/回滚） | ✅ 完成（设置页「落雪音源」卡片） |
+| P2 体验收尾（解析态提示、音质选择、登录后主链路验证） | ⬜ 待做 |
 
 ### P0 关键结论（决定架构的三条）
 
@@ -39,9 +42,12 @@ app/                       Android 工程（从上游 android/ 复制而来，�
       StreamVerifier.kt      Range 探测真实容器/码率（识别"假无损"）
       LxScriptEngine.kt      QuickJS 宿主 + lx 协议 shim（request/timer/buffer/crypto）
       AudioResolver.kt       搜索→匹配→脚本级联→校验 编排
+      LxPlayback.kt          单例：脚本生命周期 / 解析缓存 / 预取 / 重载
+      LxScriptStore.kt       脚本仓库：assets 同步、导入、回滚（filesDir/luoxue）
+      LxBench.kt             批量跑测器（--ez bench true）
       LxPocActivity.kt       独立入口（桌面图标 "LX PoC"）
-    （其余为上游原有：ui/ data/ media/ widevine 等，P1 再清理）
-  app/src/main/assets/luoxue/  随包脚本 S14 / S3 / S13
+    （其余为上游原有：ui/ data/ media/ widevine 等，P2 再清理）
+  app/src/main/assets/luoxue/  随包脚本 kulao / hyw / fish / xinghai（4 条实测最优）
   app/src/test/java/com/applemusicktv/luoxue/TrackMatcherTest.kt
 
 probe/                     P0 探针工具链（Node，可复跑）
@@ -91,20 +97,41 @@ adb logcat -s LxPoc:*
 
 ---
 
-## 下一步（P1）
+## 脚本管理（P1.6）
 
-1. `MusicRepository.streamUrl()` → `AudioResolver.resolve()`（同步转异步，6 处调用点）
-2. `PlayerViewModel.playQueueItem` 增加：解析中 / 换源 / 直链过期重连
-3. `prefetchSong` 改为预解析（跨淡需提前 5s 拿到直链）
-4. 删除 DRM 三条分支与页面（`media/widevine/*`、MV、电台、解密相关测试）
-5. 设置页改为「音源管理 / 音质优先 / 命中率诊断」
+设置页（登录页提示的 `http://<设备IP>:8080`）新增「落雪音源」卡片：
+
+- **开关**：临时回到 Apple 直链/代理，不卸载 APK。
+- **脚本列表**：文件名 + `随包 / 已导入` + 是否加载成功 + 大小；导入的脚本可单独删除。
+- **导入并热重载**：贴 URL 或粘全文，落盘到 `files/luoxue/` 后立即重建引擎，下一首生效。
+- **重载脚本**：手改过 `files/luoxue/*.js`（adb push）后点一下即可，不必重启 App。
+- **恢复随包**：清空本地脚本，回到 APK 内置的 4 条。
+
+同步规则（`LxScriptStore`，manifest 记 `name -> assets 哈希`）：
+
+| 本地状态 | 行为 |
+|---|---|
+| 文件不存在 | 从 assets 落盘 |
+| 与 assets 一致，assets 已更新（装了新 APK） | **覆盖** ← 旧实现缺失，导致换脚本必须重装 |
+| 内容与记录不符（用户导入/手改） | 保留，摘出托管名单，升级 APK 不覆盖 |
+| assets 里已删掉的随包脚本 | 本地副本一并删除 |
+
+## 下一步（P2）
+
+1. **登录后主链路验证**：目前端到端验证都走 `LxPocActivity`，真机上「浏览→点歌→播放」还需一次带 token 的实测。
+2. 播放器内「解析中 / 已换源」提示：现在解析要 3–20s，界面只有转圈，用户不知道在换源。
+3. 音质优先设置：`AudioResolver.LADDER` 现在写死 `320k` 起，应暴露给设置页（FLAC 优先 / 省流 128k）。
+4. 清理 DRM 三条分支（`media/widevine/*`、MV、电台）：主链路已不走 Apple 解密，留着只是编译负担。
+5. 首曲提速：脚本预热已在 `Application.startMainServices()` 触发，但 PoC 入口没有；可把预热下沉到 Application.onCreate。
 
 ## 已知问题
 
-- 酷我(kw)、咪咕(mg) 未覆盖（酷我搜索需 csrf/cookie，咪咕无公开搜索）
-- 直链 TTL ≈ 21 分钟，暂停久后 seek 会 403，需"报错重解析"
-- 跨语言曲名（Apple `Wayfarer` vs 平台《山海》）只能靠"艺人+时长"兜底
-- 脚本随时失效（15 个里 6 个已死），必须支持在线导入与热更新
+- 酷我(kw)、咪咕(mg) 未覆盖（酷我搜索需 csrf/cookie，咪咕无公开搜索）。
+- tx（QQ 音乐）直链多为 28–38kbps 试听片段，被 `StreamVerifier` 的 200kbps 门槛挡掉，实际覆盖靠 wy/kg。
+- 直链 TTL ≈ 21 分钟，暂停久后 seek 会 403 → 已实现"报错重解析"（每首一次）。
+- 跨语言曲名（Apple `Wayfarer` vs 平台《山海》）只能靠"艺人+时长"兜底。
+- 部分脚本 resolve 后残留定时器，`evaluate` 等不到空闲 → 超时后 `interruptEvaluation()` 兜底。
+- 构建环境：上游 `gradle/gradle-daemon-jvm.properties` 要求 JDK 21，本机只有 17，该文件已移除（JDK 17 可正常构建）。换机器需补 `app/local.properties` 的 `sdk.dir`。
 
 ---
 
