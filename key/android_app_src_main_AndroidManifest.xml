@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <application
+        android:name=".AppleMusicApp"
+        android:allowBackup="false"
+        android:label="Apple Music TV"
+        android:icon="@mipmap/ic_launcher"
+        android:banner="@drawable/banner"
+        android:theme="@style/Theme.AppleMusicTV"
+        android:usesCleartextTraffic="true">
+
+        <provider android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.updates" android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/update_file_paths" />
+        </provider>
+
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.AppleMusicTV.Launch"
+            android:exported="true"
+            android:banner="@drawable/banner"
+            android:screenOrientation="fullUser"
+            android:resizeableActivity="true"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:launchMode="singleTask">
+        </activity>
+
+        <activity-alias android:name=".RedLauncher" android:targetActivity=".MainActivity"
+            android:enabled="true" android:exported="true" android:label="Apple Music TV" android:icon="@mipmap/ic_launcher">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias android:name=".WhiteLauncher" android:targetActivity=".MainActivity"
+            android:enabled="false" android:exported="true" android:label="Apple Music TV" android:icon="@mipmap/ic_launcher_white">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+
+
+
+        <!-- Removed AppleMusicPlaybackService: it was a redundant MediaSessionService with a dummy
+             idle ExoPlayer. Real playback + its MediaSession live in PlayerViewModel; media buttons
+             route through that session and MainActivity.dispatchKeyEvent. The system could start this
+             service foreground (media controls / Bluetooth) while its dummy player was idle, so Media3
+             never called startForeground() within 5s → RemoteServiceException killed the whole app
+             (crash seen especially around video playback, where the audio player is paused). -->
+    </application>
+</manifest>

@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="msg_000" formatted="false">"Pause"</string>
+    <string name="msg_001" formatted="false">"Play"</string>
+    <string name="msg_002" formatted="false">"Account verification is required. Update your token on the setup page shown on your TV."</string>
+    <string name="msg_003" formatted="false">"Preview playback. Add your user token in Settings → Phone setup page."</string>
+    <string name="msg_004" formatted="false">"Off"</string>
+    <string name="msg_005" formatted="false">"Static"</string>
+    <string name="msg_006" formatted="false">"Smooth"</string>
+    <string name="msg_007" formatted="false">"Standard"</string>
+    <string name="msg_008" formatted="false">"Could not load songs. Check your Apple Music authorization and try again."</string>
+    <string name="msg_009" formatted="false">"Could not load content (HTTP %1$s). Try again."</string>
+    <string name="msg_010" formatted="false">"Could not load content. Check your connection and try again."</string>
+    <string name="msg_011" formatted="false">"Could not load content. Try again later."</string>
+    <string name="msg_012" formatted="false">"Dynamic"</string>
+    <string name="msg_013" formatted="false">"Projector"</string>
+    <string name="msg_014" formatted="false">"Black"</string>
+    <string name="msg_015" formatted="false">"HDMI / TV"</string>
+    <string name="msg_016" formatted="false">"Device memory is running low. Playback may stutter."</string>
+    <string name="msg_017" formatted="false">"Bluetooth"</string>
+    <string name="msg_018" formatted="false">"Live radio has stopped. Open the station again."</string>
+    <string name="msg_019" formatted="false">"“%1$s” is no longer available."</string>
+    <string name="msg_020" formatted="false">"Could not play “%1$s”. Skipped."</string>
+    <string name="msg_021" formatted="false">"Cannot connect to the server"</string>
+    <string name="msg_022" formatted="false">"Local playback is unavailable. Switched to the server."</string>
+    <string name="msg_023" formatted="false">"Local playback failed. Using the server."</string>
+    <string name="msg_024" formatted="false">"Apple Music service authorization is temporarily unavailable. Try again later."</string>
+    <string name="msg_025" formatted="false">"Disconnected from the server"</string>
+    <string name="msg_026" formatted="false">"Server connection restored"</string>
+    <string name="msg_027" formatted="false">"Could not load playback resources for “%1$s”. Try again later."</string>
+    <string name="msg_028" formatted="false">"Added “%1$s” to your library"</string>
+    <string name="msg_029" formatted="false">"Could not add to your library"</string>
+    <string name="msg_030" formatted="false">"Added to “%1$s”"</string>
+    <string name="msg_031" formatted="false">"Could not add to the playlist"</string>
+    <string name="msg_032" formatted="false">"Could not start the station. Try again later."</string>
+    <string name="msg_033" formatted="false">"%1$s Radio"</string>
+    <string name="msg_034" formatted="false">"Could not create a station for “%1$s”"</string>
+    <string name="msg_035" formatted="false">"Creating a station for “%1$s”"</string>
+    <string name="msg_036" formatted="false">"Internet radio"</string>
+    <string name="msg_037" formatted="false">"Could not prepare local playback resources"</string>
+    <string name="msg_038" formatted="false">"Apple Music alerts"</string>
+    <string name="msg_039" formatted="false">"Account and service alerts"</string>
+    <string name="msg_040" formatted="false">"Apple service issue: %1$s"</string>
+    <string name="msg_041" formatted="false">"Apple Music service issue"</string>
+    <string name="msg_042" formatted="false">"Some features may be affected by an upstream service issue (%1$s)."</string>
+    <string name="msg_043" formatted="false">"Verify your Apple Music account"</string>
+    <string name="msg_044" formatted="false">"Apple Music did not accept your authorization. Visit %1$s to verify or update it."</string>
+    <string name="msg_045" formatted="false">"Cleanup complete. Files in use were kept."</string>
+    <string name="msg_046" formatted="false">"Could not finish the cache operation. Try again."</string>
+    <string name="msg_047" formatted="false">"No computer proxy configured. Using local mode."</string>
+    <string name="msg_048" formatted="false">"Refreshing status…"</string>
+    <string name="msg_049" formatted="false">"User token: %1$s"</string>
+    <string name="msg_050" formatted="false">"Configured"</string>
+    <string name="msg_051" formatted="false">"Not configured"</string>
+    <string name="msg_052" formatted="false">"Developer token: %1$s"</string>
+    <string name="msg_053" formatted="false">"Available"</string>
+    <string name="msg_054" formatted="false">"Not ready"</string>
+    <string name="msg_055" formatted="false">"Server unavailable. Using local mode; user token: %1$s"</string>
+    <string name="msg_056" formatted="false">"Checking the server again…"</string>
+    <string name="msg_057" formatted="false">"Computer server address cleared. Using local mode."</string>
+    <string name="msg_058" formatted="false">"Computer server set to %1$s → %2$s"</string>
+    <string name="msg_059" formatted="false">"Saving user token (%1$s characters)…"</string>
+    <string name="msg_060" formatted="false">"Token saved. Your library and full playback are available."</string>
+    <string name="msg_061" formatted="false">"Failed: %1$s"</string>
+    <string name="msg_062" formatted="false">"Token cleared"</string>
+    <string name="msg_063" formatted="false">"Failed"</string>
+    <string name="msg_064" formatted="false">"Crossfade set to %1$s seconds. Applies to the next song."</string>
+    <string name="msg_065" formatted="false">"Local playback %1$s. Applies to the next song."</string>
+    <string name="msg_066" formatted="false">"Enabled"</string>
+    <string name="msg_067" formatted="false">"Disabled"</string>
+    <string name="msg_068" formatted="false">"Songs"</string>
+    <string name="msg_069" formatted="false">"Playlists"</string>
+    <string name="msg_070" formatted="false">"Albums"</string>
+    <string name="msg_071" formatted="false">"Artists"</string>
+    <string name="msg_072" formatted="false">"Search failed. Try again."</string>
+    <string name="msg_073" formatted="false">"Search results"</string>
+    <string name="msg_074" formatted="false">"Sequential"</string>
+    <string name="msg_075" formatted="false">"Repeat all"</string>
+    <string name="msg_076" formatted="false">"Repeat one"</string>
+    <string name="msg_077" formatted="false">"Shuffle"</string>
+    <string name="msg_078" formatted="false">"Token verification failed. Update it on your phone."</string>
+    <string name="msg_079" formatted="false">"Cannot verify right now. Check your connection and try again."</string>
+    <string name="msg_080" formatted="false">"Sign in first"</string>
+    <string name="msg_081" formatted="false">"Could not load the video"</string>
+    <string name="msg_082" formatted="false">"The display connection does not support HDCP. Switched to %1$sp."</string>
+    <string name="msg_083" formatted="false">"Playback failed"</string>
+    <string name="msg_084" formatted="false">"Subtitles"</string>
+    <string name="msg_085" formatted="false">"Audio track %1$s"</string>
+    <string name="msg_086" formatted="false">"Now Playing"</string>
+    <string name="msg_087" formatted="false">"Listen Now"</string>
+    <string name="msg_088" formatted="false">"Browse"</string>
+    <string name="msg_089" formatted="false">"Library"</string>
+    <string name="msg_090" formatted="false">"Search"</string>
+    <string name="msg_091" formatted="false">"Could not load this genre"</string>
+    <string name="msg_092" formatted="false">"No content available"</string>
+    <string name="msg_093" formatted="false">"No lyrics available"</string>
+    <string name="msg_094" formatted="false">"Could not start the station. Try again."</string>
+    <string name="msg_095" formatted="false">"Starting station…"</string>
+    <string name="msg_096" formatted="false">"Something went wrong: %1$s"</string>
+    <string name="msg_097" formatted="false">"Top Songs"</string>
+    <string name="msg_098" formatted="false">"Shuffle"</string>
+    <string name="msg_099" formatted="false">"Artist Radio"</string>
+    <string name="msg_100" formatted="false">"Music Videos"</string>
+    <string name="msg_101" formatted="false">"Latest Release"</string>
+    <string name="msg_102" formatted="false">"Featured"</string>
+    <string name="msg_103" formatted="false">"Similar Artists"</string>
+    <string name="msg_104" formatted="false">"Cannot play this video"</string>
+    <string name="msg_105" formatted="false">"Audio"</string>
+    <string name="msg_106" formatted="false">"Up Next"</string>
+    <string name="msg_107" formatted="false">"Quality"</string>
+    <string name="msg_108" formatted="false">"Radio"</string>
+    <string name="msg_109" formatted="false">"Search stations…"</string>
+    <string name="msg_110" formatted="false">"Popular"</string>
+    <string name="msg_111" formatted="false">"Country or region…"</string>
+    <string name="msg_112" formatted="false">"Showing: %1$s"</string>
+    <string name="msg_113" formatted="false">"No stations found"</string>
+    <string name="msg_114" formatted="false">"Date-added order is not available yet. Showing the default library order."</string>
+    <string name="msg_115" formatted="false">"Playlist order"</string>
+    <string name="msg_116" formatted="false">"Name"</string>
+    <string name="msg_117" formatted="false">"Date Added"</string>
+    <string name="msg_118" formatted="false">"Title"</string>
+    <string name="msg_119" formatted="false">"Sort"</string>
+    <string name="msg_120" formatted="false">"Descending"</string>
+    <string name="msg_121" formatted="false">"Ascending"</string>
+    <string name="msg_122" formatted="false">"Sort library"</string>
+    <string name="msg_123" formatted="false">"Sort by"</string>
+    <string name="msg_124" formatted="false">"No playlists"</string>
+    <string name="msg_125" formatted="false">"No albums"</string>
+    <string name="msg_126" formatted="false">"No artists"</string>
+    <string name="msg_127" formatted="false">"No songs"</string>
+    <string name="msg_128" formatted="false">"Play Next"</string>
+    <string name="msg_129" formatted="false">"Add to Queue"</string>
+    <string name="msg_130" formatted="false">"Add to Library"</string>
+    <string name="msg_131" formatted="false">"Add to Playlist"</string>
+    <string name="msg_132" formatted="false">"Go to Artist"</string>
+    <string name="msg_133" formatted="false">"Go to Album"</string>
+    <string name="msg_134" formatted="false">"No Apple Music user token configured"</string>
+    <string name="msg_135" formatted="false">"Open Settings and add your token using the phone setup page."</string>
+    <string name="msg_136" formatted="false">"No editable playlists"</string>
+    <string name="msg_137" formatted="false">"Loading…"</string>
+    <string name="msg_138" formatted="false">"Try Again"</string>
+    <string name="msg_139" formatted="false">"More"</string>
+    <string name="msg_140" formatted="false">"Lyrics options"</string>
+    <string name="msg_141" formatted="false">"Show Lyrics"</string>
+    <string name="msg_142" formatted="false">"Hide Lyrics"</string>
+    <string name="msg_143" formatted="false">"Full Screen Lyrics"</string>
+    <string name="msg_144" formatted="false">"Playback mode: %1$s"</string>
+    <string name="msg_145" formatted="false">"Favorite: add to library"</string>
+    <string name="msg_146" formatted="false">"%1$s songs"</string>
+    <string name="msg_147" formatted="false">"Create Station"</string>
+    <string name="msg_148" formatted="false">"Add to…"</string>
+    <string name="msg_149" formatted="false">"Default"</string>
+    <string name="msg_150" formatted="false">"No content available. Add your Apple Music user token first."</string>
+    <string name="msg_151" formatted="false">"Top Picks for You"</string>
+    <string name="msg_152" formatted="false">"Artists, albums, songs…"</string>
+    <string name="msg_153" formatted="false">"Search · Select to type…"</string>
+    <string name="msg_154" formatted="false">"Top Result"</string>
+    <string name="msg_155" formatted="false">"Categories"</string>
+    <string name="msg_156" formatted="false">"No matching songs, albums, or artists"</string>
+    <string name="msg_157" formatted="false">"Recent"</string>
+    <string name="msg_158" formatted="false">"Clear"</string>
+    <string name="msg_159" formatted="false">"Explore More"</string>
+    <string name="msg_160" formatted="false">"Behind the Songs"</string>
+    <string name="msg_161" formatted="false">"Charts"</string>
+    <string name="msg_162" formatted="false">"Browse by Genre"</string>
+    <string name="msg_163" formatted="false">"Moods &amp; Activities"</string>
+    <string name="msg_164" formatted="false">"Decades"</string>
+    <string name="msg_165" formatted="false">"Enter a search term to search Apple Music"</string>
+    <string name="msg_166" formatted="false">"Could not load this category."</string>
+    <string name="msg_167" formatted="false">"No content available in this category"</string>
+    <string name="msg_168" formatted="false">"Sign In"</string>
+    <string name="msg_169" formatted="false">"Sign in by adding your Apple Music user token on your phone."</string>
+    <string name="msg_170" formatted="false">"Connect your phone and TV to the same local network.\nThe TV can use Wi-Fi or Ethernet. Scan the QR code or open:"</string>
+    <string name="msg_171" formatted="false">"No browser is available to open this link."</string>
+    <string name="msg_172" formatted="false">"Connect using Wi-Fi or Ethernet to see the sign-in address."</string>
+    <string name="msg_173" formatted="false">"Verifying account authorization…"</string>
+    <string name="msg_174" formatted="false">"Ready to sign in. Select Start Listening below."</string>
+    <string name="msg_175" formatted="false">"After saving your token on your phone, return here to start listening."</string>
+    <string name="msg_176" formatted="false">"Start Listening"</string>
+    <string name="msg_177" formatted="false">"Verify Later and Continue"</string>
+    <string name="msg_178" formatted="false">"Skip and Preview"</string>
+    <string name="msg_179" formatted="false">"Without a token, playback is limited to 30-second previews."</string>
+    <string name="msg_180" formatted="false">"Waiting for a local network"</string>
+    <string name="msg_181" formatted="false">"Scan with your phone to sign in"</string>
+    <string name="msg_182" formatted="false">"Settings"</string>
+    <string name="msg_183" formatted="false">"Playback, display, and device connections"</string>
+    <string name="msg_184" formatted="false">"Sign In to Apple Music"</string>
+    <string name="msg_185" formatted="false">"Set up your account on your phone to enjoy full songs."</string>
+    <string name="msg_186" formatted="false">"App Icon"</string>
+    <string name="msg_187" formatted="false">"Crossfade"</string>
+    <string name="msg_188" formatted="false">"%.1f s"</string>
+    <string name="msg_189" formatted="false">"Overlap the end of one song with the start of the next."</string>
+    <string name="msg_190" formatted="false">"Local Playback"</string>
+    <string name="msg_191" formatted="false">"Decode on this device, without a computer."</string>
+    <string name="msg_192" formatted="false">"Play through the computer server."</string>
+    <string name="msg_193" formatted="false">"Volume Leveling"</string>
+    <string name="msg_194" formatted="false">"Balance loudness between songs."</string>
+    <string name="msg_195" formatted="false">"Background Playback"</string>
+    <string name="msg_196" formatted="false">"Continue playing when you leave the app."</string>
+    <string name="msg_197" formatted="false">"Player Appearance"</string>
+    <string name="msg_198" formatted="false">"Fluid Background"</string>
+    <string name="msg_199" formatted="false">"Off, Static, Smooth, Standard, High quality"</string>
+    <string name="msg_200" formatted="false">"Lyrics Size"</string>
+    <string name="msg_201" formatted="false">"Adjust the size of lyric text."</string>
+    <string name="msg_202" formatted="false">"Animated Artwork"</string>
+    <string name="msg_203" formatted="false">"Play album artwork animations when available."</string>
+    <string name="msg_204" formatted="false">"Rounded Artwork"</string>
+    <string name="msg_205" formatted="false">"Use softly rounded corners for album artwork."</string>
+    <string name="msg_206" formatted="false">"Controls hide after about 8 seconds. Touch the screen or press a direction key to show them."</string>
+    <string name="msg_207" formatted="false">"Automatic"</string>
+    <string name="msg_208" formatted="false">"Remote &amp; Sync"</string>
+    <string name="msg_209" formatted="false">"Remote Type"</string>
+    <string name="msg_210" formatted="false">"Choose the controls that suit your remote."</string>
+    <string name="msg_211" formatted="false">"Automatic A/V Sync"</string>
+    <string name="msg_212" formatted="false">"Compensate for Bluetooth output delay automatically."</string>
+    <string name="msg_213" formatted="false">"Additional Offset"</string>
+    <string name="msg_214" formatted="false">"%1$s ms"</string>
+    <string name="msg_215" formatted="false">"Fine-tune lyrics and A/V sync. Negative is earlier; positive is later."</string>
+    <string name="msg_216" formatted="false">"Current Output"</string>
+    <string name="msg_217" formatted="false">" · Bluetooth compensation +350 ms"</string>
+    <string name="msg_218" formatted="false">"Connection"</string>
+    <string name="msg_219" formatted="false">"Developer Options"</string>
+    <string name="msg_220" formatted="false">"Show Developer Content"</string>
+    <string name="msg_221" formatted="false">"Account status and runtime logs"</string>
+    <string name="msg_222" formatted="false">"Runtime Logs"</string>
+    <string name="msg_223" formatted="false">"Clear Logs"</string>
+    <string name="msg_224" formatted="false">"Clear the current app and network logs."</string>
+    <string name="msg_225" formatted="false">"No logs yet"</string>
+    <string name="msg_226" formatted="false">"Problem Report"</string>
+    <string name="msg_227" formatted="false">"Maintenance"</string>
+    <string name="msg_228" formatted="false">"Clear User Token"</string>
+    <string name="msg_229" formatted="false">"You will need to add it again on the phone setup page."</string>
+    <string name="msg_230" formatted="false">"Quit App"</string>
+    <string name="msg_231" formatted="false">"Stop playback and close the app."</string>
+    <string name="msg_232" formatted="false">"Reset App"</string>
+    <string name="msg_233" formatted="false">"Clear account details and settings, then return to the signed-out state."</string>
+    <string name="msg_234" formatted="false">"Change App Icon"</string>
+    <string name="msg_235" formatted="false">"No restart is needed. The launcher icon will refresh shortly."</string>
+    <string name="msg_236" formatted="false">"Could not change the icon. Try again later."</string>
+    <string name="msg_237" formatted="false">"%1$s icon"</string>
+    <string name="msg_238" formatted="false">"Reset app?"</string>
+    <string name="msg_239" formatted="false">"This clears your token, favorites, and settings, then closes the app."</string>
+    <string name="msg_240" formatted="false">"Reset"</string>
+    <string name="msg_241" formatted="false">"Phone Setup Page"</string>
+    <string name="msg_242" formatted="false">"Set up your account and playback on the same network."</string>
+    <string name="msg_243" formatted="false">"Connect using Wi-Fi or Ethernet to access the setup page."</string>
+    <string name="msg_244" formatted="false">"Open this address in your phone browser."</string>
+    <string name="msg_245" formatted="false">"Download Problem Report"</string>
+    <string name="msg_246" formatted="false">"Open the address below on your phone to download device details, recent crashes, and logs."</string>
+    <string name="msg_247" formatted="false">"Connect using Wi-Fi or Ethernet to access the report page."</string>
+    <string name="msg_248" formatted="false">"Gentle"</string>
+    <string name="msg_249" formatted="false">"Strong"</string>
+    <string name="msg_250" formatted="false">"Very strong"</string>
+    <string name="msg_251" formatted="false">"Slow"</string>
+    <string name="msg_252" formatted="false">"Fast"</string>
+    <string name="msg_253" formatted="false">"Extra small"</string>
+    <string name="msg_254" formatted="false">"Small"</string>
+    <string name="msg_255" formatted="false">"Large"</string>
+    <string name="msg_256" formatted="false">"Extra large"</string>
+    <string name="msg_257" formatted="false">"OK"</string>
+    <string name="msg_258" formatted="false">"Cache Settings"</string>
+    <string name="msg_259" formatted="false">"Local Cache Size"</string>
+    <string name="msg_260" formatted="false">"1–10 GB in 1 GB steps. Automatically clears 500 MB when full."</string>
+    <string name="msg_261" formatted="false">"Used %1$s / %2$s GB"</string>
+    <string name="msg_262" formatted="false">"Cache storage used"</string>
+    <string name="msg_263" formatted="false">"Working on cache…"</string>
+    <string name="msg_264" formatted="false">"Clear Cache"</string>
+    <string name="msg_265" formatted="false">"Clear audio, artwork, and page caches. Keep files in use."</string>
+    <string name="msg_266" formatted="false">"Clear cache?"</string>
+    <string name="msg_267" formatted="false">"This clears cached audio, artwork, and pages. Files in use, your account, and settings are kept."</string>
+    <string name="msg_268" formatted="false">"Clear"</string>
+    <string name="msg_269" formatted="false">"Account Status"</string>
+    <string name="msg_270" formatted="false">"Developer Token"</string>
+    <string name="msg_271" formatted="false">"Enabled"</string>
+    <string name="msg_272" formatted="false">"Refresh to obtain"</string>
+    <string name="msg_273" formatted="false">"User Token"</string>
+    <string name="msg_274" formatted="false">"Add it on the phone setup page."</string>
+    <string name="msg_275" formatted="false">"Refresh Account Status"</string>
+    <string name="msg_276" formatted="false">"Reload the current account and service status."</string>
+    <string name="msg_277" formatted="false">"Set Up Again"</string>
+    <string name="msg_278" formatted="false">"Show the first-time setup screen again."</string>
+    <string name="msg_279" formatted="false">"Nothing Playing"</string>
+    <string name="msg_280" formatted="false">"Show Song List"</string>
+    <string name="msg_281" formatted="false">"%1$s, %2$s. Go to artist or album."</string>
+    <string name="msg_282" formatted="false">"Loading song details…"</string>
+    <string name="msg_283" formatted="false">"Next"</string>
+    <string name="msg_284" formatted="false">"Hold Select to place"</string>
+    <string name="msg_285" formatted="false">"Play Next"</string>
+    <string name="msg_286" formatted="false">"From the Queue"</string>
+    <string name="msg_287" formatted="false">"%1$s hours"</string>
+    <string name="msg_288" formatted="false">"%1$s minutes"</string>
+    <string name="msg_289" formatted="false">"Previous"</string>
+    <string name="msg_290" formatted="false">"Song List"</string>
+    <string name="msg_291" formatted="false">"Please use a large-screen device."</string>
+    <string name="msg_292" formatted="false">"Profile picture, Settings"</string>
+    <string name="msg_293" formatted="false">"Updated Playlist"</string>
+    <string name="msg_294" formatted="false">"New Radio Show"</string>
+    <string name="msg_295" formatted="false">"New Song"</string>
+    <string name="msg_296" formatted="false">"New Video"</string>
+    <string name="msg_297" formatted="false">"New Album"</string>
+    <string name="msg_298" formatted="false">"Cancel"</string>
+    <string name="msg_299" formatted="false">"Quit Apple Music?"</string>
+    <string name="msg_300" formatted="false">"Quit"</string>
+    <string name="msg_301" formatted="false">"Loading lyric fonts, %1$s%%"</string>
+    <string name="msg_302" formatted="false">"Lyric font download progress"</string>
+    <string name="msg_303" formatted="false">"Red"</string>
+    <string name="msg_304" formatted="false">"White"</string>
+    <string name="msg_305" formatted="false">"Search failed"</string>
+    <string name="msg_306" formatted="false">"Token verification failed. Copy the complete token again."</string>
+    <string name="msg_307" formatted="false">"Cannot verify the token right now. Check your connection and try again."</string>
+    <string name="msg_308" formatted="false">"Font download failed. Retrying shortly."</string>
+    <string name="msg_309" formatted="false">"Loading fonts, %1$s%%"</string>
+    <string name="msg_310" formatted="false">"Language"</string>
+    <string name="msg_311" formatted="false">"Follow System"</string>
+    <string name="msg_312" formatted="false">"简体中文"</string>
+    <string name="msg_313" formatted="false">"App Language"</string>
+    <string name="msg_314" formatted="false">"Use the system language automatically. Supports Chinese and English."</string>
+    <string name="msg_315" formatted="false">"For You"</string>
+    <string name="msg_316" formatted="false">"Find Your Mood"</string>
+    <string name="msg_317" formatted="false">"New"</string>
+    <string name="msg_318" formatted="false">"New Releases"</string>
+    <string name="msg_319" formatted="false">"Top Playlists"</string>
+    <string name="msg_320" formatted="false">"Top Albums"</string>
+    <string name="msg_321" formatted="false">"Recently Played"</string>
+    <string name="msg_322" formatted="false">"Playlists Made for You"</string>
+    <string name="msg_323" formatted="false">"Recently Added"</string>
+    <string name="msg_324" formatted="false">"Unknown"</string>
+    <string name="playback_section">Playback</string>
+    <string name="phone_setup_unavailable">"Phone setup is unavailable. Check settings or restart the app."</string>
+    <string name="phone_setup_starting">"Starting phone setup…"</string>
+    <string name="phone_network_waiting">"Getting a local network address…"</string>
+    <string name="fluid_quality_high">High quality</string>
+</resources>

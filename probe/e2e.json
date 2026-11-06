@@ -1,0 +1,1408 @@
+[
+  {
+    "song": "Sunny Day (Piano Version) — CIP Music",
+    "tag": "华语流行",
+    "durationSec": 267,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 691,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 126,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m8.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 691,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 126,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m8.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1276,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 63,
+        "t": "Sunny Day (Piano Music)",
+        "a": "Duet of Nature and Piano Sounds"
+      },
+      {
+        "s": "wy",
+        "score": 58,
+        "t": "Sunny Day (Piano Version)",
+        "a": "Hana Piano"
+      },
+      {
+        "s": "wy",
+        "score": 58,
+        "t": "Sunny Day (Piano)",
+        "a": "KYT Piano / KYT Music"
+      },
+      {
+        "s": "wy",
+        "score": 55,
+        "t": "Sunny Day (Piano Lounge Version)",
+        "a": "Jeanette"
+      }
+    ],
+    "url": "http://m8.music.126.net/20261106164509/1e8d557cbae5c8c3338f40af2e9017a6/ymusic/065c/0553/520c/16557f43b029de755112ef5cc369ea60.mp3?vuutv=TD6kKZJ8WrCXvXqhRJQvOKy4Z+ewX2lDo11TogkvtgVzm162ukFOw0it+StKsNO6w40Ei9xATcW/vxZF71zqB2W6M5VaoQfjQMr4tnBmyRo="
+  },
+  {
+    "song": "Light Years Away (Theme from Movie \"Passengers\") — G.E.M.",
+    "tag": "华语流行",
+    "durationSec": 236,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12004,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 6448,
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 96,
+        "status": 206,
+        "ct": "audio/mp4",
+        "host": "aqqmusic.tc.qq.com",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "tx",
+      "q": "flac24bit",
+      "ms": 6448,
+      "ok": true,
+      "kind": "mp4/aac",
+      "kbps": 96,
+      "status": 206,
+      "ct": "audio/mp4",
+      "host": "aqqmusic.tc.qq.com",
+      "err": ""
+    },
+    "searchMs": 1275,
+    "candidates": [
+      {
+        "s": "tx",
+        "score": 66,
+        "t": "Light Years Away (From Hardcore Utopia 4)",
+        "a": "Synthion"
+      },
+      {
+        "s": "wy",
+        "score": 63,
+        "t": "Light Years Away (Theme Song from \"Passengers\") [G.E.M. Version] (Male)",
+        "a": "WoWMiikyMikkey"
+      },
+      {
+        "s": "wy",
+        "score": 58,
+        "t": "Light Years Away",
+        "a": "Synthion"
+      },
+      {
+        "s": "wy",
+        "score": 55,
+        "t": "Light Years Away",
+        "a": "Tiësto / DBX"
+      }
+    ],
+    "url": "http://aqqmusic.tc.qq.com/C400004H8Vm51vnXaL.m4a?guid=668&vkey=1A51FB7BEDA845E7DA05A30572EE30494633EEA88B3A51F275D558A7F6FE324414B129A6925924E34257D90B2FDC28168906A138D0AC9FBF__v2b94c740&uin=&fromtag=123982&src=long/C400003Dv1zi0494l2.m4a"
+  },
+  {
+    "song": "富士山下 — Eason Chan",
+    "tag": "华语流行",
+    "durationSec": 259,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12014,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12017,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12005,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 387,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 387,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1777,
+    "candidates": [
+      {
+        "s": "tx",
+        "score": 75,
+        "t": "富士山下",
+        "a": "陈奕迅"
+      },
+      {
+        "s": "wy",
+        "score": 67,
+        "t": "富士山下",
+        "a": "陈奕迅"
+      },
+      {
+        "s": "wy",
+        "score": 67,
+        "t": "富士山下",
+        "a": "陈奕迅"
+      },
+      {
+        "s": "kg",
+        "score": 67,
+        "t": "富士山下",
+        "a": "陈奕迅"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106164607/bd41fd5750581e76c3f8d970c1fda44c/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/32385812006/3a58/9134/efdc/5f805370e14c90933c16c64a405d14d2.mp3?vuutv=TpMmEGOeoVrclO0BDNbXqYKu0cmJ+d4qvZBSZ5rjSSGjX1u7CYQZSmqWuF1dROMv3W6xviu/NBEK6ynxUjbYvsPccTZcw141ZfIxeAQp0ZY="
+  },
+  {
+    "song": "後來的我們 — Mayday",
+    "tag": "华语流行",
+    "durationSec": 346,
+    "attempts": [],
+    "result": null,
+    "searchMs": 1941,
+    "candidates": []
+  },
+  {
+    "song": "Anti-Hero — Taylor Swift",
+    "tag": "欧美流行",
+    "durationSec": 201,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 404,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m701.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 404,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m701.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1849,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Anti-Hero",
+        "a": "Taylor Swift"
+      },
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Anti-Hero",
+        "a": "Taylor Swift"
+      },
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Anti-Hero",
+        "a": "Taylor Swift"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Anti-Hero",
+        "a": "Taylor Swift"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106164611/322dc66f49555c99529309edc5ec0f5a/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/29298747083/2578/0f12/3f2f/32c632bd009ed430336d0c108ab7bd1b.mp3?vuutv=pCEG6CHOc2ANc7n1Tj1wm+wOoYd9FhfL8Tsg9nDoMBPFnwFq1nVr8ApzdPUmPZYN9FgFuqA5FfU22moOo+zCd1JKskMFWxHbGuKrngkyLKw="
+  },
+  {
+    "song": "Blinding Lights (Remix) — The Weeknd & ROSALÍA",
+    "tag": "欧美流行",
+    "durationSec": 216,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12012,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12013,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12006,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 297,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 119,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m701.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 297,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 119,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m701.music.126.net",
+      "err": ""
+    },
+    "searchMs": 741,
+    "candidates": [
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Blinding Lights (Remix)",
+        "a": "The Weeknd / ROSALÍA"
+      },
+      {
+        "s": "wy",
+        "score": 88,
+        "t": "Blinding Lights",
+        "a": "The Weeknd"
+      },
+      {
+        "s": "tx",
+        "score": 88,
+        "t": "Blinding Lights (Major Lazer Remix)",
+        "a": "The Weeknd / Major Lazer"
+      },
+      {
+        "s": "tx",
+        "score": 84,
+        "t": "Blinding Lights (Yellow Claw Remix)",
+        "a": "Yellow Claw;The Weeknd"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106164648/04d414fafe80f62eb7a70168891f4a4b/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/19573087296/d1d7/a556/3e5a/36732948c34827efb919d21ab844eeb8.mp3?vuutv=JZfJj7qlrF0keWmG+QYX6Meza7ARHp/ONGKVkydUwGD0MKISf+4GuR4CvG4ZPTJ16U3VQu+NbA72YqeACn5TdvT/db+bA+CHoxh+Tmhs0v0="
+  },
+  {
+    "song": "Levitating — Dua Lipa",
+    "tag": "欧美流行",
+    "durationSec": 204,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 323,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m701.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 323,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m701.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1236,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Levitating",
+        "a": "Dua Lipa"
+      },
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Levitating",
+        "a": "Dua Lipa"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Levitating",
+        "a": "Dua Lipa"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Levitating",
+        "a": "Dua Lipa / DaBaby"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106164650/ece67cb101136fa2a582eb8360be40bd/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/22259914316/5b1b/f664/d772/79e975cc5682298d9ad54254c61a2ae2.mp3?vuutv=5C5e79K74XKEbrUPCCmT8kWD1Rv0f7CxYHWM62zKCkgcqaJhaFwdWx8UXlVXEXrEBvyDCvkb/GqcuHGcpzFmA6xYybkco8jjfaUJqz9FVoY="
+  },
+  {
+    "song": "bad guy — Billie Eilish",
+    "tag": "欧美流行",
+    "durationSec": 194,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 287,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m701.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 287,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m701.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1109,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "bad guy",
+        "a": "Billie Eilish"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "bad guy",
+        "a": "Billie Eilish"
+      },
+      {
+        "s": "tx",
+        "score": 92,
+        "t": "bad guy (with Justin Bieber)",
+        "a": "Billie Eilish / Justin Bieber"
+      },
+      {
+        "s": "tx",
+        "score": 92,
+        "t": "bad guy",
+        "a": "Billie Eilish / Justin Bieber"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106164651/eb4e7b36a6be06f6e8c7b9c75a492695/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/27205577704/4eee/6c2a/10a5/9e2b61769cede9fc13bd2c7433a59d5f.mp3?vuutv=YNf+Rgw7VJ5/gFhrhDlgcQWbAt+dzYjcQJcDGivcmPw46z08y4sqGW782laZCkJv/pfu/L1/eDJp3AgdaGjdSYUL6hNGdIngHolmSDQRTzo="
+  },
+  {
+    "song": "Bohemian Rhapsody — Queen",
+    "tag": "摇滚",
+    "durationSec": 354,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 375,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 375,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1736,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Bohemian Rhapsody",
+        "a": "Queen"
+      },
+      {
+        "s": "kg",
+        "score": 100,
+        "t": "Bohemian Rhapsody (Remastered 2011)",
+        "a": "Queen"
+      },
+      {
+        "s": "wy",
+        "score": 92,
+        "t": "Bohemian Rhapsody",
+        "a": "Queen"
+      },
+      {
+        "s": "wy",
+        "score": 92,
+        "t": "Bohemian Rhapsody",
+        "a": "Queen"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106164653/4791e9efa2326f973d0181418bcd26dc/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/61702459635/2718/2f99/6083/94f552769ae58268634500ec4e6e2ce5.mp3?vuutv=tnQBHKKpJZwnoZ56KJN2RVTUaUO+hhvNQEt0cWjuhbz++qF+N1pXbMAus9kK8jtnomguFK4rc7d0UH+Gg1ripJ94ETvwAItWm+3Nurv9pwg="
+  },
+  {
+    "song": "Weird Fishes / Arpeggi — Radiohead",
+    "tag": "摇滚",
+    "durationSec": 318,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 301,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 301,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1110,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Weird Fishes / Arpeggi",
+        "a": "Radiohead"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Weird Fishes/ Arpeggi",
+        "a": "Radiohead"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Weird Fishes/ Arpeggi (黑胶版)",
+        "a": "Radiohead"
+      },
+      {
+        "s": "wy",
+        "score": 92,
+        "t": "Weird Fishes / Arpeggi",
+        "a": "Radiohead"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106164655/d724de96d256e3752be4b26055b87261/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/13100674864/0a84/aa07/7036/2c683f49c988dba5575ed1e630237b21.mp3?vuutv=5IpNhD9Abk9u9HAtv7GVDeNiZcoE7VGXFzuosYT7iIEzS6wbaNvqzmd6Hynz4Fki6Up5Aw6TggEw4RPvCx/Zirqae4Hr9XyJM2E8L05fJF0="
+  },
+  {
+    "song": "My Jinji — Sunset Rollercoaster",
+    "tag": "独立",
+    "durationSec": 401,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 341,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 130,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 341,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 130,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1270,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 76,
+        "t": "My Jinji (Audiotree Live Version)",
+        "a": "落日飛車 Sunset Rollercoaster"
+      },
+      {
+        "s": "wy",
+        "score": 75,
+        "t": "My Jinji",
+        "a": "落日飞车"
+      },
+      {
+        "s": "wy",
+        "score": 67,
+        "t": "MY JINJI (Cover)",
+        "a": "Xandora"
+      },
+      {
+        "s": "tx",
+        "score": 63,
+        "t": "My Jinji (Audiotree Live Version)",
+        "a": "落日飛車 Sunset Rollercoaster"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106164656/112442938bf7493a77a2c918776d3448/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/28482389574/9b66/af76/8d58/6840febc8df60efc36df4cea7874b8a2.mp3?vuutv=kn5SstM6+42S4EnlrxOYeM1qHc8OxQwLbP8uiaSI/tFMjqBgdjqv+7LaVhzSCSvGWIS1KEGNlCKZeWmxTpqTelK+H0B0eoTD7+1uBFLu7dU="
+  },
+  {
+    "song": "Wayfarer — No Party for Cao Dong",
+    "tag": "独立",
+    "durationSec": 251,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12003,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12002,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12004,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12014,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12015,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12016,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12014,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12016,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12014,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12005,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12015,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12014,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      }
+    ],
+    "result": null,
+    "searchMs": 809,
+    "candidates": [
+      {
+        "s": "tx",
+        "score": 58,
+        "t": "Wayfarer",
+        "a": "Mazare / Sofuu"
+      },
+      {
+        "s": "tx",
+        "score": 55,
+        "t": "Wayfarer",
+        "a": "Kavinsky"
+      },
+      {
+        "s": "tx",
+        "score": 45,
+        "t": "wayfarer (节目)",
+        "a": "黑土土"
+      },
+      {
+        "s": "tx",
+        "score": 45,
+        "t": "Wayfarer",
+        "a": "RILTIM"
+      }
+    ]
+  },
+  {
+    "song": "Goldberg Variations, BWV 988 (1955 Recording): Aria — Glenn Gould",
+    "tag": "古典",
+    "durationSec": 113,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 845,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m701.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 845,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m701.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1882,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 92,
+        "t": "Goldberg Variations, BWV 988: Aria (2023 Remastered Version)",
+        "a": "Glenn Gould"
+      },
+      {
+        "s": "tx",
+        "score": 75,
+        "t": "Aria (1955 Recording|Remastered)",
+        "a": "Glenn Gould / Johann Sebastian Bach"
+      },
+      {
+        "s": "tx",
+        "score": 75,
+        "t": "Aria",
+        "a": "Glenn Gould"
+      },
+      {
+        "s": "tx",
+        "score": 75,
+        "t": "Aria",
+        "a": "Glenn Gould / Johann Sebastian Bach"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106164924/e855d961ea2e28a07e3859e3bf64e03b/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/32307308048/33b7/28d6/5b2f/ae8cfb40f83b26137bbfcbcf81fa4925.mp3?vuutv=jPpeOK4KMcWA6uLySoa/NA4Ji2ha04JKCcXCFo2aV+5oIk4KkoFeVPJ79yWqa6SdOVRV+8GSx1boTtOzvPBeHWIqd3wP7dd68Ipa/jbflbk="
+  },
+  {
+    "song": "Symphony No. 5 in C Minor, Op. 67: I. Allegro con brio — Berlin Philharmonic Orchestra & Herbert von Karajan",
+    "tag": "古典",
+    "durationSec": 442,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12009,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12014,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12004,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12009,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12001,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12002,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 379,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 379,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1439,
+    "candidates": [
+      {
+        "s": "tx",
+        "score": 70,
+        "t": "Symphony NO. 5 in C Minor, Op. 67: I. Allegro Con Brio",
+        "a": "Berlin Philharmonic Orchestra"
+      },
+      {
+        "s": "tx",
+        "score": 70,
+        "t": "Symphony NO. 5 in C Minor, Op. 67: I. Allegro Con Brio",
+        "a": "Berlin Philharmonic Orchestra"
+      },
+      {
+        "s": "wy",
+        "score": 67,
+        "t": "Symphony No. 5 in C Minor, Op. 67:I. Allegro con brio",
+        "a": "Wiener Philharmoniker / Carlos Kleiber"
+      },
+      {
+        "s": "tx",
+        "score": 63,
+        "t": "Symphony No. 5 in C Minor, Op. 67 - I. Allegro con brio",
+        "a": "Berliner Philharmoniker / Herbert von Karajan"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165038/8a46d9a090686c16c80a5933c03f2b19/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/31354141820/a519/9eb6/4c91/c3e6fde747090e0658c327b5f2801867.mp3?vuutv=NxwlIvqgDQZjz3M7AzBxODeiyJNnW1BIaAgPPEoo3JJVFqj6malw6GTm+/s4cBgzgs3w4mpwt2ZvAkUvBSthhZoD6SrP4J2PZfvZz3aaoXs="
+  },
+  {
+    "song": "Nocturne, Op. 9, No. 2 — Anna Miernik",
+    "tag": "古典",
+    "durationSec": 297,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12001,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12004,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 3241,
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 98,
+        "status": 206,
+        "ct": "audio/mp4",
+        "host": "aqqmusic.tc.qq.com",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "tx",
+      "q": "flac",
+      "ms": 3241,
+      "ok": true,
+      "kind": "mp4/aac",
+      "kbps": 98,
+      "status": 206,
+      "ct": "audio/mp4",
+      "host": "aqqmusic.tc.qq.com",
+      "err": ""
+    },
+    "searchMs": 1169,
+    "candidates": [
+      {
+        "s": "tx",
+        "score": 92,
+        "t": "Nocturne, Op. 9, No. 2",
+        "a": "Anna Miernik"
+      },
+      {
+        "s": "kg",
+        "score": 92,
+        "t": "Nocturne, Op. 9, No. 2",
+        "a": "Anna Miernik"
+      },
+      {
+        "s": "wy",
+        "score": 55,
+        "t": "Nocturne,Op.9,No.2",
+        "a": "李云迪"
+      },
+      {
+        "s": "tx",
+        "score": 55,
+        "t": "Nocturne, Op. 9 No. 2",
+        "a": "李云迪"
+      }
+    ],
+    "url": "http://aqqmusic.tc.qq.com/C400000gz9dS1oGggv.m4a?guid=846&vkey=9E6AEFA5B910C9B64F13CD63AD009FCAEF294C31D03D77B1E1524684C38E4F1C67481302F58C5B455D3DE435ACAD1628BBA31B400F61FCBF__v2ba83d90&uin=&fromtag=123032&src=C400000uJqX81KIUNA.m4a"
+  },
+  {
+    "song": "Someone Like You — Adele",
+    "tag": "现场",
+    "durationSec": 285,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 449,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 449,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1324,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Someone Like You",
+        "a": "Adele"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Someone Like You",
+        "a": "Adele"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Someone Like You (黑胶版)",
+        "a": "Adele"
+      },
+      {
+        "s": "kg",
+        "score": 100,
+        "t": "Someone Like You (黑胶版)",
+        "a": "Adele"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165108/99598aaf120af9c450a13f4821cc1240/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/21371627394/bc6b/d379/f57d/e37bf340cd09af99ed243c75e620c30a.mp3?vuutv=z0mcjvK46Rg2qtrnGu3z1l3FD09Wy2xzQfw70SARcgjUbmgzZXuInERT/V6ZywpnMZBftkmZCE4i7MnruRJ9iJoL7LvWA9fS8gpg4/AQkCQ="
+  },
+  {
+    "song": "Ask me why (I) — Joe Hisaishi & Royal Philharmonic Orchestra",
+    "tag": "OST",
+    "durationSec": 73,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 415,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 415,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1307,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 67,
+        "t": "Ask me why (I)",
+        "a": "久石譲 / Royal Philharmonic Orchestra"
+      },
+      {
+        "s": "tx",
+        "score": 67,
+        "t": "Ask me why (I)",
+        "a": "久石让 / ロイヤル・フィルハーモニー管弦楽団"
+      },
+      {
+        "s": "wy",
+        "score": 58,
+        "t": "Ask me why (疎開)",
+        "a": "久石譲"
+      },
+      {
+        "s": "wy",
+        "score": 45,
+        "t": "Ask me why (II)",
+        "a": "久石譲 / Royal Philharmonic Orchestra"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165110/5cd45106f896990fcbd6a97e03f49357/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/84108272651/b057/147f/645c/5eda7806411033a5e70bb02d4d979231.mp3?vuutv=u0bY1jrvxWaNip1DOqenLu/1mT4xQG79GNMnxhVK8XQ6Ef1v/obgH6Pp/aSXp+wyn6ud0zByhy4UgDk0qQQVJcp7+j2g3WOePMBlTTGoA2E="
+  },
+  {
+    "song": "Time — Hans Zimmer",
+    "tag": "OST",
+    "durationSec": 276,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 318,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 318,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1538,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "Time",
+        "a": "Hans Zimmer"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "Time",
+        "a": "Hans Zimmer"
+      },
+      {
+        "s": "wy",
+        "score": 92,
+        "t": "Time (Antrux Remix)",
+        "a": "Hans Zimmer / Antrux"
+      },
+      {
+        "s": "wy",
+        "score": 88,
+        "t": "Time",
+        "a": "Hans Zimmer / Nihilum"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165112/2dd23322e1cf423e96464a3698fe3bfe/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/81077179918/772e/3648/5b02/dfed4c0617c7b762a0a6c390f20b62f6.mp3?vuutv=eP9WCsPhk/27L7BcYD/iNUwu92l5tPGeGlAKz7PLjXLG0J7jIry7dcLvqzWjSOQJIezFKGM7pmeHe3JNwk/5zoZvTanFjF9XCJarnnySaTk="
+  },
+  {
+    "song": "HUMBLE. — Kendrick Lamar",
+    "tag": "说唱",
+    "durationSec": 177,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 460,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 128,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m701.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 460,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 128,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m701.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1374,
+    "candidates": [
+      {
+        "s": "wy",
+        "score": 100,
+        "t": "HUMBLE.",
+        "a": "Kendrick Lamar"
+      },
+      {
+        "s": "tx",
+        "score": 100,
+        "t": "HUMBLE. (Explicit)",
+        "a": "Kendrick Lamar"
+      },
+      {
+        "s": "wy",
+        "score": 92,
+        "t": "HUMBLE.",
+        "a": "Kendrick Lamar"
+      },
+      {
+        "s": "kg",
+        "score": 92,
+        "t": "HUMBLE. (explicit|CompleteversionoriginallyperformedbyKendrickLamar)",
+        "a": "Kendrick Lamar"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106165113/e930884abcf1fcb824f8b8d29e6b0fd6/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/28482245912/bdae/deb1/a247/40d765d279535625f249b36785718b8d.mp3?vuutv=ds6RNxNM4RErEOGCc3oOGeAaSW0jBVMtafNQhFbpqESF+GOH7obbg9iXOEwlE+7TBg6vvG8NUD5qzAb2JH6CrY2We1QACzn4MFUk5TLO7/s="
+  },
+  {
+    "song": "Into The Night (YOASOBI 5th ANNIVERSARY DOME LIVE 2024 “超現実”) — YOASOBI",
+    "tag": "日语",
+    "durationSec": 293,
+    "attempts": [
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12003,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12004,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12013,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "master",
+        "ms": 12015,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ms": 12009,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "tx",
+        "q": "flac",
+        "ms": 12013,
+        "ok": false,
+        "err": "timeout 12000 tx"
+      },
+      {
+        "script": "洛雪音源6.js",
+        "src": "wy",
+        "q": "master",
+        "ms": 414,
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 135,
+        "status": 206,
+        "ct": "audio/mpeg",
+        "host": "m801.music.126.net",
+        "err": ""
+      }
+    ],
+    "result": {
+      "script": "洛雪音源6.js",
+      "src": "wy",
+      "q": "master",
+      "ms": 414,
+      "ok": true,
+      "kind": "mp3",
+      "kbps": 135,
+      "status": 206,
+      "ct": "audio/mpeg",
+      "host": "m801.music.126.net",
+      "err": ""
+    },
+    "searchMs": 1320,
+    "candidates": [
+      {
+        "s": "tx",
+        "score": 70,
+        "t": "Into The Night",
+        "a": "YOASOBI"
+      },
+      {
+        "s": "tx",
+        "score": 70,
+        "t": "Into The Night (English Version)",
+        "a": "YOASOBI"
+      },
+      {
+        "s": "wy",
+        "score": 55,
+        "t": "Into The Night (feat. Camille Glémet)",
+        "a": "Arwelone / Camille Glémet"
+      },
+      {
+        "s": "wy",
+        "score": 55,
+        "t": "Into The Night (Slip And Slide)",
+        "a": "Michael Fortunati"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165227/8fd89c427cee22e0e1234ce4a09448da/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/14412303245/56d2/f74c/5df2/65b9deca53499a3287a9a1e0fe50feb4.mp3?vuutv=2dLv2SSUCV2Lo9nBdyB3WxTR7xS5KYnlTDqUGr4EEl/SEoFtNYjecvAbiQdBQ4I3X5Ctd+8isP9PvSfkKZprztrtRboDnqlwfnqmuVvUn9Q="
+  }
+]

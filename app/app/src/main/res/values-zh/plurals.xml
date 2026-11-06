@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="song_count">
+        <item quantity="one">%1$d 首歌曲</item>
+        <item quantity="other">%1$d 首歌曲</item>
+    </plurals>
+    <plurals name="hour_count">
+        <item quantity="one">%1$d 小时</item>
+        <item quantity="other">%1$d 小时</item>
+    </plurals>
+    <plurals name="minute_count">
+        <item quantity="one">%1$d 分钟</item>
+        <item quantity="other">%1$d 分钟</item>
+    </plurals>
+</resources>

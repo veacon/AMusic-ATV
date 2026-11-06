@@ -1,0 +1,202 @@
+[
+  {
+    "tag": "华语流行",
+    "query": "周杰伦 晴天",
+    "appleId": "1786516662",
+    "title": "Sunny Day (Piano Version)",
+    "artist": "CIP Music",
+    "album": "Jay Chou Piano Collection",
+    "durationSec": 267,
+    "isrc": "QZPJ32432001"
+  },
+  {
+    "tag": "华语流行",
+    "query": "邓紫棋 光年之外",
+    "appleId": "1190070744",
+    "title": "Light Years Away (Theme from Movie \"Passengers\")",
+    "artist": "G.E.M.",
+    "album": "Light Years Away (\"Passengers\" Movie Theme Song) - Single",
+    "durationSec": 236,
+    "isrc": "HKI111700001"
+  },
+  {
+    "tag": "华语流行",
+    "query": "陈奕迅 富士山下",
+    "appleId": "1443346107",
+    "title": "富士山下",
+    "artist": "Eason Chan",
+    "album": "What's Going On...?",
+    "durationSec": 259,
+    "isrc": "HKUM70600363"
+  },
+  {
+    "tag": "华语流行",
+    "query": "五月天 后来的我们",
+    "appleId": "1158763996",
+    "title": "後來的我們",
+    "artist": "Mayday",
+    "album": "自傳",
+    "durationSec": 346,
+    "isrc": "TWK231610206"
+  },
+  {
+    "tag": "欧美流行",
+    "query": "Taylor Swift Anti-Hero",
+    "appleId": "1649434293",
+    "title": "Anti-Hero",
+    "artist": "Taylor Swift",
+    "album": "Midnights",
+    "durationSec": 201,
+    "isrc": "USUG12205736"
+  },
+  {
+    "tag": "欧美流行",
+    "query": "The Weeknd Blinding Lights",
+    "appleId": "1542842761",
+    "title": "Blinding Lights (Remix)",
+    "artist": "The Weeknd & ROSALÍA",
+    "album": "Blinding Lights (Remix) - Single",
+    "durationSec": 216,
+    "isrc": "USUG12004507"
+  },
+  {
+    "tag": "欧美流行",
+    "query": "Dua Lipa Levitating",
+    "appleId": "1538003843",
+    "title": "Levitating",
+    "artist": "Dua Lipa",
+    "album": "Future Nostalgia",
+    "durationSec": 204,
+    "isrc": "GBAHT1901299"
+  },
+  {
+    "tag": "欧美流行",
+    "query": "Billie Eilish bad guy",
+    "appleId": "1450695739",
+    "title": "bad guy",
+    "artist": "Billie Eilish",
+    "album": "WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?",
+    "durationSec": 194,
+    "isrc": "USUM71900764"
+  },
+  {
+    "tag": "摇滚",
+    "query": "Queen Bohemian Rhapsody",
+    "appleId": "6781024437",
+    "title": "Bohemian Rhapsody",
+    "artist": "Queen",
+    "album": "A Night At The Opera (Deluxe Edition)",
+    "durationSec": 354,
+    "isrc": "GBUM71029604"
+  },
+  {
+    "tag": "摇滚",
+    "query": "Radiohead Weird Fishes",
+    "appleId": "1109715168",
+    "title": "Weird Fishes / Arpeggi",
+    "artist": "Radiohead",
+    "album": "In Rainbows",
+    "durationSec": 318,
+    "isrc": "GBSTK0700004"
+  },
+  {
+    "tag": "独立",
+    "query": "落日飞车 My Jinji",
+    "appleId": "1753222327",
+    "title": "My Jinji",
+    "artist": "Sunset Rollercoaster",
+    "album": "JINJI KIKKO - Single",
+    "durationSec": 401,
+    "isrc": "TWCR71600002"
+  },
+  {
+    "tag": "独立",
+    "query": "草东没有派对 山海",
+    "appleId": "1676736010",
+    "title": "Wayfarer",
+    "artist": "No Party for Cao Dong",
+    "album": "The Servile",
+    "durationSec": 251,
+    "isrc": "TWBN31600010"
+  },
+  {
+    "tag": "古典",
+    "query": "Glenn Gould Goldberg Variations Aria",
+    "appleId": "594521563",
+    "title": "Goldberg Variations, BWV 988 (1955 Recording): Aria",
+    "artist": "Glenn Gould",
+    "album": "Bach: Goldberg Variations, BWV 988 (The 1955 & 1981 Recordings)",
+    "durationSec": 113,
+    "isrc": "USSM15500114"
+  },
+  {
+    "tag": "古典",
+    "query": "Beethoven Symphony No. 5",
+    "appleId": "1440744516",
+    "title": "Symphony No. 5 in C Minor, Op. 67: I. Allegro con brio",
+    "artist": "Berlin Philharmonic Orchestra & Herbert von Karajan",
+    "album": "Beethoven: Symphony Nos. 5 & 6",
+    "durationSec": 442,
+    "isrc": "DEF058204561"
+  },
+  {
+    "tag": "古典",
+    "query": "Chopin Nocturne Op. 9 No. 2",
+    "appleId": "1688152424",
+    "title": "Nocturne, Op. 9, No. 2",
+    "artist": "Anna Miernik",
+    "album": "Chopin: Nocturne, Op. 9, No. 2 - Single",
+    "durationSec": 297,
+    "isrc": "USCGH2326024"
+  },
+  {
+    "tag": "现场",
+    "query": "Adele Someone Like You Live",
+    "appleId": "1544491998",
+    "title": "Someone Like You",
+    "artist": "Adele",
+    "album": "21",
+    "durationSec": 285,
+    "isrc": "GBBKS1000351"
+  },
+  {
+    "tag": "OST",
+    "query": "久石让 Summer",
+    "appleId": "6797840336",
+    "title": "Ask me why (I)",
+    "artist": "Joe Hisaishi & Royal Philharmonic Orchestra",
+    "album": "Hisaishi: Symphonic Suite The Boy and the Heron for Piano and Orchestra",
+    "durationSec": 73,
+    "isrc": "JPPO02501419"
+  },
+  {
+    "tag": "OST",
+    "query": "Hans Zimmer Time Inception",
+    "appleId": "380350246",
+    "title": "Time",
+    "artist": "Hans Zimmer",
+    "album": "Inception (Music from the Motion Picture)",
+    "durationSec": 276,
+    "isrc": "USRE11000577"
+  },
+  {
+    "tag": "说唱",
+    "query": "Kendrick Lamar HUMBLE",
+    "appleId": "1440882165",
+    "title": "HUMBLE.",
+    "artist": "Kendrick Lamar",
+    "album": "DAMN.",
+    "durationSec": 177,
+    "isrc": "USUM71703150"
+  },
+  {
+    "tag": "日语",
+    "query": "YOASOBI 夜に駆ける",
+    "appleId": "6826993851",
+    "title": "Into The Night (YOASOBI 5th ANNIVERSARY DOME LIVE 2024 “超現実”)",
+    "artist": "YOASOBI",
+    "album": "YOASOBI 5th ANNIVERSARY DOME LIVE 2024 “cho-genjitsu” at TOKYO DOME",
+    "durationSec": 293,
+    "isrc": "JPP302600830"
+  }
+]

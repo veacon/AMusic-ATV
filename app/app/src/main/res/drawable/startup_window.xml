@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/startup_red" />
+    <item android:width="245.76dp" android:height="46.6737423dp" android:gravity="center" android:drawable="@drawable/startup_wordmark" />
+</layer-list>

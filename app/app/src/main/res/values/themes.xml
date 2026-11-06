@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.AppleMusicTV.Base" parent="@style/Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/startup_window</item>
+        <item name="android:statusBarColor">@color/startup_red</item>
+        <item name="android:navigationBarColor">@color/startup_red</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="Theme.AppleMusicTV.Runtime" parent="Theme.AppleMusicTV.Base">
+        <item name="android:windowIsTranslucent">false</item>
+    </style>
+    <style name="Theme.AppleMusicTV" parent="Theme.AppleMusicTV.Runtime" />
+    <style name="Theme.AppleMusicTV.Launch" parent="Theme.AppleMusicTV.Runtime" />
+</resources>

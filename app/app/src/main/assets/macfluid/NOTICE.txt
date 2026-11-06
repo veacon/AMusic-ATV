@@ -1,0 +1,1 @@
+Mac effect reconstruction from the user-supplied Music 1.4.6.32 specimen. Geometry data and independently expressed GLSL match the offline Mac demo. No Apple executable, Metal library or AIR bytecode is embedded. Background renderers are isolated from playback and navigation.

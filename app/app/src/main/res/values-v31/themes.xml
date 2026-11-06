@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Prevent the system's separately sized icon splash. The actual window background
+         and first Compose frame are opaque red with the same 245.76dp vector wordmark.
+         MainActivity restores ordinary opacity before content is displayed. -->
+    <style name="Theme.AppleMusicTV.Launch" parent="Theme.AppleMusicTV.Runtime">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+</resources>

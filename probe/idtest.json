@@ -1,0 +1,553 @@
+[
+  {
+    "file": "洛雪音源1.js",
+    "name": "星海音乐源",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "err": "后端失败: 后端聚合接口返回403，已屏蔽",
+        "ms": 311
+      },
+      {
+        "src": "tx",
+        "q": "flac",
+        "ok": false,
+        "err": "后端失败: 后端聚合接口返回403，已屏蔽",
+        "ms": 293
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": false,
+        "err": "后端失败: 后端聚合接口返回403，已屏蔽",
+        "ms": 106
+      },
+      {
+        "src": "kg",
+        "q": "flac",
+        "ok": false,
+        "err": "后端失败: 后端聚合接口返回403，已屏蔽",
+        "ms": 99
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": false,
+        "err": "获取播放链接失败",
+        "ms": 0
+      },
+      {
+        "src": "wy",
+        "q": "flac",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 1403,
+        "ms": 1395,
+        "status": 206
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源2.js",
+    "name": "长青SVIP音源(二改修复版)",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "flac",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 227
+      },
+      {
+        "src": "tx",
+        "q": "320k",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 65
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 63
+      },
+      {
+        "src": "kg",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 66
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 64
+      },
+      {
+        "src": "wy",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 78
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源3.js",
+    "name": "杰翔聚合音源",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 29,
+        "ms": 860,
+        "status": 206
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 2774,
+        "ms": 1037,
+        "status": 206
+      },
+      {
+        "src": "wy",
+        "q": "flac",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 651,
+        "ms": 171,
+        "status": 206
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源4.js",
+    "name": "墨澜聚合音源",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "flac",
+        "ok": false,
+        "err": "所有后端均失败（共1个）\nbaimusic QQ: baimusic QQ: 获取ekey失败",
+        "ms": 1055
+      },
+      {
+        "src": "tx",
+        "q": "320k",
+        "ok": false,
+        "err": "所有后端均失败（共1个）\nbaimusic QQ: baimusic QQ: 获取ekey失败",
+        "ms": 1057
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 2774,
+        "ms": 388,
+        "status": 206
+      },
+      {
+        "src": "wy",
+        "q": "flac",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 651,
+        "ms": 117,
+        "status": 206
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源5.js",
+    "name": "野草🌾",
+    "hits": []
+  },
+  {
+    "file": "洛雪音源6.js",
+    "name": "K×H测试",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "err": "timeout 12000 txmaster",
+        "ms": 12014
+      },
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "timeout 12000 txflac24bit",
+        "ms": 12012
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 124,
+        "ms": 764,
+        "status": 206
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 129,
+        "ms": 217,
+        "status": 206
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源7.js",
+    "name": "野花🌷",
+    "hits": []
+  },
+  {
+    "file": "洛雪音源8.js",
+    "name": "HYWmusic_beta_公益测试",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "err": "This operation was aborted",
+        "ms": 9008
+      },
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "卡密已过期，请下载最新正式版：http://103.79.184.97/",
+        "ms": 902
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": false,
+        "err": "卡密已过期，请下载最新正式版：http://103.79.184.97/",
+        "ms": 429
+      },
+      {
+        "src": "kg",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "卡密已过期，请下载最新正式版：http://103.79.184.97/",
+        "ms": 507
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": false,
+        "err": "卡密已过期，请下载最新正式版：http://103.79.184.97/",
+        "ms": 498
+      },
+      {
+        "src": "wy",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "卡密已过期，请下载最新正式版：http://103.79.184.97/",
+        "ms": 504
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源9.js",
+    "name": "聚合API接口 (CF)",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 29,
+        "ms": 1683,
+        "status": 206
+      },
+      {
+        "src": "kg",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "get url failed",
+        "ms": 283
+      },
+      {
+        "src": "kg",
+        "q": "flac",
+        "ok": false,
+        "err": "get url failed",
+        "ms": 291
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": false,
+        "err": "get url failed",
+        "ms": 261
+      },
+      {
+        "src": "wy",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "get url failed",
+        "ms": 267
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源10.js",
+    "name": "lx-玉宁熙-Pro",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "err": "QQ音乐所有接口均无可用地址",
+        "ms": 8322
+      },
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "QQ音乐所有接口均无可用地址",
+        "ms": 8113
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 2774,
+        "ms": 621,
+        "status": 206
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 2358,
+        "ms": 10633,
+        "status": 206
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源11.js",
+    "name": "屿溪-终章",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 149
+      },
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "QQ音源无可用播放链接",
+        "ms": 110
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 68
+      },
+      {
+        "src": "kg",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 62
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 59
+      },
+      {
+        "src": "wy",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "当前版本已停止服务，请升级到最新版本后重试",
+        "ms": 67
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源12.js",
+    "name": "lx-animemusic",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "err": "This operation was aborted",
+        "ms": 9003
+      },
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "This operation was aborted",
+        "ms": 9011
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": false,
+        "err": "This operation was aborted",
+        "ms": 9005
+      },
+      {
+        "src": "kg",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "This operation was aborted",
+        "ms": 9005
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": false,
+        "err": "This operation was aborted",
+        "ms": 9005
+      },
+      {
+        "src": "wy",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "This operation was aborted",
+        "ms": 9012
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源13.js",
+    "name": "fish_music",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 1647,
+        "ms": 3170,
+        "status": 206
+      },
+      {
+        "src": "kg",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 124,
+        "ms": 1243,
+        "status": 206
+      },
+      {
+        "src": "wy",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 322,
+        "ms": 567,
+        "status": 206
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源14.js",
+    "name": "𝖧౿ᥣᥣ𝗈 Ԝ𝗈𝗋ᥣᑯ",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 927,
+        "ms": 1744,
+        "status": 206
+      },
+      {
+        "src": "kg",
+        "q": "master",
+        "ok": false,
+        "err": "所有API均失败(master) [url:不支持master | api:不支持master | resolve-url:响应中未找到有效链接] || 所有API均失败(atmo",
+        "ms": 5536
+      },
+      {
+        "src": "kg",
+        "q": "flac",
+        "ok": false,
+        "err": "所有API均失败(flac) [url:响应中未找到有效链接 | api:响应中未找到有效链接 | resolve-url:响应中未找到有效链接] || 所有API均失败(320k",
+        "ms": 1966
+      },
+      {
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 3534,
+        "ms": 387,
+        "status": 206
+      }
+    ]
+  },
+  {
+    "file": "洛雪音源15.js",
+    "name": "HYWmusic_公益版",
+    "hits": [
+      {
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 29,
+        "ms": 1376,
+        "status": 206
+      },
+      {
+        "src": "kg",
+        "q": "flac24bit",
+        "ok": false,
+        "err": "酷狗音源暂时不可用（平台熔断保护中，通常 1-3 分钟内自动恢复）",
+        "ms": 2539
+      },
+      {
+        "src": "kg",
+        "q": "flac",
+        "ok": false,
+        "err": "酷狗音源暂时不可用（平台熔断保护中，通常 1-3 分钟内自动恢复）",
+        "ms": 432
+      },
+      {
+        "src": "wy",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 651,
+        "ms": 8569,
+        "status": 206
+      }
+    ]
+  }
+]

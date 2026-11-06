@@ -1,0 +1,1330 @@
+[
+  {
+    "song": {
+      "tag": "华语流行",
+      "query": "周杰伦 晴天",
+      "appleId": "1786516662",
+      "title": "Sunny Day (Piano Version)",
+      "artist": "CIP Music",
+      "album": "Jay Chou Piano Collection",
+      "durationSec": 267,
+      "isrc": "QZPJ32432001"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 670,
+        "ms": 657,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 670,
+      "ms": 657
+    },
+    "searchMs": 1172,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "1383107214",
+        "score": 63,
+        "title": "Sunny Day (Piano Music)"
+      },
+      {
+        "src": "kg",
+        "id": "76E27DAC119FC08E8CA9D3E112B8194E",
+        "score": 45,
+        "title": "Sunny Day"
+      }
+    ],
+    "url": "http://m8.music.126.net/20261106165542/4c370f64bfca43260d602ed830894404/ymusic/055a/0258/540c/2013aa602d528dba7263cf1c1aaeb2bf.flac",
+    "totalMs": 1829
+  },
+  {
+    "song": {
+      "tag": "华语流行",
+      "query": "邓紫棋 光年之外",
+      "appleId": "1190070744",
+      "title": "Light Years Away (Theme from Movie \"Passengers\")",
+      "artist": "G.E.M.",
+      "album": "Light Years Away (\"Passengers\" Movie Theme Song) - Single",
+      "durationSec": 236,
+      "isrc": "HKI111700001"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 1145,
+        "ms": 3545,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "tx",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 1145,
+      "ms": 3545
+    },
+    "searchMs": 646,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "002jwBlC03VVau",
+        "score": 66,
+        "title": "Light Years Away (From Hardcore Utopia 4)"
+      },
+      {
+        "src": "wy",
+        "id": "3336763292",
+        "score": 63,
+        "title": "Light Years Away (Theme Song from \"Passengers\") [G.E.M. Version] (Male)"
+      }
+    ],
+    "url": "http://isure6.stream.qqmusic.qq.com/Q0000006iJvx27DBna.flac?guid=1000412345678&vkey=FDE35AC4E5E7F158BABDBFB699904D2331C933B10BFA696A453916DF6A7223C62D5013353FADD05042FF101B78CDBDBB44D743C8DD698CD9__v21530b785&uin=3074987588&fromtag=99080004&trace=4187354f6e79c477",
+    "totalMs": 4191
+  },
+  {
+    "song": {
+      "tag": "华语流行",
+      "query": "陈奕迅 富士山下",
+      "appleId": "1443346107",
+      "title": "富士山下",
+      "artist": "Eason Chan",
+      "album": "What's Going On...?",
+      "durationSec": 259,
+      "isrc": "HKUM70600363"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 856,
+        "ms": 1661,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "tx",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 856,
+      "ms": 1661
+    },
+    "searchMs": 1576,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "003aAPj81VWrbL",
+        "score": 75,
+        "title": "富士山下"
+      },
+      {
+        "src": "wy",
+        "id": "65766",
+        "score": 67,
+        "title": "富士山下"
+      },
+      {
+        "src": "kg",
+        "id": "2A6F36DE9DD51B1DCFFA99A209CFDC9F",
+        "score": 67,
+        "title": "富士山下"
+      }
+    ],
+    "url": "http://isure6.stream.qqmusic.qq.com/Q000001Z9L6e0W6PIA.flac?guid=1000412345678&vkey=B02241ADC525A60BF63B2517EEB2529F1E8F6A4DF71319AE985CE886A636053C07DE652734D297BC0E9768ABA1F04D80F29959BBE8063919__v21530b33d&uin=166018051&fromtag=99080004&trace=36a1a9bd3b237543",
+    "totalMs": 3237
+  },
+  {
+    "song": {
+      "tag": "华语流行",
+      "query": "五月天 后来的我们",
+      "appleId": "1158763996",
+      "title": "後來的我們",
+      "artist": "Mayday",
+      "album": "自傳",
+      "durationSec": 346,
+      "isrc": "TWK231610206"
+    },
+    "attempts": [],
+    "result": null,
+    "searchMs": 685,
+    "matched": [],
+    "totalMs": 685
+  },
+  {
+    "song": {
+      "tag": "欧美流行",
+      "query": "Taylor Swift Anti-Hero",
+      "appleId": "1649434293",
+      "title": "Anti-Hero",
+      "artist": "Taylor Swift",
+      "album": "Midnights",
+      "durationSec": 201,
+      "isrc": "USUG12205736"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5193,
+        "ms": 151,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5193,
+      "ms": 151
+    },
+    "searchMs": 1912,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "1990192694",
+        "score": 100,
+        "title": "Anti-Hero"
+      },
+      {
+        "src": "tx",
+        "id": "00029tRJ4DARgN",
+        "score": 100,
+        "title": "Anti-Hero"
+      },
+      {
+        "src": "kg",
+        "id": "7BE14207BD4E3F13197C244574761275",
+        "score": 67,
+        "title": "Anti-Hero"
+      }
+    ],
+    "url": "http://m7.music.126.net/20261106165552/d1198b47af97edf3227f2e6624014049/ymusic/obj/w5zDlMODwrDDiGjCn8Ky/29298785463/fde0/9927/2b29/1c822410ea2a3cca65d9ff94df553ef4.flac",
+    "totalMs": 2063
+  },
+  {
+    "song": {
+      "tag": "欧美流行",
+      "query": "The Weeknd Blinding Lights",
+      "appleId": "1542842761",
+      "title": "Blinding Lights (Remix)",
+      "artist": "The Weeknd & ROSALÍA",
+      "album": "Blinding Lights (Remix) - Single",
+      "durationSec": 216,
+      "isrc": "USUG12004507"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 1599,
+        "ms": 3061,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "tx",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 1599,
+      "ms": 3061
+    },
+    "searchMs": 644,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "004cgyTB3BHJpz",
+        "score": 100,
+        "title": "Blinding Lights (Remix)"
+      },
+      {
+        "src": "wy",
+        "id": "1406633327",
+        "score": 88,
+        "title": "Blinding Lights"
+      },
+      {
+        "src": "kg",
+        "id": "9FD2D6A0393F1873B16A0D5C0FA6F023",
+        "score": 83,
+        "title": "Blinding Lights (2026 After Hours til Dawn Tour亚洲巡回演唱会香港站现场)"
+      }
+    ],
+    "url": "http://isure6.stream.qqmusic.qq.com/F000001sqnGr26yYn9.flac?guid=1000412345678&vkey=FBBB2F6B68803CD40EB396BE9E2CD49CA641506806E9DBEC6F80D81FD98AA447C6ED97C93BC98658C53D145554A2C2AF10ECC321FD671E42__v21ebdd351&uin=2314129561&fromtag=99050004&trace=73e8cabbf9096666",
+    "totalMs": 3705
+  },
+  {
+    "song": {
+      "tag": "欧美流行",
+      "query": "Dua Lipa Levitating",
+      "appleId": "1538003843",
+      "title": "Levitating",
+      "artist": "Dua Lipa",
+      "album": "Future Nostalgia",
+      "durationSec": 204,
+      "isrc": "GBAHT1901299"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5329,
+        "ms": 201,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5329,
+      "ms": 201
+    },
+    "searchMs": 1689,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "1433934518",
+        "score": 100,
+        "title": "Levitating"
+      },
+      {
+        "src": "tx",
+        "id": "003XxeuF4YvaAC",
+        "score": 100,
+        "title": "Levitating"
+      },
+      {
+        "src": "kg",
+        "id": "E0C26BF03CCCDA1FAC3F89EA54BC6472",
+        "score": 92,
+        "title": "Levitating"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165558/622af5bd3bfda604beba80be28e6658f/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/26306635544/a78d/5dea/5596/b97a63660765e74bcd4d81da17ff0c2c.flac",
+    "totalMs": 1890
+  },
+  {
+    "song": {
+      "tag": "欧美流行",
+      "query": "Billie Eilish bad guy",
+      "appleId": "1450695739",
+      "title": "bad guy",
+      "artist": "Billie Eilish",
+      "album": "WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?",
+      "durationSec": 194,
+      "isrc": "USUM71900764"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 1431,
+        "ms": 3277,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "tx",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 1431,
+      "ms": 3277
+    },
+    "searchMs": 744,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "003eKeNV0t8IVi",
+        "score": 100,
+        "title": "bad guy"
+      },
+      {
+        "src": "kg",
+        "id": "27C06DA245AF5925234C101FEBFE24C8",
+        "score": 92,
+        "title": "bad guy"
+      }
+    ],
+    "url": "http://isure6.stream.qqmusic.qq.com/F000004Qabxl033FNh.flac?guid=1000412345678&vkey=E8E36B3A60E4CFE3589F28406458A6071444B37D79A46AA05286C176E82ED4159B4EA1AD4D8EF9C64B2C844740C88C3461A862A660B7327D__v21589ee55&uin=3378171043&fromtag=99050004&trace=1d17cc1c4d04a5fc",
+    "totalMs": 4021
+  },
+  {
+    "song": {
+      "tag": "摇滚",
+      "query": "Queen Bohemian Rhapsody",
+      "appleId": "6781024437",
+      "title": "Bohemian Rhapsody",
+      "artist": "Queen",
+      "album": "A Night At The Opera (Deluxe Edition)",
+      "durationSec": 354,
+      "isrc": "GBUM71029604"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5126,
+        "ms": 202,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5126,
+      "ms": 202
+    },
+    "searchMs": 1470,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "471969753",
+        "score": 100,
+        "title": "Bohemian Rhapsody"
+      },
+      {
+        "src": "kg",
+        "id": "9C32418E456FF19E908CC96BA36EF445",
+        "score": 100,
+        "title": "Bohemian Rhapsody (Remastered 2011)"
+      },
+      {
+        "src": "tx",
+        "id": "000Xoi3E1AmzV4",
+        "score": 92,
+        "title": "Bohemian Rhapsody (Remastered 2011)"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165603/5bc643d1a78c182444a7e952443e2db8/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/61702479621/21a3/0568/d31f/df7fd3317f89d68e7f9b8cad321e1b35.flac",
+    "totalMs": 1672
+  },
+  {
+    "song": {
+      "tag": "摇滚",
+      "query": "Radiohead Weird Fishes",
+      "appleId": "1109715168",
+      "title": "Weird Fishes / Arpeggi",
+      "artist": "Radiohead",
+      "album": "In Rainbows",
+      "durationSec": 318,
+      "isrc": "GBSTK0700004"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5469,
+        "ms": 157,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5469,
+      "ms": 157
+    },
+    "searchMs": 809,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "18795451",
+        "score": 100,
+        "title": "Weird Fishes / Arpeggi"
+      },
+      {
+        "src": "tx",
+        "id": "000eLObn1l7o8J",
+        "score": 100,
+        "title": "Weird Fishes/ Arpeggi"
+      },
+      {
+        "src": "kg",
+        "id": "DDFCCD4F769F9EA149F3133F70D7E498",
+        "score": 80,
+        "title": "Weird Fishes / Arpeggi (Live)"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165604/d9625ef8f3002124214f094649aa4a1d/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/26278947506/1dc8/b8eb/879a/a4adcfae6717bc48a0db1d7f2e2ec856.flac",
+    "totalMs": 966
+  },
+  {
+    "song": {
+      "tag": "独立",
+      "query": "落日飞车 My Jinji",
+      "appleId": "1753222327",
+      "title": "My Jinji",
+      "artist": "Sunset Rollercoaster",
+      "album": "JINJI KIKKO - Single",
+      "durationSec": 401,
+      "isrc": "TWCR71600002"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5161,
+        "ms": 220,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5161,
+      "ms": 220
+    },
+    "searchMs": 429,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "1321740481",
+        "score": 76,
+        "title": "My Jinji (Audiotree Live Version)"
+      },
+      {
+        "src": "tx",
+        "id": "000ZPOfJ0yIbwL",
+        "score": 63,
+        "title": "My Jinji (Audiotree Live Version)"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165605/a838da06157d335ef6598ff888b3eb6d/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/26296795327/5c88/8512/288f/067cdb204ddec0a0728d035b94cfe584.flac",
+    "totalMs": 649
+  },
+  {
+    "song": {
+      "tag": "独立",
+      "query": "草东没有派对 山海",
+      "appleId": "1676736010",
+      "title": "Wayfarer",
+      "artist": "No Party for Cao Dong",
+      "album": "The Servile",
+      "durationSec": 251,
+      "isrc": "TWBN31600010"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 96,
+        "ms": 3933,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 96,
+        "ms": 10807,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "hires",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 96,
+        "ms": 4729,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 96,
+        "ms": 615,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 96,
+        "ms": 105,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "320k",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 96,
+        "ms": 37,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源3.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 978,
+        "ms": 1351,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源3.js",
+      "src": "tx",
+      "q": "flac",
+      "kind": "flac",
+      "kbps": 978,
+      "ms": 1351
+    },
+    "searchMs": 410,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "004LrLmJ2IhMCY",
+        "score": 58,
+        "title": "Wayfarer"
+      }
+    ],
+    "url": "http://ws.stream.qqmusic.qq.com/F000004LrLmJ2IhMCY.flac?guid=0&vkey=9F0DABCEAB15FDB63D9F18090DF63DB16617590EC3668302BC406256E3956C0C9C22F817593A0100FFA8C7F274F8E74AE3968FFC94632A5D__v21e297fb4&uin=1152921505349757380&fromtag=119114",
+    "totalMs": 21987
+  },
+  {
+    "song": {
+      "tag": "古典",
+      "query": "Glenn Gould Goldberg Variations Aria",
+      "appleId": "594521563",
+      "title": "Goldberg Variations, BWV 988 (1955 Recording): Aria",
+      "artist": "Glenn Gould",
+      "album": "Bach: Goldberg Variations, BWV 988 (The 1955 & 1981 Recordings)",
+      "durationSec": 113,
+      "isrc": "USSM15500114"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5112,
+        "ms": 583,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5112,
+      "ms": 583
+    },
+    "searchMs": 1556,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "2111113836",
+        "score": 92,
+        "title": "Goldberg Variations, BWV 988: Aria (2023 Remastered Version)"
+      },
+      {
+        "src": "tx",
+        "id": "001kO06h4GV6Tl",
+        "score": 83,
+        "title": "Aria"
+      },
+      {
+        "src": "kg",
+        "id": "8AA92D27DE2483A6BDBE841ABD010415",
+        "score": 54,
+        "title": "Johann Sebastian Bach: Goldberg Variations, BWV 988 (Aria da capo)"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165629/c5ffa5d8d6361ff1902a4f7fa6f16d53/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/32444387173/b66d/d678/f56a/b60739bb49d54589f01d7a540e5ec680.flac",
+    "totalMs": 2139
+  },
+  {
+    "song": {
+      "tag": "古典",
+      "query": "Beethoven Symphony No. 5",
+      "appleId": "1440744516",
+      "title": "Symphony No. 5 in C Minor, Op. 67: I. Allegro con brio",
+      "artist": "Berlin Philharmonic Orchestra & Herbert von Karajan",
+      "album": "Beethoven: Symphony Nos. 5 & 6",
+      "durationSec": 442,
+      "isrc": "DEF058204561"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 4779,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 10593,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "hires",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 97,
+        "ms": 8603,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 658,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 93,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "320k",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 46,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源3.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 2,
+        "ms": 1677,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源3.js",
+        "src": "tx",
+        "q": "320k",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 2,
+        "ms": 5202,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源3.js",
+        "src": "tx",
+        "q": "128k",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 143,
+        "ms": 1350,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源10.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 4292,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源10.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 561,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源10.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 109,
+        "ms": 493,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 4760,
+        "ms": 211,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 4760,
+      "ms": 211
+    },
+    "searchMs": 1502,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "002W1MiA2gs7Ln",
+        "score": 70,
+        "title": "Symphony NO. 5 in C Minor, Op. 67: I. Allegro Con Brio"
+      },
+      {
+        "src": "wy",
+        "id": "1400389599",
+        "score": 67,
+        "title": "Symphony No. 5 in C Minor, Op. 67:I. Allegro con brio"
+      },
+      {
+        "src": "kg",
+        "id": "05AADC1FF6D68ED775950054008362FA",
+        "score": 63,
+        "title": "Symphony No. 5 in C Minor, Op. 67 - I. Allegro con brio"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106165709/bb1030d0c1339330bce72b9604730408/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/44004997835/951e/86fb/cbeb/9a266969f424cfd79861578448adca34.flac",
+    "totalMs": 40060
+  },
+  {
+    "song": {
+      "tag": "古典",
+      "query": "Chopin Nocturne Op. 9 No. 2",
+      "appleId": "1688152424",
+      "title": "Nocturne, Op. 9, No. 2",
+      "artist": "Anna Miernik",
+      "album": "Chopin: Nocturne, Op. 9, No. 2 - Single",
+      "durationSec": 297,
+      "isrc": "USCGH2326024"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 98,
+        "ms": 4575,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "ms": 14011,
+        "err": "timeout 14000 txflac24bit"
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "hires",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 320,
+        "ms": 1055,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "tx",
+      "q": "hires",
+      "kind": "mp3",
+      "kbps": 320,
+      "ms": 1055
+    },
+    "searchMs": 782,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "000gz9dS1oGggv",
+        "score": 92,
+        "title": "Nocturne, Op. 9, No. 2"
+      },
+      {
+        "src": "kg",
+        "id": "113A8292F1229343C94F018DEF17700D",
+        "score": 92,
+        "title": "Nocturne, Op. 9, No. 2"
+      },
+      {
+        "src": "wy",
+        "id": "117240",
+        "score": 55,
+        "title": "Nocturne,Op.9,No.2"
+      }
+    ],
+    "url": "https://isure6.stream.qqmusic.qq.com/M800000gz9dS1oGggv.mp3?guid=cyapi&vkey=E7BF0792DC4B4947E95568087A2D90DF7A103E7F4B62F0901B5C94BD88ABE9BC9D550F554E40696BE26943344D64C88C10BA518805627643__v2b9ab224&uin=1523142198&fromtag=https://cyapi.top&src=M800000uJqX81KIUNA.mp3",
+    "totalMs": 20423
+  },
+  {
+    "song": {
+      "tag": "现场",
+      "query": "Adele Someone Like You Live",
+      "appleId": "1544491998",
+      "title": "Someone Like You",
+      "artist": "Adele",
+      "album": "21",
+      "durationSec": 285,
+      "isrc": "GBBKS1000351"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 4567,
+        "ms": 198,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 4567,
+      "ms": 198
+    },
+    "searchMs": 1119,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "2117030",
+        "score": 100,
+        "title": "Someone Like You"
+      },
+      {
+        "src": "tx",
+        "id": "000gtopG1e7HB2",
+        "score": 100,
+        "title": "Someone Like You"
+      },
+      {
+        "src": "kg",
+        "id": "E2504BDBFA5A95B560B3D43972199EB6",
+        "score": 100,
+        "title": "Someone Like You (黑胶版)"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106165731/1964e98fed30a5484b8df01b5fd50056/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/26276397425/0836/7515/c735/e9b3dc516bac29d9fda5238f0e4d2c3f.flac",
+    "totalMs": 1317
+  },
+  {
+    "song": {
+      "tag": "OST",
+      "query": "久石让 Summer",
+      "appleId": "6797840336",
+      "title": "Ask me why (I)",
+      "artist": "Joe Hisaishi & Royal Philharmonic Orchestra",
+      "album": "Hisaishi: Symphonic Suite The Boy and the Heron for Piano and Orchestra",
+      "durationSec": 73,
+      "isrc": "JPPO02501419"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 2340,
+        "ms": 114,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 2340,
+      "ms": 114
+    },
+    "searchMs": 1192,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "3458058879",
+        "score": 67,
+        "title": "Ask me why (I)"
+      },
+      {
+        "src": "tx",
+        "id": "002SgGV5416T4b",
+        "score": 67,
+        "title": "Ask me why (I)"
+      },
+      {
+        "src": "kg",
+        "id": "1C40DA9F5BAB49E7EAC7980BB1BF0D59",
+        "score": 45,
+        "title": "Ask Me Why (Remastered 2009)"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106165732/46570a0ba94e26c07bcd6e5a15b98377/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/84108273956/3aee/492b/c3f6/e521bc333cf57099d049290eb1c43aaa.flac",
+    "totalMs": 1306
+  },
+  {
+    "song": {
+      "tag": "OST",
+      "query": "Hans Zimmer Time Inception",
+      "appleId": "380350246",
+      "title": "Time",
+      "artist": "Hans Zimmer",
+      "album": "Inception (Music from the Motion Picture)",
+      "durationSec": 276,
+      "isrc": "USRE11000577"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 4163,
+        "ms": 154,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 4163,
+      "ms": 154
+    },
+    "searchMs": 811,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "1426503",
+        "score": 100,
+        "title": "Time"
+      },
+      {
+        "src": "tx",
+        "id": "003M2Vlm1dd1SH",
+        "score": 100,
+        "title": "Time"
+      },
+      {
+        "src": "kg",
+        "id": "DFB32F1A4A1EF3BECF68402E4B259D39",
+        "score": 88,
+        "title": "Time"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106165733/a6515b1966bd68bf30bd75b6d3fdc5a6/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/81077192920/7321/6c62/1c83/361e964e248be8b3afe349211c5c7d16.flac",
+    "totalMs": 965
+  },
+  {
+    "song": {
+      "tag": "说唱",
+      "query": "Kendrick Lamar HUMBLE",
+      "appleId": "1440882165",
+      "title": "HUMBLE.",
+      "artist": "Kendrick Lamar",
+      "album": "DAMN.",
+      "durationSec": 177,
+      "isrc": "USUM71703150"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5432,
+        "ms": 239,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5432,
+      "ms": 239
+    },
+    "searchMs": 1046,
+    "matched": [
+      {
+        "src": "wy",
+        "id": "472045054",
+        "score": 100,
+        "title": "HUMBLE."
+      },
+      {
+        "src": "tx",
+        "id": "000YDd1X4dGS7z",
+        "score": 100,
+        "title": "HUMBLE. (Explicit)"
+      },
+      {
+        "src": "kg",
+        "id": "C7A0D47B4708FD77B7C26DDA803459E3",
+        "score": 92,
+        "title": "HUMBLE. (explicit|CompleteversionoriginallyperformedbyKendrickLamar)"
+      }
+    ],
+    "url": "http://m701.music.126.net/20261106165734/98a5783253373617bc15968a42f0849e/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/26289253291/7fe4/155d/b391/7e05c4a6830fd8550542b0bd730b2377.flac",
+    "totalMs": 1285
+  },
+  {
+    "song": {
+      "tag": "日语",
+      "query": "YOASOBI 夜に駆ける",
+      "appleId": "6826993851",
+      "title": "Into The Night (YOASOBI 5th ANNIVERSARY DOME LIVE 2024 “超現実”)",
+      "artist": "YOASOBI",
+      "album": "YOASOBI 5th ANNIVERSARY DOME LIVE 2024 “cho-genjitsu” at TOKYO DOME",
+      "durationSec": 293,
+      "isrc": "JPP302600830"
+    },
+    "attempts": [
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "ms": 14004,
+        "err": "timeout 14000 txmaster"
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "ms": 14010,
+        "err": "timeout 14000 txflac24bit"
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "tx",
+        "q": "hires",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 26,
+        "ms": 4885,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 173,
+        "ms": 14075,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 173,
+        "ms": 12285,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源13.js",
+        "src": "tx",
+        "q": "320k",
+        "ok": true,
+        "kind": "mp4/aac",
+        "kbps": 173,
+        "ms": 12294,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源3.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 26,
+        "ms": 970,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源3.js",
+        "src": "tx",
+        "q": "320k",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 26,
+        "ms": 295,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源3.js",
+        "src": "tx",
+        "q": "128k",
+        "ok": true,
+        "kind": "mp3",
+        "kbps": 26,
+        "ms": 283,
+        "status": 206
+      },
+      {
+        "script": "洛雪音源10.js",
+        "src": "tx",
+        "q": "master",
+        "ok": false,
+        "ms": 8207,
+        "err": "QQ音乐所有接口均无可用地址"
+      },
+      {
+        "script": "洛雪音源10.js",
+        "src": "tx",
+        "q": "flac24bit",
+        "ok": false,
+        "ms": 8105,
+        "err": "QQ音乐所有接口均无可用地址"
+      },
+      {
+        "script": "洛雪音源10.js",
+        "src": "tx",
+        "q": "flac",
+        "ok": false,
+        "ms": 8092,
+        "err": "QQ音乐所有接口均无可用地址"
+      },
+      {
+        "script": "洛雪音源14.js",
+        "src": "wy",
+        "q": "master",
+        "ok": true,
+        "kind": "flac",
+        "kbps": 5266,
+        "ms": 753,
+        "status": 206
+      }
+    ],
+    "result": {
+      "script": "洛雪音源14.js",
+      "src": "wy",
+      "q": "master",
+      "kind": "flac",
+      "kbps": 5266,
+      "ms": 753
+    },
+    "searchMs": 710,
+    "matched": [
+      {
+        "src": "tx",
+        "id": "003WMPNU3nDLvD",
+        "score": 70,
+        "title": "Into The Night"
+      },
+      {
+        "src": "wy",
+        "id": "1903278426",
+        "score": 55,
+        "title": "Into The Night (feat. Murasaki Ima)"
+      }
+    ],
+    "url": "http://m801.music.126.net/20261106165913/86b6e2d60b62bbfe74585e84ad13a66f/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/32656654891/df54/deff/2622/331a5e5a0b05cb3275b793b445830fc2.flac",
+    "totalMs": 98968
+  }
+]
