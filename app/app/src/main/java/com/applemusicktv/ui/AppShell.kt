@@ -120,7 +120,9 @@ fun AppShell(modifier: Modifier = Modifier, onStartupReady: () -> Unit = {}) {
     // First run: setup owns the whole screen. Nothing behind it is usable until the
     // server and token are configured, so there is no nav bar and nothing to browse.
     val onboardingVm: com.applemusicktv.ui.viewmodel.OnboardingViewModel = hiltViewModel()
-    var showOnboarding by remember { mutableStateOf(!playerVm.onboardingCompleted()) }
+    // 免登录模式：不再有登录引导，启动直接进首页。
+    // 只有用户在开发者菜单主动「重播设置」时才显示（replay 分支保留）。
+    var showOnboarding by remember { mutableStateOf(false) }
     var postLoginHomeReturnPending by rememberSaveable { mutableStateOf(false) }
     var postLoginHomeScrollPending by rememberSaveable { mutableStateOf(false) }
     val authorizationRevision by playerVm.authorizationRevision.collectAsState()
@@ -492,7 +494,10 @@ fun AppShell(modifier: Modifier = Modifier, onStartupReady: () -> Unit = {}) {
                     contentFocusRequester = libraryContentFocus,
                     onAlbumClick    = { returnState.openDetail(Screen.AlbumDetail.route(it)) },
                     onPlaylistClick = { id, name, artworkUrl ->
-                        returnState.openDetail(Screen.PlaylistDetail.route(id, name, artworkUrl ?: ""))
+                        val route = if (id.startsWith("imp-") || id.startsWith("lp-"))
+                            Screen.LocalPlaylist.route(id)
+                        else Screen.PlaylistDetail.route(id, name, artworkUrl ?: "")
+                        returnState.openDetail(route)
                     },
                     onArtistClick = { returnState.openDetail(Screen.ArtistDetail.route(it)) },
                 )
@@ -565,6 +570,21 @@ fun AppShell(modifier: Modifier = Modifier, onStartupReady: () -> Unit = {}) {
                     playerVm = playerVm,
                     onDataRefresh = { homeVm.load(); libraryVm.refresh() },
                     onReturnToTab = { requestTabFocus(TopNavTab.Dev) },
+                    tabBarFocused = navBarHasFocus,
+                )
+            }
+            returningComposable(
+                route     = Screen.LocalPlaylist.route,
+                arguments = listOf(navArgument("playlistId") { type = NavType.StringType }),
+            ) { entry ->
+                LocalPlaylistScreen(
+                    playlistId = java.net.URLDecoder.decode(
+                        entry.arguments?.getString("playlistId").orEmpty(), "UTF-8"),
+                    playerVm   = playerVm,
+                    onBack     = returnState::back,
+                    onArtistClick = { returnState.openDetail(Screen.ArtistDetail.route(it)) },
+                    onAlbumClick  = { returnState.openDetail(Screen.AlbumDetail.route(it)) },
+                    onReturnToTab = { requestTabFocus(destinationTab) },
                     tabBarFocused = navBarHasFocus,
                 )
             }

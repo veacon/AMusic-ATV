@@ -31,4 +31,9 @@ sealed class Screen(val route: String) {
             "playlist/${encode(id)}/${encode(name)}/${encode(artworkUrl)}"
         private fun encode(s: String) = java.net.URLEncoder.encode(s, "UTF-8")
     }
+
+    /** 本地歌单（收藏/导入），与 Apple 歌单详情分开，数据全部来自 LocalLibraryStore。 */
+    object LocalPlaylist : Screen("local-playlist/{playlistId}") {
+        fun route(id: String) = "local-playlist/${java.net.URLEncoder.encode(id, "UTF-8")}"
+    }
 }

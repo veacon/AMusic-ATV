@@ -34,6 +34,7 @@ class InAppWebServer @Inject constructor(
     private val beatAnalyzer: BeatAnalyzer,
     private val tokenVerifier: com.applemusicktv.data.auth.TokenVerifier,
     private val lx: com.applemusicktv.luoxue.LxPlayback,
+    private val playlistImporter: com.applemusicktv.data.local.PlaylistImporter,
 ) {
     private val logs = ArrayDeque<String>(300)
     private val sseClients = java.util.concurrent.CopyOnWriteArrayList<java.io.OutputStream>()
@@ -268,6 +269,23 @@ class InAppWebServer @Inject constructor(
                 }
                 method == "GET"  && path == "/report"      -> send(out, 200, "text/plain", bugReport(), "Content-Disposition: attachment; filename=\"amtv-bugreport.txt\"\r\n")
                 method == "POST" && path == "/clear-crash"        -> { com.applemusicktv.util.CrashReporter.clear(context); addLog("OK", "Crash log cleared"); redirect(out, "/") }
+                // 歌单导入：在电脑/手机上粘贴链接，App 端解析后落本地资料库
+                method == "POST" && path == "/playlist-import"    -> {
+                    val raw = parseField(body, "url").ifBlank { parseField(body, "text") }
+                    val msg = runCatching {
+                        kotlinx.coroutines.runBlocking {
+                            when (val r = playlistImporter.import(raw, parseField(body, "name").ifBlank { null })) {
+                                is com.applemusicktv.data.local.PlaylistImporter.Result.Ok ->
+                                    "已导入「${r.playlist.name}」${r.imported} 首"
+                                is com.applemusicktv.data.local.PlaylistImporter.Result.Err -> r.message
+                            }
+                        }
+                    }.getOrElse { "导入失败：${it.message}" }
+                    addLog("LIB", msg)
+                    if (query.getQueryParameter("json") == "1")
+                        send(out, 200, "application/json", org.json.JSONObject().put("msg", msg).toString())
+                    else redirect(out, "/")
+                }
                 method == "POST" && path == "/set-token"          -> { val checked = applyToken(parseField(body, "mut").trim()); redirect(out, when (checked) {
                     com.applemusicktv.data.auth.TokenVerification.Valid -> "/?token=saved"
                     com.applemusicktv.data.auth.TokenVerification.Invalid -> "/?token=invalid"
@@ -631,6 +649,18 @@ ${if (tokenError) "<div class='notice error' role=alert>令牌验证失败，令
 <li><h3>返回本页保存</h3><p>切回这个配置页面，将令牌粘贴到下方输入框，点击<span class="highlight">保存令牌</span>。</p></li>
 </ol>
 </details>
+<div class=card>
+<h2>资料库 · 导入歌单</h2>
+<p class=sub style=margin-bottom:10px>粘贴 QQ 音乐 / 网易云 / 酷狗的公开歌单链接；也可以在下面粘多行「歌名 - 歌手」。导入后直接出现在电视端「资料库」。</p>
+<form method=POST action=/playlist-import>
+<label class=token-label for=plurl>歌单链接</label>
+<input id=plurl name=url type=url autocomplete=off autocapitalize=off spellcheck=false placeholder="https://y.qq.com/n/ryqq/playlist/7338005124" style="width:100%;background:#e8e8ed;border:1.5px solid #d2d2d7;border-radius:8px;color:#1d1d1f;font-size:13px;padding:12px;outline:none;margin-bottom:8px;box-sizing:border-box">
+<label class=token-label for=pltext>或粘贴歌曲列表（可选）</label>
+<textarea id=pltext name=text autocomplete=off autocapitalize=off spellcheck=false placeholder="晴天 - 周杰伦&#10;富士山下 - 陈奕迅" style="min-height:90px"></textarea>
+<button class="btn btn-p" type=submit>导入到资料库</button>
+</form>
+</div>
+
 <div class=card>
 <h2>配置令牌</h2>
 <form method=POST action=/set-token>

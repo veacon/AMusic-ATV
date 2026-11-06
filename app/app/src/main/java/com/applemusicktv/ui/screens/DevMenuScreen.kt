@@ -92,14 +92,8 @@ fun DevMenuScreen(
                 Text(tr(R.string.msg_183), fontSize = 13.sp, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
             }
 
-            if (!state.hasMUT) {
-                Box(Modifier.returnToTabOnUp(onReturnToTab)) {
-                    SettingsSection(tr(R.string.msg_168)) {
-                        ActionSettingRow(tr(R.string.msg_184), tr(R.string.msg_185)) { playerVm.resetOnboarding() }
-                    }
-                }
-            }
-            Box(Modifier.returnToTabOnUp(if (state.hasMUT) onReturnToTab else null)) {
+            // 免登录模式：不再提供 Apple 登录入口，设置页只留本地/播放相关项。
+            Box(Modifier.returnToTabOnUp(onReturnToTab)) {
                 SettingsSection(tr(R.string.msg_186)) { LauncherIconSettings() }
             }
             LanguageSettingsSection()

@@ -37,6 +37,8 @@ class AudioResolver(
 
         private val LADDER = listOf("320k", "128k", "flac", "flac24bit", "hires", "master")
         private const val ACCEPT_KBPS = 200
+        /** 码率未知时，小于这个体积基本是 30 秒试听片段。 */
+        private const val MIN_COMPLETE_BYTES = 1_800_000L
         private const val MIN_SCORE = 45
         /** 单曲解析总预算：P0 最坏 40s 不可接受，超时即放弃并交给上层换源/跳过。 */
         private const val TOTAL_BUDGET_MS = 40_000L
@@ -116,7 +118,7 @@ class AudioResolver(
                         "${probe.kind}/${probe.kbps}kbps ${probe.bytes}B ${probe.err}",
                         System.currentTimeMillis() - tVerify,
                     )
-                    if (probe.ok && (probe.kind == "flac" || probe.kbps >= ACCEPT_KBPS)) {
+                    if (probe.ok && acceptable(probe)) {
                         resolvedCount++
                         val stream = AudioStream(
                             url = url,
@@ -142,6 +144,19 @@ class AudioResolver(
         })
         ResolveResult(null, attempts, null, System.currentTimeMillis() - t0)
     }
+
+    /**
+     * 试听片段 vs 完整曲目：
+     *  - flac 直接接受；
+     *  - 码率已知时按 [ACCEPT_KBPS] 门槛（低码率试听被挡，宁可换源）；
+     *  - 码率未知（脚本普遍不返回 bitrate；文本导入的歌也没有时长）时按文件体积判断：
+     *    30 秒试听一般 < 1.5MB，完整曲目普遍 > 2MB。这块之前直接按 0kbps 拒掉，
+     *    导致 5MB 的正常 mp3 被误杀。
+     */
+    private fun acceptable(probe: StreamVerifier.Probe): Boolean =
+        probe.kind == "flac" || probe.kind == "flac24bit" ||
+            probe.kbps >= ACCEPT_KBPS ||
+            (probe.kbps <= 0 && probe.bytes >= MIN_COMPLETE_BYTES)
 
     private fun musicInfo(
         cand: Candidate,

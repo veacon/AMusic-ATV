@@ -215,6 +215,7 @@ class PlayerViewModel @Inject constructor(
     private val standalonePrefs: com.applemusicktv.data.StandalonePreferences,
     private val webServer: InAppWebServer,
     private val lx: com.applemusicktv.luoxue.LxPlayback,
+    private val localLibrary: com.applemusicktv.data.local.LocalLibraryStore,
     val beatAnalyzer: BeatAnalyzer,
 ) : ViewModel() {
 
@@ -1916,19 +1917,20 @@ class PlayerViewModel @Inject constructor(
     fun probeStation(id: String) = viewModelScope.launch { repo.probeStation(id) }
 
     // ── Library writes ──────────────────────────────────────────────────
-    fun addToLibrary(song: com.applemusicktv.data.model.Song) = viewModelScope.launch {
-        repo.addToLibrary(song)
-            .onSuccess { toast(tr(R.string.msg_028, song.title)) }
-            .onFailure { toast(tr(R.string.msg_029)) }
+    /** 收藏到本地资料库（不再写 Apple library）。 */
+    fun addToLibrary(song: com.applemusicktv.data.model.Song) {
+        val added = localLibrary.toggleFavorite(song)
+        toast(if (added) "已收藏「${song.title}」" else "已取消收藏「${song.title}」")
     }
 
-    /** Editable library playlists for the "添加到播放列表" picker. */
-    suspend fun editablePlaylists() = repo.getLibraryPlaylists(limit = 100).getOrDefault(emptyList())
+    fun isFavorite(songId: String): Boolean = localLibrary.isFavorite(songId)
 
-    fun addToPlaylist(playlistId: String, playlistName: String, song: com.applemusicktv.data.model.Song) = viewModelScope.launch {
-        repo.addToPlaylist(playlistId, song)
-            .onSuccess { toast(tr(R.string.msg_030, playlistName)) }
-            .onFailure { toast(tr(R.string.msg_031)) }
+    /** 可追加歌曲的本地歌单（供「添加到播放列表」选择器）。 */
+    suspend fun editablePlaylists() = localLibrary.playlists.value
+
+    fun addToPlaylist(playlistId: String, playlistName: String, song: com.applemusicktv.data.model.Song) {
+        localLibrary.addSongToPlaylist(playlistId, song)
+        toast("已加入「$playlistName」")
     }
 
     private fun showStationLaunch(request: Long, id: String, title: String, artwork: String?, openPlayer: Boolean = true) {

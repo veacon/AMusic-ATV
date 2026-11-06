@@ -21,6 +21,7 @@ import com.applemusicktv.ui.navigation.items
 import com.applemusicktv.ui.navigation.itemsIndexed as gridItemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.BasicTextField
 import com.applemusicktv.ui.components.returnToTabOnUp
 import com.applemusicktv.ui.components.rememberTabAwareListState
 import com.applemusicktv.ui.components.rememberTabAwareGridState
@@ -42,8 +43,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,6 +55,7 @@ import coil.compose.AsyncImage
 import com.applemusicktv.data.model.Album
 import com.applemusicktv.data.model.Artist
 import com.applemusicktv.data.model.Song
+import com.applemusicktv.data.local.LocalLibraryStore
 import com.applemusicktv.data.network.PlaylistDto
 import com.applemusicktv.ui.components.AlbumCard
 import com.applemusicktv.ui.viewmodel.LibraryViewModel
@@ -69,7 +73,7 @@ private fun com.applemusicktv.ui.viewmodel.LibraryState.hasContent(section: Libr
 
 /** Sorted snapshots let a sort/section fade finish before the new order is shown. */
 private data class LibraryItems(
-    val playlists: List<PlaylistDto> = emptyList(),
+    val playlists: List<LocalLibraryStore.LocalPlaylist> = emptyList(),
     val albums: List<Album> = emptyList(),
     val artists: List<Artist> = emptyList(),
     val songs: List<Song> = emptyList(),
@@ -101,8 +105,15 @@ fun LibraryScreen(
     val sortFocus = sortRoute.control
     val hasCurrentItems = state.hasContent(section)
     val returnNavigation = com.applemusicktv.ui.navigation.LocalNavigationReturn.current
-    val listReady = state.hasMut && state.error == null && hasCurrentItems &&
-        !(state.isLoading && !hasCurrentItems)
+    val listReady = state.error == null && hasCurrentItems
+
+    var showImport by remember { mutableStateOf(false) }
+    var importing by remember { mutableStateOf(false) }
+    var playlistMenu by remember { mutableStateOf<LocalLibraryStore.LocalPlaylist?>(null) }
+    val toastContext = androidx.compose.ui.platform.LocalContext.current
+    fun toast(message: String) {
+        android.widget.Toast.makeText(toastContext, message, android.widget.Toast.LENGTH_SHORT).show()
+    }
 
     val pinnedIds by vm.pinnedIds.collectAsState()
     val orderedItems = remember(section, state, pinnedIds) {
@@ -118,7 +129,7 @@ fun LibraryScreen(
     val inset = pageHorizontalInset
     val sidebarWidth = 208.dp.coerceAtMost((maxWidth - inset * 2) * 0.32f)
     Row(Modifier.fillMaxSize().padding(horizontal = inset)) {
-        // Modern left sidebar (Playlists / Albums / Artists / Songs).
+        // Modern left sidebar (Songs / Playlists / Albums / Artists).
         SectionSidebar(section, onReturnToTab, sidebarWidth, sortRoute::request) { section = it }
 
         // Always mount this entry group so Down is safe even during first loading.
@@ -128,42 +139,15 @@ fun LibraryScreen(
             .libraryEntryFocus(listFocus,listReady,returnNavigation?.restoring==true,sortRoute).focusGroup()) {
             FadeThrough(Triple(section, state, orderedItems), modifier = Modifier.fillMaxSize(),
                 contentKey = { (section, state, _) -> Triple(section, state.sort, when {
-                    !state.hasMut -> "auth"
-                    state.isLoading && !state.hasContent(section) -> "loading"
                     state.error != null -> "error"
-                    section == LibrarySection.Songs && state.songsError != null && state.songs.isEmpty() -> "songsError"
                     else -> "content"
                 }) }) { (section, state, orderedItems) ->
                 when {
-                    !state.hasMut -> NoMutPlaceholder()
-                    // Only show the full-screen spinner on a truly empty first load.
-                    // If cached/previous data exists, keep showing it while refreshing
-                    // so focus stays in the content and doesn't jump to the top bar.
-                    state.isLoading && !state.hasContent(section) -> Box(Modifier.fillMaxSize(), Alignment.Center) {
-                        CircularProgressIndicator(color = Color(0xFFFA233B))
-                    }
                     state.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) {
                         Text(tr(R.string.msg_096, com.applemusicktv.i18n.AppLanguage.message(state.error)), color = Color(0xFFFF3B30), fontSize = 14.sp)
                     }
                     else -> Column(Modifier.fillMaxSize().padding(top = 80.dp)) {
                         SortBar(section, state.sort.field, state.sort.dir, onReturnToTab, sortFocus, listFocus) { f, d -> vm.setSort(f, d) }
-                        if (section == LibrarySection.Songs) {
-                            if (state.songsError != null && state.songs.isNotEmpty()) {
-                                SongLoadError(state.songsError!!, state.isLoading, vm::refresh)
-                            }
-                            if (state.songs.isNotEmpty() && state.sort.field == SortField.DATE && !state.songsNewestFirst && !vm.hasSongAdditionDates()) {
-                                Text(tr(R.string.msg_114), fontSize = 12.sp,
-                                    color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)), modifier = Modifier.padding(start = 32.dp, top = 8.dp, bottom = 8.dp))
-                            }
-                        }
-                        val dateOrderUnavailable = when (section) {
-                            LibrarySection.Albums -> state.albums.isNotEmpty() && state.albums.any { it.additionOrder == null } && state.albums.any { it.dateAdded.isNullOrBlank() }
-                            LibrarySection.Playlists -> state.playlists.isNotEmpty() && state.playlists.any { it.additionOrder == null } && state.playlists.any { it.dateAdded.isNullOrBlank() }
-                            else -> false
-                        }
-                        if ((state.sort.field == SortField.DATE || state.sort.field == SortField.DEFAULT) && dateOrderUnavailable) {
-                            Text(tr(R.string.msg_114), fontSize = 12.sp, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)), modifier = Modifier.padding(start = 32.dp, top = 8.dp, bottom = 8.dp))
-                        }
                         Box(Modifier.weight(1f).focusRequester(listFocus).focusGroup()) {
                             CompositionLocalProvider(LocalLibrarySortFocus provides sortRoute) {
                             Box(Modifier.fillMaxSize().librarySortOnRight(section==LibrarySection.Songs || section==LibrarySection.Artists)) {
@@ -175,18 +159,18 @@ fun LibraryScreen(
                                         onReturnToTab = onReturnToTab,
                                         playlists  = orderedItems.playlists,
                                         pinnedIds  = pinnedIds,
-                                        onOpen     = { onPlaylistClick(it.id, it.name, it.artworkUrl(500)) },
+                                        importing  = importing,
+                                        onOpen     = { playlist ->
+                                            onPlaylistClick(playlist.id, playlist.name, playlist.coverUrl)
+                                        },
                                         onPlay     = { vm.playPlaylist(it.id, playerVm) },
-                                        onTogglePin = { vm.togglePin(it.id) },
+                                        onMenu     = { playlistMenu = it },
+                                        onImport   = { showImport = true },
                                     )
                                 }
                                 LibrarySection.Albums  -> AlbumGrid(orderedItems.albums, onAlbumClick, onReturnToTab, tabBarFocused)
                                 LibrarySection.Artists -> ArtistList(orderedItems.artists, onArtistClick, onReturnToTab, tabBarFocused)
-                                LibrarySection.Songs -> if (state.songsError != null && state.songs.isEmpty()) {
-                                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                        SongLoadError(state.songsError!!, state.isLoading, vm::refresh)
-                                    }
-                                } else SongList(orderedItems.songs, playerVm, onArtistClick, onAlbumClick, onReturnToTab, tabBarFocused)
+                                LibrarySection.Songs -> SongList(orderedItems.songs, playerVm, vm, onArtistClick, onAlbumClick, onReturnToTab, tabBarFocused)
                             }
                             }
                             }
@@ -196,6 +180,51 @@ fun LibraryScreen(
                 }
             }
 
+        }
+    }
+
+    // 导入歌单：贴链接 → 解析 → 落本地
+    FadeThrough(showImport, contentKey = { if (it) true else null }) { visible ->
+        if (visible) {
+            ImportPlaylistDialog(
+                importing = importing,
+                onDismiss = { if (!importing) showImport = false },
+                onImport = { raw ->
+                    importing = true
+                    vm.importPlaylist(raw) { message ->
+                        importing = false
+                        showImport = false
+                        toast(message)
+                    }
+                },
+            )
+        }
+    }
+
+    // 歌单长按菜单
+    FadeThrough(playlistMenu, contentKey = { it?.id }) { retained ->
+        retained?.let { pl ->
+            PlaylistMenuDialog(
+                playlist   = pl,
+                pinned     = pl.id in pinnedIds,
+                onDismiss  = { playlistMenu = null },
+                onReimport = {
+                    playlistMenu = null
+                    val url = pl.sourceUrl
+                    if (url == null) {
+                        toast("文本歌单无法重新导入")
+                    } else {
+                        importing = true
+                        vm.importPlaylist(url) { message -> importing = false; toast(message) }
+                    }
+                },
+                onTogglePin = { playlistMenu = null; vm.togglePin(pl.id) },
+                onDelete = {
+                    playlistMenu = null
+                    vm.deletePlaylist(pl.id)
+                    toast("已删除「${pl.name}」")
+                },
+            )
         }
     }
 }
@@ -389,19 +418,17 @@ private fun SortRow(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun PlaylistGrid(
-    playlists: List<PlaylistDto>,
+    playlists: List<LocalLibraryStore.LocalPlaylist>,
     pinnedIds: Set<String>,
-    onOpen: (PlaylistDto) -> Unit,
-    onPlay: (PlaylistDto) -> Unit,
-    onTogglePin: (PlaylistDto) -> Unit,
+    importing: Boolean,
+    onOpen: (LocalLibraryStore.LocalPlaylist) -> Unit,
+    onPlay: (LocalLibraryStore.LocalPlaylist) -> Unit,
+    onMenu: (LocalLibraryStore.LocalPlaylist) -> Unit,
+    onImport: () -> Unit,
     onReturnToTab: (() -> Unit)? = null,
     tabBarFocused: Boolean = false,
 ) {
     val gridState = rememberTabAwareGridState(tabBarFocused)
-    if (playlists.isEmpty()) {
-        Box(Modifier.fillMaxSize(), Alignment.Center) { Text(tr(R.string.msg_124), color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA))) }
-        return
-    }
     LazyVerticalGrid(
         state = gridState,
         columns = GridCells.Fixed(4),
@@ -410,6 +437,12 @@ private fun PlaylistGrid(
         verticalArrangement = Arrangement.spacedBy(22.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
+        // 第一格永远是「导入歌单」——本地资料库的主要入口。
+        item(key = "import-card") {
+            Box(Modifier.returnToTabOnUp(onReturnToTab)) {
+                ImportCard(importing = importing, onClick = onImport)
+            }
+        }
         gridItemsIndexed(playlists, key = { _, item -> item.id }) { index, playlist ->
             Box(Modifier.librarySortOnRight(index%4==3 || index==playlists.lastIndex).returnToTabOnUp(if (index < 4) onReturnToTab else null)) {
                 PlaylistCard(
@@ -417,8 +450,43 @@ private fun PlaylistGrid(
                     pinned      = playlist.id in pinnedIds,
                     onOpen      = { onOpen(playlist) },
                     onPlay      = { onPlay(playlist) },
-                    onTogglePin = { onTogglePin(playlist) },
+                    onMenu      = { onMenu(playlist) },
                 )
+            }
+        }
+    }
+}
+
+/** 「＋ 导入歌单」卡片：与歌单同尺寸，点击弹出导入对话框。 */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ImportCard(importing: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFF5F5F7), Color(0xFF1C1C1F)),
+            focusedContainerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFEDEDF0), Color(0xFF2C2C31)),
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
+    ) {
+        Column(modifier = Modifier.padding(bottom = 8.dp)) {
+            Box(
+                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                    .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
+                    .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF232327))),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (importing) {
+                    CircularProgressIndicator(color = Color(0xFFFA233B), modifier = Modifier.size(28.dp))
+                } else {
+                    Text("＋", fontSize = 40.sp, color = Color(0xFFFA233B))
+                }
+            }
+            Column(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)) {
+                Text("导入歌单", fontSize = 12.sp, color = com.applemusicktv.ui.theme.AppPalette.primary, fontWeight = FontWeight.Medium)
+                Text("QQ 音乐 / 网易云 / 酷狗", fontSize = 10.sp, maxLines = 1,
+                    color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
             }
         }
     }
@@ -427,15 +495,15 @@ private fun PlaylistGrid(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun PlaylistCard(
-    playlist: PlaylistDto,
+    playlist: LocalLibraryStore.LocalPlaylist,
     pinned: Boolean,
     onOpen: () -> Unit,
     onPlay: () -> Unit,
-    onTogglePin: () -> Unit,
+    onMenu: () -> Unit,
 ) {
     Surface(
         onClick      = onOpen,
-        onLongClick  = onTogglePin,
+        onLongClick  = onMenu,
         shape  = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
         colors = ClickableSurfaceDefaults.colors(containerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFF5F5F7), Color(0xFF222225)), focusedContainerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFEDEDF0), Color(0xFF414146))),
         scale  = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
@@ -446,9 +514,9 @@ private fun PlaylistCard(
                     .focusedArtworkBorder(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)).clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
                     .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D))),
             ) {
-                if (playlist.artworkUrl != null) {
+                if (playlist.coverUrl != null) {
                     AsyncImage(
-                        model = playlist.artworkUrl,
+                        model = playlist.coverUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
@@ -477,8 +545,8 @@ private fun PlaylistCard(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(playlist.name, fontSize = 12.sp, color = com.applemusicktv.ui.theme.AppPalette.primary, maxLines = 1, fontWeight = FontWeight.Medium)
-                    if (playlist.curatorName.isNotEmpty())
-                        Text(playlist.curatorName, fontSize = 10.sp, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)), maxLines = 1)
+                    Text("${playlist.sourceLabel} · ${playlist.trackCount} 首", fontSize = 10.sp,
+                        color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)), maxLines = 1)
                 }
                 Surface(
                     onClick = onPlay,
@@ -541,13 +609,25 @@ private fun ArtistList(artists: List<Artist>, onArtistClick: (String) -> Unit, o
 private fun SongList(
     songs: List<Song>,
     playerVm: PlayerViewModel,
+    vm: LibraryViewModel,
     onArtistClick: (String) -> Unit = {},
     onAlbumClick: (String) -> Unit = {},
     onReturnToTab: (() -> Unit)? = null,
     tabBarFocused: Boolean = false,
 ) {
     val listState = rememberTabAwareListState(tabBarFocused)
-    if (songs.isEmpty()) { Box(Modifier.fillMaxSize(), Alignment.Center) { Text(tr(R.string.msg_127), color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA))) }; return }
+    if (songs.isEmpty()) {
+        Box(Modifier.fillMaxSize(), Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("还没有收藏的歌曲", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                    color = com.applemusicktv.ui.theme.AppPalette.primary)
+                Text("任意歌曲上长按 →「收藏到资料库」；歌单可在「播放列表」里导入 QQ 音乐 / 网易云 / 酷狗。",
+                    fontSize = 13.sp,
+                    color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
+            }
+        }
+        return
+    }
     var menuSong by remember { mutableStateOf<Song?>(null) }
     LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 32.dp, top = 24.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         val returnKeys=com.applemusicktv.ui.navigation.occurrenceKeys(songs.map { it.id })
@@ -582,9 +662,11 @@ private fun SongList(
                 onPlayNext = { playerVm.playNext(s); menuSong = null },
                 onAddToQueue = { playerVm.addToQueue(s); menuSong = null },
                 onAddToLibrary = { playerVm.addToLibrary(s); menuSong = null },
+                addToLibraryLabel = if (vm.isFavorite(s.id)) "取消收藏" else "收藏到资料库",
                 onAddToPlaylist = { pickerSong = s; menuSong = null },
                 onGoToArtist = s.artistId?.let { id -> { onArtistClick(id); menuSong = null } },
                 onGoToAlbum  = s.albumId?.let  { id -> { onAlbumClick(id);  menuSong = null } },
+                removeFromPlaylist = { vm.removeFavorite(s.id); menuSong = null },
             )
         }
     }
@@ -606,6 +688,8 @@ internal fun SongContextMenu(
     onAddToPlaylist: (() -> Unit)? = null,
     onGoToArtist: (() -> Unit)? = null,
     onGoToAlbum:  (() -> Unit)? = null,
+    addToLibraryLabel: String? = null,
+    removeFromPlaylist: (() -> Unit)? = null,
 ) {
     com.applemusicktv.ui.components.MotionDialog(onDismissRequest = onDismiss) {
         val firstFocus = remember { androidx.compose.ui.focus.FocusRequester() }
@@ -638,10 +722,11 @@ internal fun SongContextMenu(
             Spacer(Modifier.height(2.dp))
             ContextMenuItem(tr(R.string.msg_128), onPlayNext, Modifier.focusRequester(firstFocus))
             ContextMenuItem(tr(R.string.msg_129), onAddToQueue)
-            if (onAddToLibrary  != null) ContextMenuItem(tr(R.string.msg_130),  onAddToLibrary)
+            if (onAddToLibrary  != null) ContextMenuItem(addToLibraryLabel ?: tr(R.string.msg_130),  onAddToLibrary)
             if (onAddToPlaylist != null) ContextMenuItem(tr(R.string.msg_131), onAddToPlaylist)
             if (onGoToArtist != null) ContextMenuItem(tr(R.string.msg_132), onGoToArtist)
             if (onGoToAlbum  != null) ContextMenuItem(tr(R.string.msg_133),  onGoToAlbum)
+            if (removeFromPlaylist != null) ContextMenuItem("从歌单移除", removeFromPlaylist)
         }
     }
 }
@@ -694,7 +779,7 @@ private fun PlaylistPickerDialog(
     song: Song,
     onDismiss: () -> Unit,
 ) {
-    var playlists by remember { mutableStateOf<List<com.applemusicktv.data.network.PlaylistDto>?>(null) }
+    var playlists by remember { mutableStateOf<List<LocalLibraryStore.LocalPlaylist>?>(null) }
     LaunchedEffect(Unit) { playlists = playerVm.editablePlaylists() }
     com.applemusicktv.ui.components.MotionDialog(onDismissRequest = onDismiss) {
         val firstFocus = remember { androidx.compose.ui.focus.FocusRequester() }
@@ -739,6 +824,126 @@ private fun SongLoadError(message: String, isLoading: Boolean, onRetry: () -> Un
             border = com.applemusicktv.ui.components.contentActionBorder(RoundedCornerShape(50))) {
             Text(if (isLoading) tr(R.string.msg_137) else tr(R.string.msg_138), color = Color(0xFFFA233B), fontSize = 14.sp,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
+        }
+    }
+}
+
+/** 导入歌单弹窗：粘贴链接或「歌名 - 歌手」列表。 */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ImportPlaylistDialog(
+    importing: Boolean,
+    onDismiss: () -> Unit,
+    onImport: (String) -> Unit,
+) {
+    var text by remember { mutableStateOf("") }
+    val fieldFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { fieldFocus.requestFocus() } }
+
+    com.applemusicktv.ui.components.MotionDialog(onDismissRequest = { if (!importing) onDismiss() }) {
+        Column(
+            Modifier.width(760.dp).clip(RoundedCornerShape(18.dp))
+                .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFF5F5F7), Color(0xFF222225)))
+                .padding(26.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text("导入歌单", fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                color = com.applemusicktv.ui.theme.AppPalette.primary)
+            Text(
+                "粘贴 QQ 音乐 / 网易云 / 酷狗的公开歌单链接；也可以直接粘贴多行「歌名 - 歌手」。",
+                fontSize = 12.sp,
+                color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)),
+            )
+            Box(
+                Modifier.fillMaxWidth().height(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFFFFFFF), Color(0xFF2C2C31)))
+                    .padding(horizontal = 18.dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                BasicTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    singleLine = true,
+                    textStyle = TextStyle(color = com.applemusicktv.ui.theme.AppPalette.primary, fontSize = 15.sp),
+                    cursorBrush = SolidColor(Color(0xFFFA233B)),
+                    modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus),
+                    decorationBox = { inner ->
+                        if (text.isEmpty()) Text(
+                            "https://y.qq.com/n/ryqq/playlist/…",
+                            fontSize = 14.sp,
+                            color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA)),
+                        )
+                        inner()
+                    },
+                )
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    onClick = { if (!importing) onDismiss() },
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                    colors = com.applemusicktv.ui.components.contentActionColors(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D))),
+                    border = com.applemusicktv.ui.components.contentActionBorder(RoundedCornerShape(50)),
+                ) {
+                    Text("取消", fontSize = 14.sp, color = com.applemusicktv.ui.theme.AppPalette.primary,
+                        modifier = Modifier.padding(horizontal = 22.dp, vertical = 11.dp))
+                }
+                Surface(
+                    onClick = { if (!importing && text.isNotBlank()) onImport(text) },
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = if (importing) Color(0xFFB23A46) else Color(0xFFFA233B),
+                        focusedContainerColor = Color(0xFFFF4757),
+                    ),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+                ) {
+                    Row(Modifier.padding(horizontal = 24.dp, vertical = 11.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        if (importing) CircularProgressIndicator(
+                            color = Color.White, modifier = Modifier.size(14.dp), strokeWidth = 2.dp,
+                        )
+                        Text(if (importing) "导入中…" else "导入", fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold, color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** 歌单长按菜单：置顶 / 重新导入 / 删除。 */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun PlaylistMenuDialog(
+    playlist: LocalLibraryStore.LocalPlaylist,
+    pinned: Boolean,
+    onDismiss: () -> Unit,
+    onReimport: () -> Unit,
+    onTogglePin: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    com.applemusicktv.ui.components.MotionDialog(onDismissRequest = onDismiss) {
+        val firstFocus = remember { FocusRequester() }
+        Column(
+            Modifier.menuInitialFocus(firstFocus).width(320.dp).clip(RoundedCornerShape(16.dp))
+                .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFF5F5F7), Color(0xFF222225)))
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(playlist.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                color = com.applemusicktv.ui.theme.AppPalette.primary, maxLines = 1,
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp))
+            Text("${playlist.sourceLabel} · ${playlist.trackCount} 首", fontSize = 11.sp,
+                color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)),
+                modifier = Modifier.padding(horizontal = 14.dp).padding(bottom = 6.dp))
+            Box(Modifier.fillMaxWidth().height(1.dp)
+                .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D))))
+            Spacer(Modifier.height(2.dp))
+            ContextMenuItem(if (pinned) "取消置顶" else "置顶", onTogglePin, Modifier.focusRequester(firstFocus))
+            if (playlist.sourceUrl != null) ContextMenuItem("重新导入", onReimport)
+            ContextMenuItem("删除歌单", onDelete)
         }
     }
 }

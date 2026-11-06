@@ -34,7 +34,7 @@ import com.applemusicktv.ui.viewmodel.PlayerViewModel
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AddToDialog(playerVm: PlayerViewModel, song: Song, onDismiss: () -> Unit) {
-    var playlists by remember { mutableStateOf<List<PlaylistDto>?>(null) }
+    var playlists by remember { mutableStateOf<List<com.applemusicktv.data.local.LocalLibraryStore.LocalPlaylist>?>(null) }
     LaunchedEffect(Unit) { playlists = playerVm.editablePlaylists() }
     com.applemusicktv.ui.components.MotionDialog(onDismissRequest = onDismiss) {
         val firstFocus = remember { FocusRequester() }

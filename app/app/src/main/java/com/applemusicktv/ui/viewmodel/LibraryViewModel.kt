@@ -1,37 +1,21 @@
 package com.applemusicktv.ui.viewmodel
 
-import com.applemusicktv.i18n.tr
-import com.applemusicktv.R
-
-import com.applemusicktv.data.cache.AppDiskCache
 import android.content.Context
-import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.applemusicktv.data.MutPreferences
+import com.applemusicktv.data.local.LocalLibraryStore
+import com.applemusicktv.data.local.PlaylistImporter
 import com.applemusicktv.data.model.Album
 import com.applemusicktv.data.model.Artist
 import com.applemusicktv.data.model.Song
-import com.applemusicktv.data.network.PlaylistDto
-import com.applemusicktv.data.repository.MusicRepository
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.currentCoroutineContext
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 enum class SortField { DEFAULT, NAME, ARTIST, DATE }
@@ -41,214 +25,168 @@ data class SortState(val field: SortField = SortField.DATE, val dir: SortDir = S
 
 data class LibraryState(
     val isLoading: Boolean = false,
-    val hasMut: Boolean = false,
-    val playlists: List<PlaylistDto> = emptyList(),
+    /** 收藏的曲目（资料库「歌曲」页）。 */
+    val songs: List<Song> = emptyList(),
+    val playlists: List<LocalLibraryStore.LocalPlaylist> = emptyList(),
     val albums: List<Album> = emptyList(),
     val artists: List<Artist> = emptyList(),
-    val songs: List<Song> = emptyList(),
     val error: String? = null,
-    val songsError: String? = null,
-    val songsNewestFirst: Boolean = false,
     val sort: SortState = SortState(),
 )
 
+/**
+ * 本地资料库：收藏 + 歌单，全部来自 [LocalLibraryStore]，不再依赖 Apple 账号。
+ *
+ * 专辑 / 艺人两页由收藏曲目聚合而成（只聚合带 Apple id 的曲目，保证点开详情可用）。
+ */
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val repo: MusicRepository,
-    private val mutPrefs: MutPreferences,
-    private val moshi: Moshi,
+    private val store: LocalLibraryStore,
+    private val importer: PlaylistImporter,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(LibraryState())
+    // 必须在 _state 之前初始化：loadSavedSort() 会读它。
+    private val cachePrefs = context.getSharedPreferences("library_cache", Context.MODE_PRIVATE)
+
+    private val _state = MutableStateFlow(LibraryState(sort = loadSavedSort()))
     val state: StateFlow<LibraryState> = _state
 
-    private val contentCache = AppDiskCache.get(context).content("library_cache")
-    private val cachePrefs = context.getSharedPreferences("library_cache", Context.MODE_PRIVATE)
-    private val playlistsAdapter = moshi.adapter<List<PlaylistDto>>(Types.newParameterizedType(List::class.java, PlaylistDto::class.java))
-    private val albumsAdapter    = moshi.adapter<List<Album>>(Types.newParameterizedType(List::class.java, Album::class.java))
-    private val artistsAdapter   = moshi.adapter<List<Artist>>(Types.newParameterizedType(List::class.java, Artist::class.java))
-    private val songsAdapter     = moshi.adapter<List<Song>>(Types.newParameterizedType(List::class.java, Song::class.java))
-
-    private val refreshPolicy = LibraryRefreshPolicy()
-    private var activeSection = LibrarySection.Songs
+    var activeSection: LibrarySection = LibrarySection.Songs
+        private set
     private var visible = false
-    private var cacheRestored = false
-    private var loadedAccount = mutPrefs.getMUT()
-    private var loadJob: Job? = null
-    private var loadingSection: LibrarySection? = null
-    private var loadGeneration = 0L
+    private var importJob: Job? = null
 
     init {
-        loadSavedSort()
-        _state.update { it.copy(hasMut = loadedAccount.isNotEmpty()) }
-        // Lightweight account listener only. No cache parsing or network during app startup.
+        // 收藏/歌单任一变化都重算派生数据；数据量小，直接重建列表。
         viewModelScope.launch {
-            mutPrefs.accountChanges.map { mutPrefs.getMUT() }.distinctUntilChanged().collect { account ->
-                if (account != loadedAccount) {
-                    resetAccount(account)
-                    if (visible) selectSection(activeSection)
-                }
+            combine(store.favorites, store.playlists) { favorites, playlists ->
+                favorites to playlists
+            }.collect { (favorites, playlists) ->
+                rebuild(favorites, playlists)
             }
         }
     }
 
-    private fun resetAccount(account: String) {
-        ++loadGeneration
-        loadJob?.cancel()
-        loadingSection = null
-        loadedAccount = account
-        // Existing disk caches belong to the previous account until replaced by fresh results.
-        cacheRestored = true
-        refreshPolicy.invalidate()
-        _state.update { LibraryState(hasMut = account.isNotEmpty(), sort = it.sort) }
+    private fun rebuild(favorites: List<Song>, playlists: List<LocalLibraryStore.LocalPlaylist>) {
+        _state.update {
+            it.copy(
+                songs = favorites,
+                playlists = playlists,
+                albums = aggregateAlbums(favorites),
+                artists = aggregateArtists(favorites),
+                isLoading = false,
+            )
+        }
     }
+
+    private fun aggregateAlbums(songs: List<Song>): List<Album> = songs
+        .filter { !it.albumId.isNullOrBlank() && it.albumName.isNotBlank() }
+        .distinctBy { it.albumId }
+        .map {
+            Album(
+                id = it.albumId!!,
+                title = it.albumName,
+                artistName = it.artistName,
+                artistId = it.artistId,
+                artworkUrl = it.artworkUrl,
+                type = "albums",
+            )
+        }
+
+    private fun aggregateArtists(songs: List<Song>): List<Artist> = songs
+        .filter { !it.artistId.isNullOrBlank() }
+        .groupBy { it.artistId!! }
+        .map { (id, list) ->
+            Artist(
+                id = id,
+                name = list.first().artistName,
+                artworkUrl = list.first().artworkUrl,
+            )
+        }
+        .sortedBy { it.name.lowercase() }
+
+    // ── 页面生命周期（保留原调用点） ────────────────────────────────────────
 
     fun onHidden() { visible = false }
 
-    /** Called on Library entry/category selection. Only this category may request data. */
     fun selectSection(section: LibrarySection, markVisible: Boolean = true) {
         if (markVisible) visible = true
         activeSection = section
-        val account = mutPrefs.getMUT()
-        if (account != loadedAccount) resetAccount(account)
-        if (account.isEmpty()) return
-        if (loadJob?.isActive == true && loadingSection == section) return
-        val generation = ++loadGeneration
-        loadJob?.cancel()
-        loadingSection = null
-        if (refreshPolicy.isFresh(section)) {
-            _state.update { it.copy(isLoading = false, error = null) }
-            return
-        }
-        loadingSection = section
-        loadJob = viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, hasMut = true, error = null,
-                songsError = if (section == LibrarySection.Songs) null else it.songsError) }
-            try {
-                if (!cacheRestored) {
-                    val cached = withContext(Dispatchers.IO) { readCache() }
-                    currentCoroutineContext().ensureActive()
-                    if (generation != loadGeneration || mutPrefs.getMUT() != account) return@launch
-                    if (cached != null) _state.update { cached.copy(sort = it.sort, isLoading = true) }
-                    cacheRestored = true
-                }
-                var songsNewestFirst: Boolean? = null
-                val save: Pair<String, String> = when (section) {
-                    LibrarySection.Playlists -> {
-                        val value = repo.getLibraryPlaylists().getOrThrow()
-                        currentCoroutineContext().ensureActive()
-                        if (mutPrefs.getMUT() != account) return@launch
-                        _state.update { it.copy(playlists = value) }
-                        withContext(Dispatchers.IO) { "playlists" to playlistsAdapter.toJson(value) }
-                    }
-                    LibrarySection.Albums -> {
-                        val value = repo.getLibraryAlbums().getOrThrow()
-                        currentCoroutineContext().ensureActive()
-                        if (mutPrefs.getMUT() != account) return@launch
-                        _state.update { it.copy(albums = value) }
-                        withContext(Dispatchers.IO) { "albums" to albumsAdapter.toJson(value) }
-                    }
-                    LibrarySection.Artists -> {
-                        val value = repo.getLibraryArtists().getOrThrow()
-                        currentCoroutineContext().ensureActive()
-                        if (mutPrefs.getMUT() != account) return@launch
-                        _state.update { it.copy(artists = value) }
-                        withContext(Dispatchers.IO) { "artists" to artistsAdapter.toJson(value) }
-                    }
-                    LibrarySection.Songs -> {
-                        val value = repo.getLibrarySongs().getOrThrow()
-                        currentCoroutineContext().ensureActive()
-                        if (mutPrefs.getMUT() != account) return@launch
-                        _state.update { it.copy(songs = value.songs, songsError = null, songsNewestFirst = value.newestFirst) }
-                        songsNewestFirst = value.newestFirst
-                        withContext(Dispatchers.IO) { "songs" to songsAdapter.toJson(value.songs) }
-                    }
-                }
-                currentCoroutineContext().ensureActive()
-                if (generation != loadGeneration || mutPrefs.getMUT() != account) return@launch
-                withContext(Dispatchers.IO) { contentCache.putString(save.first, save.second) }
-                currentCoroutineContext().ensureActive()
-                if (generation == loadGeneration && mutPrefs.getMUT() == account) {
-                    // Preserve V12's order: addition-order metadata follows its matching cache write.
-                    songsNewestFirst?.let { newest -> cachePrefs.edit { putBoolean("songs_newest_first", newest) } }
-                    refreshPolicy.succeeded(section)
-                }
-            } catch (failure: Exception) {
-                currentCoroutineContext().ensureActive()
-                if (generation != loadGeneration || mutPrefs.getMUT() != account) return@launch
-                val message = when (failure) {
-                    is HttpException -> if (failure.code() in listOf(401,403))
-                        tr(R.string.msg_008) else tr(R.string.msg_009, failure.code())
-                    is IOException -> tr(R.string.msg_010)
-                    else -> tr(R.string.msg_011)
-                }
-                if (section == LibrarySection.Songs) _state.update { it.copy(songsError = message) }
-                else _state.update { state ->
-                    val cached = when (section) {
-                        LibrarySection.Playlists -> state.playlists.isNotEmpty()
-                        LibrarySection.Albums -> state.albums.isNotEmpty()
-                        LibrarySection.Artists -> state.artists.isNotEmpty()
-                        else -> false
-                    }
-                    state.copy(error = if (cached) null else message)
-                }
-            } finally {
-                if (generation == loadGeneration) {
-                    loadingSection = null
-                    _state.update { it.copy(isLoading = false) }
-                }
+    }
+
+    /** 本地数据无需预热，保留方法避免调用方改动。 */
+    fun preloadAfterLogin() = Unit
+
+    fun refresh() {
+        rebuild(store.favorites.value, store.playlists.value)
+    }
+
+    // ── 收藏 ────────────────────────────────────────────────────────────────
+
+    fun isFavorite(songId: String): Boolean = store.isFavorite(songId)
+
+    fun toggleFavorite(song: Song): Boolean = store.toggleFavorite(song)
+
+    fun removeFavorite(songId: String) = store.removeFavorite(songId)
+
+    // ── 歌单 ────────────────────────────────────────────────────────────────
+
+    fun importPlaylist(raw: String, name: String? = null, onDone: (String) -> Unit) {
+        if (importJob?.isActive == true) return
+        _state.update { it.copy(isLoading = true, error = null) }
+        importJob = viewModelScope.launch {
+            val result = importer.import(raw, name)
+            _state.update { it.copy(isLoading = false) }
+            when (result) {
+                is PlaylistImporter.Result.Ok ->
+                    onDone("已导入「${result.playlist.name}」${result.imported} 首")
+                is PlaylistImporter.Result.Err -> onDone(result.message)
             }
         }
     }
 
-    private fun loadSavedSort() {
-        if (!cachePrefs.getBoolean("web_date_desc_v1", false)) {
-            cachePrefs.edit {
-                putInt("sort_field", SortField.DATE.ordinal)
-                putInt("sort_dir", SortDir.DESC.ordinal)
-                putBoolean("date_sort_v2", true)
-                putBoolean("web_date_desc_v1", true)
-            }
-        }
+    fun createPlaylist(name: String) = store.createPlaylist(name)
+
+    fun deletePlaylist(id: String) = store.deletePlaylist(id)
+
+    fun renamePlaylist(id: String, name: String) = store.renamePlaylist(id, name)
+
+    fun addSongToPlaylist(playlistId: String, song: Song) = store.addSongToPlaylist(playlistId, song)
+
+    fun removeSongFromPlaylist(playlistId: String, songId: String) =
+        store.removeSongFromPlaylist(playlistId, songId)
+
+    fun playlist(id: String) = store.playlist(id)
+
+    fun playPlaylist(id: String, playerVm: PlayerViewModel) {
+        val songs = store.playlist(id)?.songs.orEmpty()
+        if (songs.isNotEmpty()) playerVm.playAlbum(songs, 0)
+    }
+
+    // ── 排序 ────────────────────────────────────────────────────────────────
+
+    private fun loadSavedSort(): SortState {
         val fieldIdx = cachePrefs.getInt("sort_field", -1)
-        if (fieldIdx < 0) return
-        val field = SortField.entries.getOrNull(fieldIdx) ?: return
+        if (fieldIdx < 0) return SortState()
+        val field = SortField.entries.getOrNull(fieldIdx) ?: return SortState()
         val dir = SortDir.entries.getOrNull(cachePrefs.getInt("sort_dir", 0)) ?: SortDir.ASC
-        _state.value = _state.value.copy(sort = SortState(field, dir))
-    }
-
-    /** Load the persisted library so content shows immediately on cold start. */
-    private fun readCache(): LibraryState? {
-        if (mutPrefs.getMUT().isEmpty()) return null
-        try {
-            val playlists = (contentCache.getString("playlists")?.let { playlistsAdapter.fromJson(it) } ?: emptyList()).filter { !com.applemusicktv.data.VideoPlaybackPolicy.isVideo(it.playlistType.orEmpty()) }
-            val albums    = (contentCache.getString("albums")?.let { albumsAdapter.fromJson(it) } ?: emptyList()).filter { com.applemusicktv.data.VideoPlaybackPolicy.allows(it.id,it.type) }
-            val artists   = contentCache.getString("artists")?.let { artistsAdapter.fromJson(it) } ?: emptyList()
-            val songs = (contentCache.getString("songs")?.let { songsAdapter.fromJson(it) } ?: emptyList()).filter { com.applemusicktv.data.VideoPlaybackPolicy.allows(it) }
-            if (playlists.isNotEmpty() || albums.isNotEmpty() || songs.isNotEmpty()) {
-                return LibraryState(hasMut = true, playlists = playlists, albums = albums, artists = artists, songs = songs,
-                    songsNewestFirst = cachePrefs.getBoolean("songs_newest_first", false))
-            }
-        } catch (_: Exception) {}
-        return null
+        return SortState(field, dir)
     }
 
     fun setSort(field: SortField) {
         val cur = _state.value.sort
-        val newDir = if (cur.field == field && cur.dir == SortDir.ASC) SortDir.DESC else SortDir.ASC
-        setSort(field, newDir)
+        setSort(field, if (cur.field == field && cur.dir == SortDir.ASC) SortDir.DESC else SortDir.ASC)
     }
 
-    /** Explicit field + direction — used by the sort popup, which picks both. */
     fun setSort(field: SortField, dir: SortDir) {
         val newSort = SortState(field, dir)
         _state.value = _state.value.copy(sort = newSort)
-        cachePrefs.edit {
-            putInt("sort_field", newSort.field.ordinal)
-            putInt("sort_dir", newSort.dir.ordinal)
-        }
+        cachePrefs.edit().putInt("sort_field", newSort.field.ordinal)
+            .putInt("sort_dir", newSort.dir.ordinal).apply()
     }
+
+    // ── 置顶（歌单） ────────────────────────────────────────────────────────
 
     private val _pinnedIds = MutableStateFlow(loadPinnedIds())
     val pinnedIds: StateFlow<Set<String>> = _pinnedIds
@@ -262,21 +200,22 @@ class LibraryViewModel @Inject constructor(
         val cur = _pinnedIds.value.toMutableSet()
         if (id in cur) cur.remove(id) else cur.add(id)
         _pinnedIds.value = cur
-        cachePrefs.edit { putString("pinned_playlists", cur.joinToString(",")) }
+        cachePrefs.edit().putString("pinned_playlists", cur.joinToString(",")).apply()
     }
 
     fun isPinned(id: String) = id in _pinnedIds.value
 
-    fun sortedPlaylists(): List<PlaylistDto> {
+    // ── 排序后的视图 ────────────────────────────────────────────────────────
+
+    fun sortedPlaylists(): List<LocalLibraryStore.LocalPlaylist> {
         val s = _state.value
         val pinned = _pinnedIds.value
         val list = s.playlists
         val sorted = when (s.sort.field) {
             SortField.NAME -> list.sortedBy { it.name.lowercase() }
-            SortField.DATE, SortField.DEFAULT -> when { list.all { it.additionOrder != null } -> list.sortedByDescending { it.additionOrder }; list.all { !it.dateAdded.isNullOrBlank() } -> list.sortedBy { it.dateAdded }; else -> list }
-            else -> list
+            else -> list // 存储本身已按「最近更新在前」
         }
-        val ordered = if (s.sort.dir == SortDir.DESC && (s.sort.field == SortField.NAME || (list.all { it.additionOrder != null } || list.all { !it.dateAdded.isNullOrBlank() }))) sorted.reversed() else sorted
+        val ordered = if (s.sort.dir == SortDir.DESC && s.sort.field == SortField.NAME) sorted.reversed() else sorted
         val (pins, rest) = ordered.partition { it.id in pinned }
         return pins + rest
     }
@@ -285,22 +224,19 @@ class LibraryViewModel @Inject constructor(
         val s = _state.value
         val list = s.albums
         val sorted = when (s.sort.field) {
-            SortField.NAME   -> list.sortedBy { it.title.lowercase() }
+            SortField.NAME -> list.sortedBy { it.title.lowercase() }
             SortField.ARTIST -> list.sortedBy { it.artistName.lowercase() }
-            SortField.DATE, SortField.DEFAULT -> when { list.all { it.additionOrder != null } -> list.sortedByDescending { it.additionOrder }; list.all { !it.dateAdded.isNullOrBlank() } -> list.sortedBy { it.dateAdded }; else -> list }
             else -> list
         }
-        return if (s.sort.dir == SortDir.DESC && (s.sort.field == SortField.NAME || s.sort.field == SortField.ARTIST || (list.all { it.additionOrder != null } || list.all { !it.dateAdded.isNullOrBlank() }))) sorted.reversed() else sorted
+        return if (s.sort.dir == SortDir.DESC && s.sort.field != SortField.DATE &&
+            s.sort.field != SortField.DEFAULT) sorted.reversed() else sorted
     }
 
     fun sortedSongs(): List<Song> {
         val s = _state.value
         if (s.sort.field == SortField.DATE || s.sort.field == SortField.DEFAULT) {
-            // Standard library responses may omit addition dates. Preserve the API's
-            // original order in that case instead of presenting a reversed alphabet as dates.
-            if (!s.songsNewestFirst && !hasSongAdditionDates()) return s.songs
-            val newestFirst = if (s.songsNewestFirst) s.songs else s.songs.sortedByDescending { it.dateAdded }
-            return if (s.sort.dir == SortDir.ASC) newestFirst.reversed() else newestFirst
+            // 收藏顺序：最新收藏在前
+            return if (s.sort.dir == SortDir.ASC) s.songs.reversed() else s.songs
         }
         val sorted = when (s.sort.field) {
             SortField.ARTIST -> s.songs.sortedBy { it.artistName.lowercase() }
@@ -309,44 +245,9 @@ class LibraryViewModel @Inject constructor(
         return if (s.sort.dir == SortDir.DESC) sorted.reversed() else sorted
     }
 
-    fun hasSongAdditionDates(): Boolean = _state.value.songs.let { songs ->
-        songs.isNotEmpty() && songs.all { !it.dateAdded.isNullOrBlank() }
-    }
-
     fun sortedArtists(): List<Artist> {
         val s = _state.value
-        val list = s.artists
-        val sorted = when (s.sort.field) {
-            SortField.NAME -> list.sortedBy { it.name.lowercase() }
-            else           -> list
-        }
+        val sorted = if (s.sort.field == SortField.NAME) s.artists.sortedBy { it.name.lowercase() } else s.artists
         return if (s.sort.dir == SortDir.DESC) sorted.reversed() else sorted
-    }
-
-    fun playPlaylist(id: String, playerVm: PlayerViewModel): kotlinx.coroutines.Job {
-        val request = playerVm.reservePlaybackRequest()
-        return viewModelScope.launch {
-            val songs = repo.getPlaylistTracks(id).getOrDefault(emptyList())
-            kotlinx.coroutines.currentCoroutineContext().ensureActive()
-            if (songs.isNotEmpty()) playerVm.playAlbumIfCurrent(request, songs)
-        }
-    }
-
-    /** Warm the initial visible category after authorization without pretending the page is open. */
-    fun preloadAfterLogin() {
-        refresh()
-        if (!visible) selectSection(activeSection, markVisible = false)
-    }
-
-    /** Explicit refresh invalidates all categories; hidden categories load on their next entry. */
-    fun refresh() {
-        refreshPolicy.invalidate()
-        ++loadGeneration
-        loadJob?.cancel()
-        loadingSection = null
-        _state.update { it.copy(isLoading = false) }
-        val account = mutPrefs.getMUT()
-        if (account != loadedAccount) resetAccount(account)
-        if (visible) selectSection(activeSection)
     }
 }
