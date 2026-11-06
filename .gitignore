@@ -18,3 +18,14 @@ replay_pid*
 
 # node
 node_modules/
+
+# 音源跑测临时产物
+bench_scripts/
+bench_ascii/
+bench2_ascii/
+bench*.csv
+app/.kotlin/
+
+# 本机 SDK 路径，不入库
+app/local.properties
+app/gradle/gradle-daemon-jvm.properties.bak

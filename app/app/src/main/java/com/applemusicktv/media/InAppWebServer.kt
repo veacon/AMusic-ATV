@@ -33,6 +33,7 @@ class InAppWebServer @Inject constructor(
     private val serverPrefs: ServerPreferences,
     private val beatAnalyzer: BeatAnalyzer,
     private val tokenVerifier: com.applemusicktv.data.auth.TokenVerifier,
+    private val lx: com.applemusicktv.luoxue.LxPlayback,
 ) {
     private val logs = ArrayDeque<String>(300)
     private val sseClients = java.util.concurrent.CopyOnWriteArrayList<java.io.OutputStream>()
@@ -237,6 +238,8 @@ class InAppWebServer @Inject constructor(
                 method == "GET"  && path == "/stream"      -> { handleSse(socket, out); return }
 
                 method == "GET"  && path == "/netlogs"     -> send(out, 200, "application/json", netLogsJson())
+                method == "GET"  && path == "/lx"          -> send(out, 200, "application/json", lx.statsJson())
+                method == "POST" && path == "/set-lx"      -> { applyLxEnabled(parseField(body, "lx")); redirect(out, "/") }
                 method == "GET"  && path == "/report"      -> send(out, 200, "text/plain", bugReport(), "Content-Disposition: attachment; filename=\"amtv-bugreport.txt\"\r\n")
                 method == "POST" && path == "/clear-crash"        -> { com.applemusicktv.util.CrashReporter.clear(context); addLog("OK", "Crash log cleared"); redirect(out, "/") }
                 method == "POST" && path == "/set-token"          -> { val checked = applyToken(parseField(body, "mut").trim()); redirect(out, when (checked) {
@@ -273,6 +276,13 @@ class InAppWebServer @Inject constructor(
         GainProcessor.enabled = on   // takes effect on the audio thread immediately
         playerPrefs().edit().putBoolean("volume_leveling", on).apply()
         addLog("OK", "Volume leveling ${if (on) "ON" else "OFF"}")
+    }
+
+    /** 落雪音源开关（音源天天变，先留个远程开关，出问题不用重新装 APK）。 */
+    private fun applyLxEnabled(raw: String) {
+        val on = raw.trim() == "1" || raw.trim().equals("true", ignoreCase = true)
+        lx.setEnabled(on)
+        addLog("OK", "Luoxue audio source ${if (on) "ON" else "OFF"} — takes effect from the next song")
     }
 
     private fun applyBackgroundPlay(raw: String) {

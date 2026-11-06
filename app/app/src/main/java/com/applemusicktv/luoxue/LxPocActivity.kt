@@ -28,32 +28,25 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
+import com.applemusicktv.data.model.Song
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 /**
- * 垂直切片 PoC：验证「Apple 元数据 → 平台搜索 → 落雪脚本(QuickJS) → 直链播放」在真机可行。
+ * 落雪音源自助诊断入口（桌面图标 "LX PoC"）。
  *
- * 独立于主 App 的播放链路（PlayerViewModel 未改动），只验证新链路本身：
- *  - QuickJS 能否在电视上跑通脚本（含 async/await、lx.request）
- *  - 搜索 + 匹配 + 脚本级联 + 直链校验的实际命中率与耗时
- *  - 解析出的 FLAC 能否被 ExoPlayer 直接播放
+ * P1 起它不再是"另一条链路"：和主播放器共用同一个 [LxPlayback] 单例，
+ * 这里点一首歌就等于走一遍主播放器的解析路径，用来在真机/模拟器上快速判定：
+ *  - 脚本能不能起来（QuickJS + lx.request）
+ *  - 搜索/匹配/级联/校验的实际命中率与耗时
+ *  - 解析出的 FLAC 能否被 ExoPlayer 直接播
  */
 class LxPocActivity : ComponentActivity() {
 
-    private val http: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .connectTimeout(8, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .build()
-    }
-
-    private val engines = mutableListOf<LxScriptEngine>()
-    private var resolver: AudioResolver? = null
+    private lateinit var lx: LxPlayback
     private var player: ExoPlayer? = null
 
     private val logs = mutableStateListOf<String>()
@@ -64,6 +57,8 @@ class LxPocActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         player = ExoPlayer.Builder(this).build()
+        lx = EntryPointAccessors.fromApplication(applicationContext, LxEntryPoint::class.java).lxPlayback()
+        lx.logger = { line -> runOnUiThread { if (logs.size > 200) logs.removeAt(0); logs.add(line) } }
 
         setContent {
             MaterialTheme {
@@ -73,7 +68,7 @@ class LxPocActivity : ComponentActivity() {
                         .background(Color(0xFF101014))
                         .padding(40.dp)
                 ) {
-                    Text("LX PoC · 落雪音源直连", color = Color.White, style = MaterialTheme.typography.headlineSmall)
+                    Text("LX 音源诊断", color = Color.White, style = MaterialTheme.typography.headlineSmall)
                     Spacer(Modifier.height(8.dp))
                     Text(status, color = Color(0xFF9FE1CB), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(20.dp))
@@ -112,9 +107,18 @@ class LxPocActivity : ComponentActivity() {
             }
         }
 
+        // 跑测模式：`am start ... --ez bench true`，对 files/bench 下所有脚本做全量取链，
+        // 结果写 files/bench.csv（并复制到外部目录，方便 adb pull）。
+        if (intent.getBooleanExtra("bench", false)) {
+            lifecycleScope.launch { runBench() }
+            return
+        }
+
         val auto = intent.getStringExtra("auto")
         lifecycleScope.launch {
-            initEngines()
+            val ready = withContext(Dispatchers.IO) { lx.ensureReady() }
+            status = if (ready) "就绪：${lx.describe()}" else "脚本初始化失败：${lx.statsJson()}"
+            android.util.Log.i("LxPoc", "READY=$ready ${lx.describe()}")
             auto?.split("|")?.takeIf { it.size >= 2 }?.let { p ->
                 play(
                     Sample(
@@ -128,78 +132,75 @@ class LxPocActivity : ComponentActivity() {
         }
     }
 
+    private suspend fun runBench() {
+        // 优先用外部目录（adb push 直接可写），省掉 run-as 拷贝；
+        // 没有就退回内部目录。
+        val ext = File(getExternalFilesDir(null), "bench").apply { mkdirs() }
+        val int = File(filesDir, "bench").apply { mkdirs() }
+        val hasScripts = { d: File -> d.listFiles { f -> f.isFile && f.name.endsWith(".js", true) }?.isNotEmpty() == true }
+        val dir = if (hasScripts(ext)) ext else int
+        status = "跑测中…（${dir.absolutePath}）"
+        val csv = File(filesDir, "bench.csv")
+        val quality = intent.getStringExtra("quality") ?: "320k"
+        val conc = intent.getIntExtra("c", 5)
+        val tracks = intent.getStringExtra("tracks")
+            ?.split(";")?.mapNotNull { t ->
+                val p = t.split("|")
+                if (p.size >= 2) LxBench.Track(p[0], p[1], p.getOrElse(2) { "" }, p.getOrElse(3) { "0" }.toIntOrNull() ?: 0) else null
+            }?.takeIf { it.isNotEmpty() } ?: LxBench.DEFAULT_TRACKS
+        val bench = LxBench(dir, tracks, quality = quality, concurrency = conc) { line ->
+            runOnUiThread { if (logs.size > 400) logs.removeAt(0); logs.add(line) }
+            android.util.Log.i("LxBench", line)
+        }
+        val result = withContext(Dispatchers.IO) { bench.run(csv) }
+        runCatching { File(getExternalFilesDir(null), "bench.csv").writeText(csv.readText()) }
+        status = result
+        android.util.Log.i("LxBench", "RESULT $result")
+        android.util.Log.i("LxBench", "CSV ${csv.absolutePath}")
+    }
+
     private fun trace(line: String) {
         android.util.Log.i("LxPoc", line)
     }
 
-    private suspend fun initEngines() {
-        withContext(Dispatchers.IO) {
-            val dir = File(filesDir, "luoxue").apply { mkdirs() }
-            if (dir.listFiles { f -> f.name.endsWith(".js") }?.isEmpty() != false) {
-                runCatching {
-                    assets.list("luoxue")?.forEach { name ->
-                        assets.open("luoxue/$name").use { input ->
-                            File(dir, name).outputStream().use { input.copyTo(it) }
-                        }
-                    }
-                }
-            }
-            dir.listFiles { f -> f.name.endsWith(".js") }?.sortedBy { it.name }?.forEach { f ->
-                val engine = LxScriptEngine(f.name, f.readText(), http) { line ->
-                    lifecycleScope.launch { logs.add(line) }
-                }
-                val ok = runCatching { engine.start() }.getOrDefault(false)
-                if (ok) {
-                    engines.add(engine)
-                    lifecycleScope.launch {
-                        logs.add("加载 ${engine.displayName} (${engine.meta.version}) 源=${engine.sources.keys}")
-                    trace("ENGINE ${engine.fileName} ${engine.displayName} sources=${engine.sources.keys}")
-                    }
-                } else {
-                    engine.close()
-                    lifecycleScope.launch { logs.add("跳过 ${f.name}：未初始化") }
-                }
-            }
-            resolver = AudioResolver(PlatformSearch(http), StreamVerifier(http), engines) { line ->
-                lifecycleScope.launch { logs.add("  · $line") }
-            }
-            lifecycleScope.launch {
-                status = "就绪：${engines.size} 个脚本可用，点一首试试"
-                trace("READY engines=${engines.size}")
-            }
-        }
-    }
-
-    private fun play(song: Sample) {
-        val r = resolver ?: run { trace("resolver not ready"); return }
-        trace("PLAY ${song.title} / ${song.artist}")
+    private fun play(sample: Sample) {
+        trace("PLAY ${sample.title} / ${sample.artist}")
         busy = true
         current = null
-        logs.add("▶ ${song.title} — ${song.artist}")
+        logs.add("▶ ${sample.title} — ${sample.artist}")
         lifecycleScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                r.resolve(song.title, song.artist, song.album, song.durationSec) { step ->
-                    lifecycleScope.launch { logs.add("  · $step") }
-                }
-            }
-            logs.add("尝试 ${result.attempts.size} 次，总耗时 ${result.totalMs}ms")
-            trace("DONE attempts=${result.attempts.size} total=${result.totalMs}ms stream=${result.stream}")
-            result.attempts.takeLast(6).forEach {
-                logs.add("   ${if (it.ok) "✓" else "✗"} ${it.stage}/${it.source}/${it.quality} ${it.detail}")
-            }
-            result.stream?.let { st ->
-                current = st
-                status = "播放中：${st.kind} ${st.kbps}kbps"
-                val item = MediaItem.Builder()
-                    .setUri(st.url)
-                    .setMimeType(st.mimeType)
-                    .build()
+            val song = Song(
+                id = "poc-${sample.title}",
+                title = sample.title,
+                artistName = sample.artist,
+                albumName = sample.album,
+                durationMs = sample.durationSec * 1000L,
+                artworkUrl = null,
+                artworkBgColor = null,
+                previewUrl = null,
+            )
+            val t0 = System.currentTimeMillis()
+            val stream = withContext(Dispatchers.IO) { lx.resolve(song, force = true) }
+            val elapsed = System.currentTimeMillis() - t0
+            logs.add("解析结果：${stream?.kind ?: "MISS"} 用时 ${elapsed}ms")
+            trace("DONE stream=$stream total=${elapsed}ms")
+            if (stream != null) {
+                current = stream
+                status = "播放中：${stream.kind} ${stream.kbps}kbps（${stream.source}）"
                 player?.apply {
-                    setMediaItem(item)
+                    setMediaItem(
+                        MediaItem.Builder()
+                            .setUri(stream.url)
+                            .setMimeType(stream.mimeType.takeIf { it.isNotBlank() })
+                            .build()
+                    )
                     prepare()
                     play()
                 }
-            } ?: run { status = "未命中，已跳过"; trace("MISS") }
+            } else {
+                status = "未命中：${lx.describe()}"
+                trace("MISS")
+            }
             busy = false
         }
     }
@@ -207,7 +208,6 @@ class LxPocActivity : ComponentActivity() {
     override fun onDestroy() {
         player?.release()
         player = null
-        engines.forEach { runCatching { it.close() } }
         super.onDestroy()
     }
 

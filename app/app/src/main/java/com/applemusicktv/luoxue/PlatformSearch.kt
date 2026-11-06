@@ -14,13 +14,30 @@ import org.json.JSONObject
 class PlatformSearch(private val http: OkHttpClient) {
 
     fun searchAll(title: String, artist: String): List<Candidate> {
-        val q = "$title ${artist.split("&", ",", "、", "/").first().trim()}".trim()
+        val q = listOf(title.trim(), primaryArtist(artist))
+            .filter { it.isNotEmpty() }
+            .joinToString(" ")
+        if (q.isEmpty()) return emptyList()
         val out = mutableListOf<Candidate>()
         out += runCatching { netease(q) }.getOrDefault(emptyList())
         out += runCatching { qq(q) }.getOrDefault(emptyList())
         out += runCatching { kugou(q) }.getOrDefault(emptyList())
         return out
     }
+
+    /** 跨语言曲名兜底：只按艺人搜，匹配层再用时长认歌。 */
+    fun searchByArtist(artist: String, limit: Int = 12): List<Candidate> {
+        val q = primaryArtist(artist)
+        if (q.isEmpty()) return emptyList()
+        val out = mutableListOf<Candidate>()
+        out += runCatching { netease(q, limit) }.getOrDefault(emptyList())
+        out += runCatching { qq(q, limit) }.getOrDefault(emptyList())
+        out += runCatching { kugou(q, limit) }.getOrDefault(emptyList())
+        return out
+    }
+
+    private fun primaryArtist(artist: String) =
+        artist.split("&", ",", "、", "/").first().trim()
 
     private fun get(url: String, referer: String): String {
         val req = Request.Builder().url(url)
@@ -34,11 +51,11 @@ class PlatformSearch(private val http: OkHttpClient) {
     }
 
     // ── 网易云 ──────────────────────────────────────────────────────────────
-    fun netease(q: String): List<Candidate> {
+    fun netease(q: String, limit: Int = 8): List<Candidate> {
         val url = "https://music.163.com/api/search/get/web".toHttpUrl().newBuilder()
             .addQueryParameter("s", q)
             .addQueryParameter("type", "1")
-            .addQueryParameter("limit", "8")
+            .addQueryParameter("limit", limit.toString())
             .addQueryParameter("offset", "0")
             .build().toString()
         val root = JSONObject(get(url, "https://music.163.com/"))
@@ -62,11 +79,11 @@ class PlatformSearch(private val http: OkHttpClient) {
     }
 
     // ── QQ 音乐 ─────────────────────────────────────────────────────────────
-    fun qq(q: String): List<Candidate> {
+    fun qq(q: String, limit: Int = 8): List<Candidate> {
         val url = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp".toHttpUrl().newBuilder()
             .addQueryParameter("w", q)
             .addQueryParameter("format", "json")
-            .addQueryParameter("n", "8")
+            .addQueryParameter("n", limit.toString())
             .addQueryParameter("p", "1")
             .build().toString()
         val root = JSONObject(get(url, "https://y.qq.com/"))
@@ -94,11 +111,11 @@ class PlatformSearch(private val http: OkHttpClient) {
     }
 
     // ── 酷狗 ────────────────────────────────────────────────────────────────
-    fun kugou(q: String): List<Candidate> {
+    fun kugou(q: String, limit: Int = 8): List<Candidate> {
         val url = "https://songsearch.kugou.com/song_search_v2".toHttpUrl().newBuilder()
             .addQueryParameter("keyword", q)
             .addQueryParameter("page", "1")
-            .addQueryParameter("pagesize", "8")
+            .addQueryParameter("pagesize", limit.toString())
             .build().toString()
         val root = JSONObject(get(url, "https://www.kugou.com/"))
         val list = root.optJSONObject("data")?.optJSONArray("lists") ?: return emptyList()

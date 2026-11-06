@@ -213,6 +213,7 @@ class PlayerViewModel @Inject constructor(
     private val onboardingPrefs: com.applemusicktv.data.OnboardingPreferences,
     private val standalonePrefs: com.applemusicktv.data.StandalonePreferences,
     private val webServer: InAppWebServer,
+    private val lx: com.applemusicktv.luoxue.LxPlayback,
     val beatAnalyzer: BeatAnalyzer,
 ) : ViewModel() {
 
@@ -263,6 +264,19 @@ class PlayerViewModel @Inject constructor(
 
     private fun hasMUT() = mutPrefs.hasMUT()
     private fun isStandalone() = !serverPrefs.hasPcServer()
+
+    /** 落雪音源：当前正在播放的歌曲 id（直链过期时据此重解析）。 */
+    private var lxSongId: String? = null
+    /** 每首歌只做一次"过期重解析"，避免死循环。 */
+    private var lxRetriedSongId: String? = null
+
+    private fun lxEligible(song: Song, full: Boolean) =
+        full && !song.isMusicVideo && lx.isEnabled()
+
+    private fun buildLxMediaItem(song: Song, stream: com.applemusicktv.luoxue.AudioStream) =
+        buildMediaItem(song, stream.url).buildUpon()
+            .setMimeType(stream.mimeType.takeIf { it.isNotBlank() })
+            .build()
 
     /** Resolve a card's animated-artwork loop lazily (on focus). Null = stay static.
      *  Honors the "动态封面" setting so cards don't spin up video decoders when it's off. */
@@ -896,6 +910,33 @@ class PlayerViewModel @Inject constructor(
             val song = _state.value.currentSong?.title ?: "?"
             webServer.addLog("ERR", "${error.errorCodeName} pos=${pos}ms song=$song cfade=$crossfadeInProgress cause=${error.cause?.message}")
             val current=_state.value.currentSong
+            // 落雪直链 TTL ≈21 分钟：过期/源端 403 时重解析一次并保持进度。
+            val lxCurrent = _state.value.currentSong?.takeIf { it.id == lxSongId }
+            if (lxCurrent != null && !crossfadeInProgress && lxRetriedSongId != lxCurrent.id) {
+                lxRetriedSongId = lxCurrent.id
+                lx.invalidate(lxCurrent.id)
+                val myGen = ++playGen
+                sourcePreparation.begin(myGen, wasPlaying)
+                attachedSourceGeneration = -1
+                webServer.addLog("LX", "重解析 ${lxCurrent.title}（${error.errorCodeName} @${pos}ms）")
+                viewModelScope.launch {
+                    val stream = lx.resolve(lxCurrent, force = true)
+                    if (myGen != playGen) return@launch
+                    val shouldPlay = sourcePreparation.finish(myGen) ?: return@launch
+                    if (stream != null) {
+                        attachedSourceGeneration = myGen
+                        lxSongId = lxCurrent.id
+                        player.setMediaItem(buildLxMediaItem(lxCurrent, stream), pos.coerceAtLeast(0L))
+                        player.prepare(); player.volume = 1f; player.playWhenReady = shouldPlay
+                    } else {
+                        lxSongId = null
+                        webServer.addLog("LX", "重解析失败 ${lxCurrent.title} — 跳过")
+                        toast(tr(R.string.msg_019, song))
+                        advanceQueue()
+                    }
+                }
+                return
+            }
             val isCurrentApi23Song = android.os.Build.VERSION.SDK_INT == 23 && usingStandalone &&
                 current != null && !current.isMusicVideo && !crossfadeInProgress &&
                 player.currentMediaItem?.mediaId == current.id && attachedSourceGeneration == playGen
@@ -1334,7 +1375,8 @@ class PlayerViewModel @Inject constructor(
         val r = pendingRestore ?: return
         pendingRestore = null
         hasPlayedSomething = true
-        val standalone = r.full && useStandalone()
+        val lxMode = r.full && lx.isEnabled()
+        val standalone = !lxMode && r.full && useStandalone()
         usingStandalone = standalone
         failedPreparationSongId = null
         beginPlaybackSelection()
@@ -1345,6 +1387,21 @@ class PlayerViewModel @Inject constructor(
         player.stop(); player.clearMediaItems()
         _state.update { it.copy(isLoading = true, isPlaying = false) }
         viewModelScope.launch {
+            if (lxMode) {
+                val stream = lx.resolve(r.song)
+                if (myGen != playGen) return@launch
+                if (stream != null) {
+                    val play = sourcePreparation.finish(myGen) ?: return@launch
+                    attachedSourceGeneration = myGen
+                    lxSongId = r.song.id; lxRetriedSongId = null
+                    webServer.addLog("LX", "恢复播放 ${r.song.title} · ${stream.kind} ${stream.kbps}kbps")
+                    player.setMediaItem(buildLxMediaItem(r.song, stream), r.posMs)
+                    player.prepare(); player.playWhenReady = play
+                    _state.update { it.copy(standaloneActive = false) }
+                    return@launch
+                }
+                webServer.addLog("LX", "恢复未命中 ${r.song.title} — 回退")
+            }
             val src = if (standalone) buildStandaloneSource(r.song) ?:
                 tryCatalogRecoverySource(r.song, myGen) else null
             if (myGen != playGen) return@launch
@@ -1657,7 +1714,10 @@ class PlayerViewModel @Inject constructor(
         _videoRequest.value = null   // audio item → dismiss any active video
 
         val full = _state.value.isFullStream
-        val standalone = full && useStandalone() && (song.id !in proxyOnlySongIds || !serverPrefs.serverReachable)
+        // 落雪优先：只要命中就用直链播放，Apple DRM/代理只作兜底。
+        val lxMode = lxEligible(song, full)
+        val standalone = !lxMode && full && useStandalone() && (song.id !in proxyOnlySongIds || !serverPrefs.serverReachable)
+        lxSongId = null; lxRetriedSongId = null
         val uri = if (full) repo.streamUrl(song.id) else (song.previewUrl ?: repo.streamUrl(song.id))
         webServer.addLog("PLR", "playQueueItem idx=$idx song=${song.title}${if (standalone) " [standalone]" else ""}")
         awaitingSongStart = song.id
@@ -1722,11 +1782,36 @@ class PlayerViewModel @Inject constructor(
         } else {
             usingStandalone = false
             _state.update { it.copy(standaloneActive = false) }
-            val shouldPlay = sourcePreparation.finish(myGen) ?: return
-            attachedSourceGeneration = myGen
-            player.setMediaItem(buildMediaItem(song, uri))
-            player.prepare()
-            startPlayback(shouldPlay)
+            // 这里既覆盖"配了代理"又覆盖"落雪接管"：先解析直链，未命中再降级。
+            viewModelScope.launch {
+                val stream = if (lxMode) lx.resolve(song) else null
+                if (myGen != playGen) return@launch
+                if (stream != null) {
+                    val shouldPlay = sourcePreparation.finish(myGen) ?: return@launch
+                    attachedSourceGeneration = myGen
+                    lxSongId = song.id; lxRetriedSongId = null
+                    webServer.addLog("LX", "播放 ${song.title} · ${stream.kind} ${stream.kbps}kbps · ${stream.source}/${stream.quality} · ${stream.resolveMs}ms")
+                    player.setMediaItem(buildLxMediaItem(song, stream))
+                    player.prepare()
+                    startPlayback(shouldPlay)
+                    return@launch
+                }
+                if (lxMode) webServer.addLog("LX", "未命中 ${song.title} — 回退 Apple")
+                // 落雪失败后：能端内解密就走 DRM，否则走代理直链。
+                val fallback = if (lxMode && useStandalone()) buildStandaloneSource(song) else null
+                if (myGen != playGen) return@launch
+                val shouldPlay = sourcePreparation.finish(myGen) ?: return@launch
+                attachedSourceGeneration = myGen
+                if (fallback != null) {
+                    usingStandalone = true
+                    player.setMediaSource(fallback)
+                    _state.update { it.copy(standaloneActive = true) }
+                } else {
+                    player.setMediaItem(buildMediaItem(song, uri))
+                }
+                player.prepare()
+                startPlayback(shouldPlay)
+            }
         }
         prefetchRequestedForSongId = null
         if (full) loadLyrics(song.id)
@@ -2407,6 +2492,11 @@ class PlayerViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching { repo.prefetchLyrics(song.id, song.title, song.artistName, song.durationMs / 1000) }
         }
+        // 落雪：只预解析直链（不建第二个 ExoPlayer），下一首/跨淡直接命中缓存。
+        if (lx.isEnabled()) {
+            lx.prefetch(song)
+            return
+        }
         // Standalone: warm the in-app decrypt cache instead of pinging the (often
         // absent) proxy. decryptToFile writes clear_<id>.mp4, which the next play or
         // crossfade then reuses instantly.
@@ -2696,11 +2786,18 @@ class PlayerViewModel @Inject constructor(
                         // the fade partner must get a Widevine source too — otherwise it
                         // fetches a proxy URL that may not even be reachable, errors out,
                         // and every transition silently degrades to a hard cut.
-                        val cfStandalone = useStandalone()
+                        val cfLx = lx.isEnabled() && s.isFullStream && !nextSong.isMusicVideo
+                        val cfLxCached = if (cfLx) lx.cached(nextSong.id) else null
+                        val cfStandalone = useStandalone() && !cfLx
                         val cfExo = buildCrossfadeExo().also { e ->
                             e.volume = 0f
-                            if (!cfStandalone) {
+                            if (!cfStandalone && !cfLx) {
                                 e.setMediaItem(buildMediaItem(nextSong, repo.streamUrl(nextSong.id)))
+                                e.prepare()
+                                e.play()
+                            } else if (cfLxCached != null) {
+                                // 预取已命中：直接建好淡入播放器，零等待
+                                e.setMediaItem(buildLxMediaItem(nextSong, cfLxCached))
                                 e.prepare()
                                 e.play()
                             }
@@ -2734,9 +2831,22 @@ class PlayerViewModel @Inject constructor(
                         cfExoErrListener = errListener
                         cfExo.addListener(errListener)
                         crossfadeExo = cfExo
-                        if (cfStandalone) {
+                        if (cfStandalone || (cfLx && cfLxCached == null)) {
                             viewModelScope.launch {
                                 kotlinx.coroutines.yield() // Let queue/fade setup finish before failure recovery can run.
+                                if (cfLx) {
+                                    val lxStream = lx.resolve(nextSong)
+                                    if (crossfadeExo !== cfExo) return@launch
+                                    if (lxStream != null) {
+                                        lxSongId = nextSong.id
+                                        webServer.addLog("LX", "跨淡 ${nextSong.title} · ${lxStream.kind} ${lxStream.kbps}kbps")
+                                        cfExo.setMediaItem(buildLxMediaItem(nextSong, lxStream))
+                                        cfExo.prepare()
+                                        cfExo.playWhenReady = player.playWhenReady
+                                        return@launch
+                                    }
+                                    webServer.addLog("LX", "跨淡未命中 ${nextSong.title} — 回退")
+                                }
                                 val src = buildStandaloneSource(nextSong)
                                 if (crossfadeExo !== cfExo) return@launch
                                 if (src == null && !serverPrefs.serverReachable) {

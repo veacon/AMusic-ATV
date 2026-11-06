@@ -28,7 +28,7 @@ val gitSha: String = providers.exec {
 
 android {
     namespace = "com.applemusicktv"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.applemusic.lavande"
@@ -93,7 +93,12 @@ android {
             "org/bouncycastle/pqc/crypto/picnic/lowmcL5.bin.properties"
         )
     }
-    kotlinOptions { jvmTarget = "17" }
+    kotlinOptions {
+        jvmTarget = "17"
+        // quickjs-kt 用 Kotlin 2.4 编译，而本项目用的是 2.1.20。
+        // 其 JVM 签名/ABI 与 2.1 兼容，只跳过元数据版本闸门即可正常引用。
+        freeCompilerArgs += "-Xskip-metadata-version-check"
+    }
 }
 
 dependencies {
@@ -149,8 +154,10 @@ dependencies {
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
 
     // QuickJS：端内执行落雪音源脚本（ES2020，含 async/await）。
-    // 只有它 / Rhino / WebView 三条路，Rhino 不支持 async，WebView 在部分电视固件上不可用。
-    implementation("io.github.taoweiji.quickjs:quickjs-android:1.4.6")
+    // 用 quickjs-kt 而不是 taoweiji/quickjs-android：后者不执行 Promise 微任务，
+    // 脚本 `await lx.request(...)` 永远不会恢复（实测：HTTP 已 200 回包，bridge 仍超时）。
+    // quickjs-kt 自带任务泵 + 中断超时，且支持 suspend 绑定（HTTP 直接作为 async binding）。
+    implementation("io.github.dokar3:quickjs-kt-android:1.0.15")
 
     // Images
     implementation("io.coil-kt:coil-compose:2.7.0")

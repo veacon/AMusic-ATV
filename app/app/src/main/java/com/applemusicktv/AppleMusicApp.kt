@@ -51,6 +51,7 @@ class AppleMusicApp : Application(), ImageLoaderFactory {
     @Inject lateinit var webServer: InAppWebServer
     @Inject lateinit var repo: MusicRepository
     @Inject lateinit var mutPrefs: MutPreferences
+    @Inject lateinit var lxPlayback: com.applemusicktv.luoxue.LxPlayback
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -77,6 +78,10 @@ class AppleMusicApp : Application(), ImageLoaderFactory {
         // Route volume-leveling diagnostics into the APP log (so they show under App Log, not Network,
         // and stream live on the :8081 event port).
         com.applemusicktv.media.GainProcessor.logger = { tag, msg -> webServer.addLog(tag, msg) }
+        // 落雪音源日志并入 APP 日志（Dev 页 / :8081 可见），排查"为什么这首没命中"全靠它。
+        lxPlayback.logger = { msg -> webServer.addLog("LX", msg) }
+        // 后台把 QuickJS 脚本先跑起来：否则第一首歌要等 3 个脚本串行启动（约 1–3s）。
+        appScope.launch { runCatching { lxPlayback.ensureReady() } }
         // Sync locally-stored MUT to proxy server on startup so ExoPlayer stream requests work
         val mut = mutPrefs.getMUT()
         if (mut.isNotEmpty()) {
