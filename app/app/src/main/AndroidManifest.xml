@@ -15,7 +15,7 @@
     <application
         android:name=".AppleMusicApp"
         android:allowBackup="false"
-        android:label="Apple Music TV"
+        android:label="Veil Music"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/banner"
         android:theme="@style/Theme.AppleMusicTV"
@@ -39,7 +39,7 @@
         </activity>
 
         <activity-alias android:name=".RedLauncher" android:targetActivity=".MainActivity"
-            android:enabled="true" android:exported="true" android:label="Apple Music TV" android:icon="@mipmap/ic_launcher">
+            android:enabled="true" android:exported="true" android:label="Veil Music" android:icon="@mipmap/ic_launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -48,7 +48,7 @@
         </activity-alias>
 
         <activity-alias android:name=".WhiteLauncher" android:targetActivity=".MainActivity"
-            android:enabled="false" android:exported="true" android:label="Apple Music TV" android:icon="@mipmap/ic_launcher_white">
+            android:enabled="false" android:exported="true" android:label="Veil Music" android:icon="@mipmap/ic_launcher_white">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -56,18 +56,14 @@
             </intent-filter>
         </activity-alias>
 
+        <!-- 音源诊断页：不再挂在桌面上（2.0 只有一个 Veil Music 图标），
+             需要时用 adb shell am start -n com.veacon.veilmusic/com.veacon.veilmusic.luoxue.LxPocActivity 打开。 -->
         <activity
             android:name=".luoxue.LxPocActivity"
             android:exported="true"
-            android:label="LX PoC"
+            android:label="Veil Music 音源诊断"
             android:banner="@drawable/banner"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize" />
 
 
 

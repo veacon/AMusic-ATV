@@ -1,4 +1,4 @@
-# AMusic-ATV（自用二次开发）
+# Veil Music 2.0（AMusic-ATV 重构版）
 
 把 `lavande16/Apple-Music-For-Android-TV`（Android TV 端非官方 Apple Music 客户端）改造成
 **「界面/元数据仍用 Apple，音频改由落雪（LX Music）音源提供」**。
@@ -6,7 +6,7 @@
 - 分发范围：**纯自用**，不考虑上架与法务问题
 - 目标形态：**无 PC**，音源脚本在端内执行
 - 音质目标：FLAC / 母带优先，MP3 兜底
-- 品牌：保留 Apple 名称与图标（自用）
+- 品牌：自 2.0 起更名为 **Veil Music**，包名 `com.veacon.veilmusic`（图标沿用原版）
 - **免登录**：Apple 只当元数据库（浏览/搜索/专辑/歌单/榜单均匿名可用），
   播放走落雪，歌词走网易云/QQ。令牌（MUT）与试听片段都不再需要。
 
@@ -28,6 +28,7 @@
 | P2.2 遥控器巡检（上下左右逐个页面走查，修 4 处死路/焦点遮挡） | ✅ 完成 |
 | P2.3 音源优中选 10（lx-hunter 仓库提取 + 复测，内置 8→10） | ✅ 完成（新增 Ciallo/qdy/回避聚合） |
 | P2.4 苹方字体（内置，不支持切换）+ 歌词字体加载修复 | ✅ 完成 |
+| **2.0 品牌重构**（Veil Music / 新包名 / 全屏与留白修复 / 持久化加固） | ✅ 完成 |
 | P2 其余（解析态提示、歌单增量同步、DRM 分支清理） | ⬜ 待做 |
 
 ### P0 关键结论（决定架构的三条）
@@ -42,7 +43,7 @@
 
 ```
 app/                       Android 工程（从上游 android/ 复制而来，实际工作副本）
-  app/src/main/java/com/applemusicktv/
+  app/src/main/java/com/veacon/veilmusic/
     luoxue/                ★ 本次新增：端内落雪音源链路
       LxModels.kt            数据模型
       PlatformSearch.kt      163 / QQ / 酷狗 搜索（直连，无需登录）
@@ -53,10 +54,10 @@ app/                       Android 工程（从上游 android/ 复制而来，�
       LxPlayback.kt          单例：脚本生命周期 / 解析缓存 / 预取 / 重载
       LxScriptStore.kt       脚本仓库：assets 同步、导入、回滚（filesDir/luoxue）
       LxBench.kt             批量跑测器（--ez bench true）
-      LxPocActivity.kt       独立入口（桌面图标 "LX PoC"）
+      LxPocActivity.kt       音源诊断页（2.0 起不再挂桌面图标，用 adb 启动）
     （其余为上游原有：ui/ data/ media/ widevine 等，P2 再清理）
   app/src/main/assets/luoxue/  随包脚本 kulao / hyw / fish / xinghai（4 条实测最优）
-  app/src/test/java/com/applemusicktv/luoxue/TrackMatcherTest.kt
+  app/src/test/java/com/veacon/veilmusic/luoxue/TrackMatcherTest.kt
 
 probe/                     P0 探针工具链（Node，可复跑）
   lxhost.mjs               LX 宿主模拟器（按官方协议实现 lx.request/utils/事件）
@@ -83,7 +84,7 @@ JAVA_HOME=/c/devtools/jdk-17.0.2 ./gradlew :app:assembleDebug --no-daemon
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 # PoC 入口
-adb shell am start -n com.applemusic.lavande/com.applemusicktv.luoxue.LxPocActivity \
+adb shell am start -n com.veacon.veilmusic/com.veacon.veilmusic.luoxue.LxPocActivity \
   --es auto "晴天|周杰伦|叶惠美|269"
 adb logcat -s LxPoc:*
 ```
@@ -230,6 +231,71 @@ Apple 的 `/v1/me/library/*` 在未登录时 403，所以资料库整块换成**
 4. **设置页焦点被导航条遮住**：`verticalScroll` 内写 top/bottom padding 时，焦点滚动会把当前行顶到 y=0。
    改成 padding 在 `verticalScroll` 之外（视口内缩），焦点行始终停在导航条下方。
 
+## 2.0 重构（品牌 / 布局 / 持久化）
+
+### 品牌与包名
+
+| 项 | 1.x | 2.0 |
+|---|---|---|
+| applicationId / namespace | `com.applemusic.lavande` / `com.applemusicktv` | **`com.veacon.veilmusic`** |
+| 应用名 | Apple Music TV | **Veil Music** |
+| versionName / versionCode | 1.0 / 1 | **2.0 / 200** |
+| 图标 | — | 不变（含 `ic_launcher_white` 双图标切换） |
+
+- 源码目录同步迁到 `com/veacon/veilmusic/`（322 个文件的 package/import/资源引用一次替换），
+  `AndroidManifest`、`proguard-rules.pro`、`buildConfigField` 全部对齐。
+- 桌面只保留一个入口：`LxPocActivity`（音源诊断）摘掉了 launcher intent-filter，
+  需要时用 `adb shell am start -n com.veacon.veilmusic/com.veacon.veilmusic.luoxue.LxPocActivity` 打开。
+- **包名变更等于全新安装**：1.x 的资料库/设置不会带进 2.0（既定决策，不做跨包迁移）。
+  **从 2.0 起**，之后每一次覆盖升级都会保留下列数据。
+
+### 全屏与留白（「左侧 / 下侧遮挡」）
+
+| 问题 | 原因 | 修法 |
+|---|---|---|
+| 页面下方总有一条看不到内容的空白，最后一行永远被切在屏幕下沿 | `BottomNavInset = 102.dp` 是给一条**早已没有挂载**的底部播放条预留的视口内缩（`NowPlayingBar` 在 1.x 后期就没人调用了） | 改成 `32.dp`，只留聚焦放大与投影的呼吸位 |
+| 内容顶着导航条 | `TopNavInset` 与导航条实际高度（70dp）差 30dp | `100.dp → 96.dp` |
+| 分类页 / 搜索页底距各自写死 102dp | 同上 | 统一引用 `BottomNavInset` |
+
+`NavViewport.kt` 把导航条高度放在**视口**而不是 `contentPadding`，这样遥控器焦点滚动不会把当前行顶到
+`y=0` 被导航条压住。所有滚动页（首页 / 浏览 / 分类 / 搜索 / 设置）走同一套值。
+
+### 配置音源弹窗
+
+- 尺寸：`fillMaxWidth(0.8f) × fillMaxHeight(0.8f)`，居中；列表 `weight(1f)` 吃满剩余高度。
+- 每行：左侧一列放「名称 + 已加载/已停用 + 源平台」，右侧两个按钮**同行右对齐**；
+  长名称/长平台名 `maxLines=1 + Ellipsis`，不会把按钮顶出卡片。
+- 按钮：固定 `92 × 38dp`、19dp 圆角、文字水平垂直居中；次要操作中性描边，删除为红色描边；
+  聚焦 1.5dp 描边 + 1.05 倍放大，按下 0.96 倍 + 淡底。
+- 移除「检测」按钮（没有任何实际行为，纯装饰）。
+
+### 资料库顺序
+
+侧边栏改为 **歌曲 / 歌单 / 最近播放 / 专辑 / 艺人** —— 「最近播放」从末尾提到第三位。
+
+### 持久化清单（覆盖升级不得丢失）
+
+| 数据 | 位置 |
+|---|---|
+| 收藏 / 自建与导入歌单 / 最近播放 | `filesDir/local_library.json`（Moshi 全量 + 临时文件 rename） |
+| 音质档位 | `shared_prefs/audio_quality_prefs` |
+| 跨淡、歌词偏移 | `crossfade_prefs` / `lyrics_prefs` |
+| 服务地址、MUT | `apple_music_tv` |
+| 免登录开关 | `standalone_prefs` |
+| 首次引导状态 | `onboarding_prefs` |
+| 搜索历史 | `search_history` |
+| 界面语言、外观配色 | `app_language` / `appearance` |
+| 音源脚本启停、脚本清单 | `lx_prefs` + `filesDir/luoxue/` |
+| 缓存容量、各类 JSON 缓存 | `cache_settings` + `cacheDir/`（**缓存目录**，可清） |
+| 桌面图标选择 | `PackageManager` 的 activity-alias 启停 |
+
+- 写入加固：先写 `.tmp` 并 `fsync`，再 `rename` 覆盖 —— 进程写入途中被杀只会留下"上一版完整数据"。
+- 读取加固：JSON 损坏时把原文件另存为 `local_library.corrupt.json` 再以空白重建，
+  避免下一次写入用空数据把用户的歌单永久覆盖掉。
+- 缓存清理（`AppDiskCache` / `DiskBudgetStore`）的根目录是 `cacheDir`，不会碰到 `filesDir` 与 `shared_prefs`。
+
+---
+
 ## 下一步（P2）
 
 1. 播放器内「解析中 / 已换源」提示：现在解析要 3–20s，界面只有转圈，用户不知道在换源。
@@ -249,8 +315,9 @@ Apple 的 `/v1/me/library/*` 在未登录时 403，所以资料库整块换成**
 - 直链 TTL ≈ 21 分钟，暂停久后 seek 会 403 → 已实现"报错重解析"（每首一次）。
 - 跨语言曲名（Apple `Wayfarer` vs 平台《山海》）只能靠"艺人+时长"兜底。
 - 部分脚本 resolve 后残留定时器，`evaluate` 等不到空闲 → 超时后 `interruptEvaluation()` 兜底。
-- **焦点滚动对齐**：首页/浏览这类 `LazyColumn` 页面，从下一行按「上」回到第一行时，Compose 的 bring-into-view
-  会把整行顶到 y=0（卡片上半截被导航条压住）；设置页已通过视口内缩规避，`LazyColumn` 页面待统一处理。
+- ~~**焦点滚动对齐**：首页/浏览这类 `LazyColumn` 页面，从下一行按「上」回到第一行时，Compose 的 bring-into-view
+  会把整行顶到 y=0（卡片上半截被导航条压住）~~ → 2.0 起所有滚动页统一走 `Modifier.navAwareViewport()`
+  （导航条高度算在视口外），该类遮挡已消除。
 - 分类页（`CategoryScreen`）进入后焦点停在顶部导航条，需再按一次「下」才进内容（其余详情页是进入即聚焦播放键）。
 - 构建环境：上游 `gradle/gradle-daemon-jvm.properties` 要求 JDK 21，本机只有 17，该文件已移除（JDK 17 可正常构建）。换机器需补 `app/local.properties` 的 `sdk.dir`。
 

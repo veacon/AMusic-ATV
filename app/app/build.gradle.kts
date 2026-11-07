@@ -27,11 +27,11 @@ val gitSha: String = providers.exec {
 }.standardOutput.asText.map { it.trim() }.orElse("unknown").get().ifBlank { "unknown" }
 
 android {
-    namespace = "com.applemusicktv"
+    namespace = "com.veacon.veilmusic"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.applemusic.lavande"
+        applicationId = "com.veacon.veilmusic"
         minSdk = 23
         targetSdk = 35
         versionCode = releaseVersion.getProperty("versionCode").toInt()
