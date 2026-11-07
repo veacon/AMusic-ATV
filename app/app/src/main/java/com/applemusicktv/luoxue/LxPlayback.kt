@@ -102,6 +102,65 @@ class LxPlayback @Inject constructor(
     /** 脚本是否已成功初始化。 */
     fun isReady(): Boolean = initState == 1
 
+    // ── 脚本禁用名单 ────────────────────────────────────────────────────────
+    // 停用某个音源脚本 = 从解析级联里剔除。名单持久化在 lx_prefs，
+    // 下次 ensureReadyBlocking 加载时跳过被禁用的文件，即时生效（重载后）。
+
+    fun isDisabled(fileName: String): Boolean =
+        prefs.getStringSet("disabled_scripts", emptySet())?.contains(fileName) == true
+
+    fun disabledScripts(): Set<String> =
+        prefs.getStringSet("disabled_scripts", emptySet()) ?: emptySet()
+
+    /** 停用 / 启用一个脚本文件，返回操作后的状态（true=已停用）。 */
+    fun setScriptDisabled(fileName: String, disabled: Boolean): Boolean {
+        val set = disabledScripts().toMutableSet()
+        if (disabled) set.add(fileName) else set.remove(fileName)
+        prefs.edit().putStringSet("disabled_scripts", set).apply()
+        reload("${if (disabled) "停用" else "启用"} $fileName")
+        return disabled
+    }
+
+    // ── 连通性检测 ──────────────────────────────────────────────────────────
+    // 用一首固定热门曲在每个平台搜出候选，再逐个脚本试 musicUrl，
+    // 返回非空直链即视为「连通」。结果按脚本+平台汇总，供设置页展示。
+
+    data class SourceProbe(
+        val file: String,
+        val source: String,
+        val ok: Boolean,
+        val ms: Long,
+        val detail: String,
+    )
+
+    suspend fun probeSource(fileName: String, source: String): SourceProbe {
+        val engine = engines.firstOrNull { it.fileName == fileName }
+            ?: return SourceProbe(fileName, source, false, 0, "脚本未加载")
+        val t0 = System.currentTimeMillis()
+        return runCatching {
+            val candidates = search.searchAll("晴天", "周杰伦")
+            val cand = candidates.firstOrNull { it.source == source }
+                ?: candidates.firstOrNull()
+                ?: return SourceProbe(fileName, source, false, System.currentTimeMillis() - t0, "搜索无候选")
+            val qualities = engine.sources[source]
+                ?: return SourceProbe(fileName, source, false, System.currentTimeMillis() - t0, "脚本不支持该源")
+            val q = qualities.firstOrNull() ?: "128k"
+            val url = engine.musicUrl(
+                source, q,
+                com.applemusicktv.luoxue.LxBench.musicInfoJson(
+                    cand, cand.title, cand.artist, "", cand.durationSec,
+                ),
+            )
+            if (url.isNullOrBlank()) {
+                SourceProbe(fileName, source, false, System.currentTimeMillis() - t0, "未返回直链")
+            } else {
+                SourceProbe(fileName, source, true, System.currentTimeMillis() - t0, "已连通")
+            }
+        }.getOrElse {
+            SourceProbe(fileName, source, false, System.currentTimeMillis() - t0, it.message ?: "异常")
+        }
+    }
+
     // ── 音质 ────────────────────────────────────────────────────────────────
 
     fun quality(): com.applemusicktv.data.AudioQuality = qualityPrefs.get()
@@ -150,6 +209,10 @@ class LxPlayback @Inject constructor(
                 return false
             }
             for (f in files) {
+                if (isDisabled(f.name)) {
+                    log("脚本已停用，跳过 ${f.name}")
+                    continue
+                }
                 val engine = runCatching {
                     LxScriptEngine(f.name, f.readText(), http) { line -> log(line) }
                 }.getOrNull() ?: continue
@@ -313,12 +376,32 @@ class LxPlayback @Inject constructor(
     // ── 诊断 ────────────────────────────────────────────────────────────────
 
     /** 给设置页用的一行脚本视图（origin=asset 表示随包且未改动）。 */
-    data class ScriptView(val file: String, val origin: String, val loaded: Boolean, val size: Long)
+    data class ScriptView(
+        val file: String,
+        val origin: String,
+        val loaded: Boolean,
+        val size: Long,
+        val disabled: Boolean = false,
+        val displayName: String = "",
+        val sources: Set<String> = emptySet(),
+    )
 
     fun scriptViews(): List<ScriptView> {
         val loaded = engines.map { it.fileName }.toSet()
+        val disabled = disabledScripts()
         return runCatching { store.list() }.getOrDefault(emptyList())
-            .map { ScriptView(it.name, it.origin, it.name in loaded, it.size) }
+            .map {
+                val engine = engines.firstOrNull { e -> e.fileName == it.name }
+                ScriptView(
+                    file = it.name,
+                    origin = it.origin,
+                    loaded = it.name in loaded,
+                    size = it.size,
+                    disabled = it.name in disabled,
+                    displayName = engine?.displayName ?: "",
+                    sources = engine?.sources?.keys ?: emptySet(),
+                )
+            }
     }
 
     fun loadedCount(): Int = engines.size

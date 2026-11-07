@@ -71,8 +71,7 @@ class AppleMusicApp : Application(), ImageLoaderFactory {
     @Synchronized fun startMainServices() {
         if (servicesStarted) { webServer.boot(appScope); return }
         servicesStarted = true
-        // Starts before login and survives page changes. Persistent font data is not content cache.
-        com.applemusicktv.data.fonts.AppFonts.get(this).start(appScope)
+        // 苹方字体已随包内置（res/font/pingfang.otf），不再运行时下载 Noto CJK。
         AppDiskCache.get(this).start(appScope)
         webServer.boot(appScope)   // starts only if the Dev toggle is on
         // Route volume-leveling diagnostics into the APP log (so they show under App Log, not Network,

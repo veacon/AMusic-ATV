@@ -478,7 +478,6 @@ class InAppWebServer @Inject constructor(
     private fun netLogsJson() = "[${NetworkLog.getAll().joinToString(",") { "\"${it.replace("\"","'")}\"" }}]"
 
     internal fun html(tokenSaved: Boolean = false, tokenError: Boolean = false, tokenUnavailable: Boolean = false, language: String = "zh"): String {
-        val has = prefs.hasMUT()
         val currentOffset = lyricsOffsetPrefs.getOffset()
         val currentBeatLatency = beatAnalyzer.latencyMs
         val standaloneOn = !serverPrefs.hasPcServer() || standalonePrefs.isEnabled()
@@ -498,7 +497,7 @@ class InAppWebServer @Inject constructor(
         }.ifEmpty { "<div class=d>No requests yet.</div>" }
         val lxCard = buildLxCard()
         val page = """<!DOCTYPE html><html lang="${if (language == "zh") "zh-CN" else "en"}"><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1">
-<title>Apple Music 音乐令牌</title><style>
+<title>AMusic 配置</title><style>
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff;color:#1d1d1f;padding:32px 20px;max-width:620px;margin:auto;line-height:1.6}
 h1{font-size:28px;font-weight:700;margin-bottom:8px;letter-spacing:-.5px}
 .brand{color:#fa233b;font-size:14px;font-weight:600;margin-bottom:8px}
@@ -624,31 +623,9 @@ function legacyCopy(text,done,b){
 }
 </script>
 </head><body>
-<header class="brand-row"><p class="brand">Apple Music</p><a class="language-switch" href="?lang=${if (language == "zh") "en" else "zh"}" lang="${if (language == "zh") "en" else "zh"}" aria-label="${if (language == "zh") "Switch to English" else "切换为中文"}"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><path d="M3 6h13m0 0-3-3m3 3-3 3M17 14H4m0 0 3-3m-3 3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${if (language == "zh") "English" else "中文"}</span></a></header>
-<h1>登录你的音乐</h1>
-<p class=sub>在下方保存 Apple Music 用户个人令牌，即可在电视上聆听。</p>
-${if (tokenSaved) "<div class=notice role=status><strong>令牌已保存</strong><br>请回到电视端，点击“开始聆听”继续操作。</div>" else ""}
-${if (tokenUnavailable) "<div class='notice error' role=alert>暂时无法连接 Apple Music 完成验证，令牌未更改。请检查网络后重试。</div>" else ""}
-${if (tokenError) "<div class='notice error' role=alert>令牌验证失败，令牌未保存，请重新复制完整的用户个人令牌。</div>" else ""}
-<div id=status aria-live=polite>
-<div class=row><div class="dot ${if(has)"dot-g" else "dot-r"}"></div><div class=label>${if(has)"已配置用户个人令牌" else "等待配置用户个人令牌"}</div></div>
-</div>
-
-<details class="card tutorial">
-<summary>如何获取令牌</summary>
-<ol>
-<li><h3>保存本页面至书签</h3><p>将当前页面添加到 Safari 书签。</p></li>
-<li><h3>复制执行指令</h3><p>点击<span class="highlight">复制指令</span>。</p>
-<pre class="instruction-code" aria-label="书签指令代码" tabindex="0"><code id="instruction-text">${com.applemusicktv.i18n.PhonePage.bookmarkHtml(context, language)}</code></pre>
-<button class="btn btn-p" id="copy-instruction" type="button" onclick="copyBookmarkInstruction(this)">复制指令</button>
-<p class="copy-feedback" id="copy-feedback" role="status" aria-live="polite"></p></li>
-<li><h3>修改书签地址</h3><p>打开书签列表，长按刚才保存的书签，选择<span class="highlight">编辑</span>。将原网址删除，粘贴刚才复制的指令代码，然后保存。</p></li>
-<li><h3>登录并获取令牌</h3><p>点击<span class="highlight">打开 Apple Music 网页版</span>，在 Safari 中登录账号，等待页面加载完成。然后从 Safari 书签列表中点击<span class="highlight">Apple Music 音乐令牌</span>，再点击弹窗中的<span class="highlight">复制令牌</span>。</p>
-<a class="btn btn-p" href="https://music.apple.com/" target="_blank" rel="noopener noreferrer" aria-describedby="web-open-hint">打开 Apple Music 网页版</a>
-<p class="web-open-hint" id="web-open-hint">若自动跳转 App，请长按此按钮，选择在新标签页中打开。</p></li>
-<li><h3>返回本页保存</h3><p>切回这个配置页面，将令牌粘贴到下方输入框，点击<span class="highlight">保存令牌</span>。</p></li>
-</ol>
-</details>
+<header class="brand-row"><p class="brand">AMusic</p><a class="language-switch" href="?lang=${if (language == "zh") "en" else "zh"}" lang="${if (language == "zh") "en" else "zh"}" aria-label="${if (language == "zh") "Switch to English" else "切换为中文"}"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><path d="M3 6h13m0 0-3-3m3 3-3 3M17 14H4m0 0 3-3m-3 3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${if (language == "zh") "English" else "中文"}</span></a></header>
+<h1>电视端配置</h1>
+<p class=sub>在手机浏览器里导入歌单、调整播放设置与音源，改动即时同步到电视。</p>
 <div class=card>
 <h2>资料库 · 导入歌单</h2>
 <p class=sub style=margin-bottom:10px>粘贴 QQ 音乐 / 网易云 / 酷狗的公开歌单链接；也可以在下面粘多行「歌名 - 歌手」。导入后直接出现在电视端「资料库」。</p>
@@ -661,18 +638,8 @@ ${if (tokenError) "<div class='notice error' role=alert>令牌验证失败，令
 </form>
 </div>
 
-<div class=card>
-<h2>配置令牌</h2>
-<form method=POST action=/set-token>
-<label class=token-label for=mut>Apple Music 用户个人令牌</label>
-<textarea id=mut name=mut required minlength=20 autocomplete=off autocapitalize=off spellcheck=false placeholder="在此粘贴完整令牌"></textarea>
-<button class="btn btn-p" type=submit>保存令牌</button>
-</form>
-</div>
-
 <details class=more>
-<summary>更多功能设置</summary>
-${if(has)"<form method=POST action=/clear-token><button class='btn btn-s' type=submit>清除令牌</button></form>" else ""}
+<summary>播放与音源设置</summary>
 <div class=card>
 <h2>歌词偏移</h2>
 <div class=row><div class=label>当前偏移</div><div class=sub2 style=color:#6e6e73>${currentOffset}ms</div></div>
@@ -802,9 +769,9 @@ ${if(has)"<form method=POST action=/clear-token><button class='btn btn-s' type=s
                 "</div>$del</div>"
         }.ifEmpty { "<div class=sub2>目录为空，点「恢复随包」重新落地。</div>" }
         return buildString {
-            append("<div class=card><h2>落雪音源</h2>")
+            append("<div class=card><h2>音源配置</h2>")
             append("<div class=row><div class=\"dot ${if (on) "dot-g" else "dot-r"}\"></div>")
-            append("<div class=label>${if (on) "已开启，播放优先走音源直链" else "已关闭，走 Apple 直链/代理"}</div></div>")
+            append("<div class=label>${if (on) "已开启，播放走音源直链" else "已关闭，无可用音源"}</div></div>")
             append("<div class=sub2>脚本 $loaded 个 · 命中率 $hit · 缓存 $cache 首")
             if (!err.isNullOrBlank()) append(" · 最近失败：${esc(err)}")
             append("</div>")

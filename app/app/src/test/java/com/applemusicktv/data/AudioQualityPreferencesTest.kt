@@ -35,17 +35,22 @@ class AudioQualityPreferencesTest {
 
     @Test fun stepperClampsInsteadOfWrapping() {
         assertEquals(AudioQuality.STANDARD, AudioQuality.STANDARD.next(-1))
-        assertEquals(AudioQuality.HIGH, AudioQuality.STANDARD.next(1))
+        assertEquals(AudioQuality.MEDIUM, AudioQuality.STANDARD.next(1))
+        assertEquals(AudioQuality.HIGH, AudioQuality.MEDIUM.next(1))
         assertEquals(AudioQuality.LOSSLESS, AudioQuality.HIGH.next(1))
-        assertEquals(AudioQuality.LOSSLESS, AudioQuality.LOSSLESS.next(1))
+        assertEquals(AudioQuality.HIRES, AudioQuality.LOSSLESS.next(1))
+        // 最高档再往上夹住
+        assertEquals(AudioQuality.HIRES, AudioQuality.HIRES.next(1))
         // 大步长（长按）仍然只走一档
-        assertEquals(AudioQuality.HIGH, AudioQuality.STANDARD.next(9))
+        assertEquals(AudioQuality.MEDIUM, AudioQuality.STANDARD.next(9))
     }
 
     @Test fun everyLadderStartsAtItsOwnCeilingAndOnlyDegradesDown() {
         assertEquals("128k", AudioQuality.STANDARD.ladder.first())
+        assertEquals("192k", AudioQuality.MEDIUM.ladder.first())
         assertEquals("320k", AudioQuality.HIGH.ladder.first())
-        assertEquals("flac24bit", AudioQuality.LOSSLESS.ladder.first())
+        assertEquals("flac", AudioQuality.LOSSLESS.ladder.first())
+        assertEquals("flac24bit", AudioQuality.HIRES.ladder.first())
         // 兜底里出现 128k 的档位，门槛必须低于 128，否则兜底流会被当成试听片段误杀
         AudioQuality.entries.forEach { q ->
             if ("128k" in q.ladder) assertTrue("${q.key} 门槛过高", q.minKbps <= 128)

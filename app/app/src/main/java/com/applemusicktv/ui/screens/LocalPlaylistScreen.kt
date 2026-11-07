@@ -10,11 +10,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.BasicTextField
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.*
@@ -22,6 +31,8 @@ import coil.compose.AsyncImage
 import com.applemusicktv.data.model.Song
 import com.applemusicktv.ui.components.TouchSurface as Surface
 import com.applemusicktv.ui.components.FadeThrough
+import com.applemusicktv.ui.components.contentActionColors
+import com.applemusicktv.ui.components.contentActionBorder
 import com.applemusicktv.ui.components.pageHorizontalInset
 import com.applemusicktv.ui.components.rememberTabAwareListState
 import com.applemusicktv.ui.viewmodel.LibraryViewModel
@@ -52,6 +63,7 @@ fun LocalPlaylistScreen(
     val listState = rememberTabAwareListState(tabBarFocused)
     var menuSong by remember { mutableStateOf<Song?>(null) }
     var pickerSong by remember { mutableStateOf<Song?>(null) }
+    var showRename by remember { mutableStateOf(false) }
     val ctx = androidx.compose.ui.platform.LocalContext.current
 
     Column(modifier.fillMaxSize().padding(horizontal = pageHorizontalInset)) {
@@ -93,6 +105,7 @@ fun LocalPlaylistScreen(
                     color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)),
                 )
                 Spacer(Modifier.height(4.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     onClick = { if (songs.isNotEmpty()) playerVm.playAlbum(songs, 0) },
                     modifier = com.applemusicktv.ui.navigation.rememberDetailPlayEntryFocus(
@@ -111,6 +124,20 @@ fun LocalPlaylistScreen(
                             com.applemusicktv.ui.components.Glyph.PLAY, size = 13.dp, color = Color.White)
                         Text("播放全部", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                     }
+                }
+                Surface(
+                    onClick = { showRename = true },
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D)),
+                        focusedContainerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFD9D9DE), Color(0xFF4A4A50)),
+                    ),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+                ) {
+                    Text("改名", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                        color = com.applemusicktv.ui.theme.AppPalette.primary,
+                        modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp))
+                }
                 }
             }
         }
@@ -212,6 +239,83 @@ fun LocalPlaylistScreen(
             com.applemusicktv.ui.components.AddToDialog(
                 playerVm = playerVm, song = s, onDismiss = { pickerSong = null },
             )
+        }
+    }
+
+    if (showRename && playlist != null) {
+        RenamePlaylistDialog(
+            initialName = playlist.name,
+            onDismiss = { showRename = false },
+            onRename = { newName ->
+                vm.renamePlaylist(playlistId, newName)
+                showRename = false
+            },
+        )
+    }
+}
+
+@Composable
+private fun RenamePlaylistDialog(
+    initialName: String,
+    onDismiss: () -> Unit,
+    onRename: (String) -> Unit,
+) {
+    var name by remember { mutableStateOf(initialName) }
+    val fieldFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { fieldFocus.requestFocus() } }
+    com.applemusicktv.ui.components.MotionDialog(onDismissRequest = onDismiss) {
+        Column(
+            Modifier.width(520.dp).clip(RoundedCornerShape(18.dp))
+                .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFF5F5F7), Color(0xFF222225)))
+                .padding(26.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text("修改歌单名称", fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                color = com.applemusicktv.ui.theme.AppPalette.primary)
+            Box(
+                Modifier.fillMaxWidth().height(52.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFFFFFFF), Color(0xFF2C2C31)))
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                BasicTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    singleLine = true,
+                    textStyle = TextStyle(color = com.applemusicktv.ui.theme.AppPalette.primary, fontSize = 15.sp),
+                    cursorBrush = SolidColor(Color(0xFFFA233B)),
+                    modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus)
+                        .onPreviewKeyEvent { ev ->
+                            if (ev.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                            if (ev.key == Key.Back) { onDismiss(); true } else false
+                        },
+                )
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)) {
+                Surface(
+                    onClick = onDismiss,
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                    colors = com.applemusicktv.ui.components.contentActionColors(
+                        com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D))),
+                    border = com.applemusicktv.ui.components.contentActionBorder(RoundedCornerShape(50)),
+                ) {
+                    Text("取消", fontSize = 14.sp, color = com.applemusicktv.ui.theme.AppPalette.primary,
+                        modifier = Modifier.padding(horizontal = 22.dp, vertical = 11.dp))
+                }
+                Surface(
+                    onClick = { if (name.isNotBlank()) onRename(name.trim()) },
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color(0xFFFA233B),
+                        focusedContainerColor = Color(0xFFFF4757),
+                    ),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.06f),
+                ) {
+                    Text("保存", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.White,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 11.dp))
+                }
+            }
         }
     }
 }

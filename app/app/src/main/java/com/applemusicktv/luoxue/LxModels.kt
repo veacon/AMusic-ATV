@@ -39,6 +39,7 @@ data class AudioStream(
     val quality: String,         // 请求的音质档
     val resolveMs: Long,
     val verifyMs: Long,
+    val sourceName: String = "", // 音源显示名（脚本 @name），供「准备播放」提示
 )
 
 /** 单次解析尝试记录，用于诊断页与命中率统计。 */

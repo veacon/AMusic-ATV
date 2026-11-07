@@ -20,19 +20,33 @@ class AudioResolver(
 
     companion object {
         /**
-         * 按源指定脚本优先级（2026-11 实测，3 首歌 × wy/tx/kg 共 27 次取链）。
+         * 按源指定脚本优先级（2026-11 实测，3 首歌 × wy/tx/kg）。
          *
-         * 45 条候选脚本里只有 4 条留用，依据：
-         *  - lx-01-kulao（裤佬SVIP）：8/9 命中，wy 322k / kg 320k，tx 也能出（偏低，交给校验挡）
-         *  - lx-02-hyw（HYW公益版）：7/9，最快（250–400ms），tx 有 319k 的成功样本
-         *  - lx-03-fish（fish_music）：5/9，wy 稳定 322k，kg 只有 124–201k
-         *  - lx-04-xinghai（星海）：kg 兜底最快（320ms），补前三个都挂的情况
-         * 其余脚本要么 0 命中（后端已死），要么只能出 128k。
+         * 10 条内置脚本按命中率排序（2026-11 复测，lx-hunter 收录仓库 + 端内 QuickJS 实测）：
+         *  - lx-01-kulao（裤佬SVIP）：8/9，wy 322k / kg 320k / tx 偏低
+         *  - lx-02-hyw（HYW公益版）：7/9，最快（250–400ms），tx 有 319k 样本
+         *  - lx-03-fish（fish_music）：5/9，wy 稳定 322k，kg 124–201k
+         *  - lx-09-ciallo（Ciallo～）：3/3，wy 稳定 319–322k（新增，wx 专项高分）
+         *  - lx-10-qdy（星海GD精简 qdy-mini）：3/9，wy 319–322k（新增）
+         *  - lx-04-xinghai（星海）：kg 兜底最快（320ms）
+         *  - lx-05-quandou（全豆要）：wy 127–128k 兜底
+         *  - lx-06-molan（墨澜聚合）：kg 128–320k
+         *  - lx-07-hubhui（回避聚合）：kg 310–320k（替换星澜）
+         *  - lx-08-jiexiang（杰翔聚合）：kg 320k
+         * 后六个命中率/码率偏低，只作主力全挂时的兜底。
          */
         private val PREF = mapOf(
-            "wy" to listOf("lx-01-kulao.js", "lx-02-hyw.js", "lx-03-fish.js"),
-            "tx" to listOf("lx-01-kulao.js", "lx-02-hyw.js"),
-            "kg" to listOf("lx-01-kulao.js", "lx-04-xinghai.js", "lx-02-hyw.js", "lx-03-fish.js"),
+            "wy" to listOf(
+                "lx-01-kulao.js", "lx-02-hyw.js", "lx-03-fish.js", "lx-09-ciallo.js",
+                "lx-10-qdy.js", "lx-05-quandou.js",
+            ),
+            "tx" to listOf(
+                "lx-01-kulao.js", "lx-02-hyw.js", "lx-03-fish.js",
+            ),
+            "kg" to listOf(
+                "lx-01-kulao.js", "lx-04-xinghai.js", "lx-02-hyw.js", "lx-03-fish.js",
+                "lx-06-molan.js", "lx-07-hubhui.js", "lx-08-jiexiang.js",
+            ),
         )
 
         private const val MIN_SCORE = 45
@@ -131,6 +145,7 @@ class AudioResolver(
                             quality = q,
                             resolveMs = started - t0,
                             verifyMs = System.currentTimeMillis() - tVerify,
+                            sourceName = engine.displayName,
                         )
                         onStep("成功：${probe.kind} ${probe.kbps}kbps（${cand.source}/${engine.displayName}）")
                         return@withContext ResolveResult(stream, attempts, cand, System.currentTimeMillis() - t0)

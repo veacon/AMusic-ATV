@@ -69,6 +69,7 @@ private fun com.applemusicktv.ui.viewmodel.LibraryState.hasContent(section: Libr
     LibrarySection.Playlists -> playlists.isNotEmpty()
     LibrarySection.Albums -> albums.isNotEmpty()
     LibrarySection.Artists -> artists.isNotEmpty()
+    LibrarySection.Recents -> recents.isNotEmpty()
 }
 
 /** Sorted snapshots let a sort/section fade finish before the new order is shown. */
@@ -77,6 +78,7 @@ private data class LibraryItems(
     val albums: List<Album> = emptyList(),
     val artists: List<Artist> = emptyList(),
     val songs: List<Song> = emptyList(),
+    val recents: List<Song> = emptyList(),
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -124,6 +126,7 @@ fun LibraryScreen(
             LibrarySection.Albums -> LibraryItems(albums = vm.sortedAlbums())
             LibrarySection.Artists -> LibraryItems(artists = vm.sortedArtists())
             LibrarySection.Songs -> LibraryItems(songs = vm.sortedSongs())
+            LibrarySection.Recents -> LibraryItems(recents = state.recents)
         }
     }
 
@@ -152,7 +155,7 @@ fun LibraryScreen(
                         SortBar(section, state.sort.field, state.sort.dir, onReturnToTab, sortFocus, listFocus) { f, d -> vm.setSort(f, d) }
                         Box(Modifier.weight(1f).focusRequester(listFocus).focusGroup()) {
                             CompositionLocalProvider(LocalLibrarySortFocus provides sortRoute) {
-                            Box(Modifier.fillMaxSize().librarySortOnRight(section==LibrarySection.Songs || section==LibrarySection.Artists)) {
+                            Box(Modifier.fillMaxSize().librarySortOnRight(section==LibrarySection.Songs || section==LibrarySection.Artists || section==LibrarySection.Recents)) {
                             sectionStates.SaveableStateProvider(section.name) {
                             when (section) {
                                 LibrarySection.Playlists -> {
@@ -174,6 +177,7 @@ fun LibraryScreen(
                                 LibrarySection.Artists -> ArtistList(orderedItems.artists, onArtistClick, onReturnToTab, tabBarFocused)
                                 LibrarySection.Songs -> SongList(orderedItems.songs, playerVm, vm, onArtistClick, onAlbumClick, onReturnToTab, tabBarFocused,
                                     onImportPlaylist = openImport)
+                                LibrarySection.Recents -> RecentsList(orderedItems.recents, playerVm, vm, onArtistClick, onAlbumClick, onReturnToTab, tabBarFocused)
                             }
                             }
                             }
@@ -191,6 +195,7 @@ fun LibraryScreen(
         if (visible) {
             ImportPlaylistDialog(
                 importing = importing,
+                serverUrl = vm.serverUrl(),
                 onDismiss = { if (!importing) showImport = false },
                 onImport = { raw ->
                     importing = true
@@ -308,6 +313,7 @@ internal fun SortBar(
         LibrarySection.Albums    -> listOf(SortField.DATE to tr(R.string.msg_117), SortField.NAME to tr(R.string.msg_116), SortField.ARTIST to tr(R.string.msg_071))
         LibrarySection.Artists   -> listOf(SortField.DATE to tr(R.string.msg_117), SortField.NAME to tr(R.string.msg_116))
         LibrarySection.Songs     -> listOf(SortField.DATE to tr(R.string.msg_117), SortField.NAME to tr(R.string.msg_118), SortField.ARTIST to tr(R.string.msg_071))
+        LibrarySection.Recents   -> listOf(SortField.DATE to tr(R.string.msg_117), SortField.NAME to tr(R.string.msg_118), SortField.ARTIST to tr(R.string.msg_071))
     }
     val curLabel = fields.firstOrNull { it.first == currentField }?.second ?: tr(R.string.msg_119)
     val dirArrow = if (currentDir == com.applemusicktv.ui.viewmodel.SortDir.ASC) "↑" else "↓"
@@ -609,6 +615,30 @@ private fun ArtistList(artists: List<Artist>, onArtistClick: (String) -> Unit, o
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
+private fun RecentsList(
+    songs: List<Song>,
+    playerVm: PlayerViewModel,
+    vm: LibraryViewModel,
+    onArtistClick: (String) -> Unit = {},
+    onAlbumClick: (String) -> Unit = {},
+    onReturnToTab: (() -> Unit)? = null,
+    tabBarFocused: Boolean = false,
+) {
+    SongList(
+        songs = songs,
+        playerVm = playerVm,
+        vm = vm,
+        onArtistClick = onArtistClick,
+        onAlbumClick = onAlbumClick,
+        onReturnToTab = onReturnToTab,
+        tabBarFocused = tabBarFocused,
+        emptyTitle = tr(R.string.msg_recent),
+        emptyHint = tr(R.string.msg_recent_empty),
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
 private fun SongList(
     songs: List<Song>,
     playerVm: PlayerViewModel,
@@ -618,14 +648,16 @@ private fun SongList(
     onReturnToTab: (() -> Unit)? = null,
     tabBarFocused: Boolean = false,
     onImportPlaylist: (() -> Unit)? = null,
+    emptyTitle: String = "还没有收藏的歌曲",
+    emptyHint: String = "任意歌曲上长按 →「收藏到资料库」；歌单可在「播放列表」里导入 QQ 音乐 / 网易云 / 酷狗。",
 ) {
     val listState = rememberTabAwareListState(tabBarFocused)
     if (songs.isEmpty()) {
         Box(Modifier.fillMaxSize(), Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("还没有收藏的歌曲", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                Text(emptyTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold,
                     color = com.applemusicktv.ui.theme.AppPalette.primary)
-                Text("任意歌曲上长按 →「收藏到资料库」；歌单可在「播放列表」里导入 QQ 音乐 / 网易云 / 酷狗。",
+                Text(emptyHint,
                     fontSize = 13.sp,
                     color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
                 // 空页如果只有文字，遥控器在资料库页会卡在右上角排序按钮上出不来。
@@ -853,6 +885,7 @@ private fun SongLoadError(message: String, isLoading: Boolean, onRetry: () -> Un
 @Composable
 private fun ImportPlaylistDialog(
     importing: Boolean,
+    serverUrl: String,
     onDismiss: () -> Unit,
     onImport: (String) -> Unit,
 ) {
@@ -880,39 +913,49 @@ private fun ImportPlaylistDialog(
                 fontSize = 12.sp,
                 color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA)),
             )
-            Box(
-                Modifier.fillMaxWidth().height(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFFFFFFF), Color(0xFF2C2C31)))
-                    .padding(horizontal = 18.dp),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                BasicTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    singleLine = true,
-                    textStyle = TextStyle(color = com.applemusicktv.ui.theme.AppPalette.primary, fontSize = 15.sp),
-                    cursorBrush = SolidColor(Color(0xFFFA233B)),
-                    modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus)
-                        .onPreviewKeyEvent { ev ->
-                            // 单行输入框会把方向键当光标移动、把返回当输入处理：
-                            // 遥控器一旦进来就既到不了按钮也关不掉弹窗，必须在这里开口子。
-                            if (ev.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                            when (ev.key) {
-                                Key.Back -> { if (!importing) onDismiss(); true }
-                                Key.DirectionDown -> runCatching { cancelFocus.requestFocus() }.isSuccess
-                                else -> false
-                            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.weight(1f).height(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFFFFFFF), Color(0xFF2C2C31)))
+                        .padding(horizontal = 18.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    BasicTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        singleLine = true,
+                        textStyle = TextStyle(color = com.applemusicktv.ui.theme.AppPalette.primary, fontSize = 15.sp),
+                        cursorBrush = SolidColor(Color(0xFFFA233B)),
+                        modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus)
+                            .onPreviewKeyEvent { ev ->
+                                // 单行输入框会把方向键当光标移动、把返回当输入处理：
+                                // 遥控器一旦进来就既到不了按钮也关不掉弹窗，必须在这里开口子。
+                                if (ev.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                                when (ev.key) {
+                                    Key.Back -> { if (!importing) onDismiss(); true }
+                                    Key.DirectionDown -> runCatching { cancelFocus.requestFocus() }.isSuccess
+                                    else -> false
+                                }
+                            },
+                        decorationBox = { inner ->
+                            if (text.isEmpty()) Text(
+                                "https://y.qq.com/n/ryqq/playlist/…",
+                                fontSize = 14.sp,
+                                color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA)),
+                            )
+                            inner()
                         },
-                    decorationBox = { inner ->
-                        if (text.isEmpty()) Text(
-                            "https://y.qq.com/n/ryqq/playlist/…",
-                            fontSize = 14.sp,
-                            color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA)),
-                        )
-                        inner()
-                    },
-                )
+                    )
+                }
+                // 二维码：扫码直达手机配置网页，用手机粘贴链接导入（遥控器输入不便的兜底）。
+                if (serverUrl.isNotBlank()) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        com.applemusicktv.ui.components.QrCode(content = serverUrl, size = 104.dp, cornerRadius = 12.dp, padding = 8.dp)
+                        Text("扫码用手机导入", fontSize = 10.sp,
+                            color = com.applemusicktv.ui.theme.AppPalette.secondary)
+                    }
+                }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically) {

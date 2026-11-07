@@ -34,11 +34,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.*
 import com.applemusicktv.ui.components.returnToTabOnUp
+import com.applemusicktv.ui.components.menuInitialFocus
 import com.applemusicktv.ui.viewmodel.DevMenuViewModel
 import com.applemusicktv.ui.viewmodel.PlayerViewModel
 import kotlinx.coroutines.launch
@@ -60,6 +62,7 @@ fun DevMenuScreen(
     }.collectAsStateWithLifecycle(playerVm.state.value.settingsUiState())
     var showDev by remember { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
+    var showSourceManager by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
     val english = com.applemusicktv.i18n.AppLanguage.code == "en"
     fun tx(zh: String, en: String) = if (english) en else zh
@@ -116,18 +119,12 @@ fun DevMenuScreen(
                 val quality = state.audioQuality
                 Stepper(
                     tx("音质", "Audio quality"),
-                    when (quality) {
-                        com.applemusicktv.data.AudioQuality.STANDARD -> tx("标准 128k", "Standard 128k")
-                        com.applemusicktv.data.AudioQuality.HIGH -> tx("高品质 320k", "High 320k")
-                        com.applemusicktv.data.AudioQuality.LOSSLESS -> tx("无损 FLAC", "Lossless FLAC")
-                    },
-                    when (quality) {
-                        com.applemusicktv.data.AudioQuality.STANDARD -> tx("省流量，弱网更稳", "Saves data; steadier on weak networks")
-                        com.applemusicktv.data.AudioQuality.HIGH -> tx("体积与音质平衡，推荐", "Balanced; recommended")
-                        com.applemusicktv.data.AudioQuality.LOSSLESS -> tx("优先 FLAC，拿不到退 320k", "Prefers FLAC, falls back to 320k")
-                    },
+                    tx(quality.label, quality.label),
+                    tx(quality.hint, quality.hint),
                     { vm.stepAudioQuality(-1) },
                     { vm.stepAudioQuality(1) },
+                    decEnabled = quality.ordinal > 0,
+                    incEnabled = quality.ordinal < com.applemusicktv.data.AudioQuality.entries.lastIndex,
                 )
                 if (state.pcServerIp.isNotBlank()) {
                     SettingDivider()
@@ -157,25 +154,7 @@ fun DevMenuScreen(
                 color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)), fontSize = 12.sp, lineHeight = 18.sp,
                 modifier = Modifier.padding(horizontal = 4.dp))
 
-            var remote by remember { mutableStateOf(playerVm.remoteOverride()) }
-            val remoteOrder = listOf(
-                com.applemusicktv.data.OnboardingPreferences.REMOTE_AUTO,
-                com.applemusicktv.data.OnboardingPreferences.REMOTE_FIRE,
-                com.applemusicktv.data.OnboardingPreferences.REMOTE_GOOGLE,
-            )
-            fun remoteLabel(value: String) = when (value) {
-                com.applemusicktv.data.OnboardingPreferences.REMOTE_FIRE -> "Fire TV"
-                com.applemusicktv.data.OnboardingPreferences.REMOTE_GOOGLE -> "Google TV"
-                else -> tr(R.string.msg_207)
-            }
-            fun stepRemote(direction: Int) {
-                val index = (remoteOrder.indexOf(remote).coerceAtLeast(0) + direction + remoteOrder.size) % remoteOrder.size
-                remote = remoteOrder[index]; playerVm.setRemoteOverride(remote)
-            }
             SettingsSection(tr(R.string.msg_208)) {
-                Stepper(tr(R.string.msg_209), remoteLabel(remote), tr(R.string.msg_210),
-                    { stepRemote(-1) }, { stepRemote(1) })
-                SettingDivider()
                 Toggle(tr(R.string.msg_211), pstate.avSyncAuto, tr(R.string.msg_212)) {
                     playerVm.setAvSyncAuto(!pstate.avSyncAuto)
                 }
@@ -198,7 +177,7 @@ fun DevMenuScreen(
             SettingsSection(tx("关于", "About")) {
                 val details = when (update.phase) {
                     "checking" -> tx("正在检查更新…", "Checking for updates…")
-                    "available" -> tx("发现新版本 ${update.info?.version?.removePrefix("3.0-")}", "Update available: ${update.info?.version?.removePrefix("3.0-")}")
+                    "available" -> tx("发现新版本 ${update.info?.version}", "Update available: ${update.info?.version}")
                     "latest" -> tx("当前已是最新版本", "You're up to date")
                     "downloading" -> tx("正在下载 ${update.progress}%", "Downloading ${update.progress}%")
                     "ready", "permission" -> tx("安装包已下载，点击继续安装", "Download complete; select to install")
@@ -206,29 +185,15 @@ fun DevMenuScreen(
                     "error", "downloadError", "installError" -> tx("检查或安装失败，点击重试", "Update failed; select to retry")
                     else -> tx("点击检查更新", "Select to check for updates")
                 }
-                ActionSettingRow(tx("当前版本 ${com.applemusicktv.BuildConfig.VERSION_NAME.removePrefix("3.0-")}", "Version ${com.applemusicktv.BuildConfig.VERSION_NAME.removePrefix("3.0-")}"), details) {
+                ActionSettingRow(tx("当前版本 ${com.applemusicktv.BuildConfig.VERSION_NAME}", "Version ${com.applemusicktv.BuildConfig.VERSION_NAME}"), details) {
                     if (update.phase == "ready" || update.phase == "permission") vm.installUpdate()
                     else vm.checkUpdates(manual = true)
-                }
-                SettingDivider()
-                ActionSettingRow(tx("官网", "Official website"), "applemusictv.pages.dev") {
-                    openOfficialWebsite(ctx, english)
-                }
-                SettingDivider()
-                Column(Modifier.padding(horizontal = 20.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(tx("反馈与建议", "Feedback & suggestions"), fontSize = 14.sp, fontWeight = FontWeight.Bold,
-                        color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF1D1D1F), Color(0xFFF5F5F7)))
-                    Text(tx("如有问题或建议，欢迎联系开发者：lavande.yongwei@gmail.com",
-                        "For questions or suggestions, please contact the developer: lavande.yongwei@gmail.com"),
-                        fontSize = 12.sp, lineHeight = 18.sp, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
                 }
             }
             SettingsSection(tr(R.string.msg_219)) {
                 Toggle(tr(R.string.msg_220), showDev, tr(R.string.msg_221)) { showDev = !showDev }
             }
             if (showDev) {
-                DeveloperAccountSettings(state.hasBearer,state.hasMUT,
-                    onRefresh={vm.refresh(onDone=onDataRefresh)},onReset={playerVm.resetOnboarding()})
                 SettingsSection(tr(R.string.msg_222)) {
                     ActionSettingRow(tr(R.string.msg_223), tr(R.string.msg_224)) { vm.clearLogs() }
                     SettingDivider()
@@ -248,7 +213,9 @@ fun DevMenuScreen(
                 }
                 SettingsSection(tr(R.string.msg_226)) { BugReportRow(state.webServerUrl) }
                 SettingsSection(tr(R.string.msg_227)) {
-                    ActionSettingRow(tr(R.string.msg_228), tr(R.string.msg_229), danger = true) { vm.clearMUT() }
+                    ActionSettingRow(tx("配置音源", "Configure sources"), tx("连通性检测、停用、删除内置音源", "Probe, disable, or delete built-in sources")) {
+                        showSourceManager = true
+                    }
                     SettingDivider()
                     ActionSettingRow(tr(R.string.msg_230), tr(R.string.msg_231)) {
                         playerVm.stopPlayback(); android.os.Process.killProcess(android.os.Process.myPid())
@@ -269,6 +236,15 @@ fun DevMenuScreen(
             am.clearApplicationUserData()
         }
     }
+    if (showSourceManager) {
+        SourceManagerDialog(
+            scripts = vm.sourceScripts(),
+            onDismiss = { showSourceManager = false },
+            onToggle = { file, disabled -> vm.setScriptDisabled(file, disabled) },
+            onDelete = { file -> vm.deleteScript(file) },
+            onProbe = { file, source -> vm.probeScript(file, source) },
+        )
+    }
     if (update.manualResult) {
         val title = when (update.phase) {
             "available" -> tx("发现新版本", "Update available")
@@ -278,7 +254,7 @@ fun DevMenuScreen(
             else -> tx("更新失败", "Update failed")
         }
         val message = when (update.phase) {
-            "available" -> "${update.info?.version?.removePrefix("3.0-")}\n${update.info?.notes.orEmpty()}"
+            "available" -> "${update.info?.version}\n${update.info?.notes.orEmpty()}"
             "latest" -> tx("当前版本已是最新版本。", "You have the latest version.")
             "permission" -> tx("请允许从此来源安装，返回后点击「确定」以继续安装。", "Allow installation from this source, then return and select OK to continue installation.")
             "incompatible" -> tx("新版本需要更新的 Android 系统。", "The new version requires a newer Android version.")
@@ -342,16 +318,61 @@ internal fun ResetAppDialog(onDismiss: () -> Unit, onReset: () -> Unit) {
 @Composable
 private fun PhoneServerRow(webServerUrl: String, playerVm: PlayerViewModel) {
     var enabled by remember { mutableStateOf(playerVm.webServerEnabled()) }
+    var showQr by remember { mutableStateOf(false) }
     Column {
         Toggle(tr(R.string.msg_241), enabled, tr(R.string.msg_242)) {
             enabled = !enabled; playerVm.setWebServerEnabled(enabled)
         }
         if (enabled) {
             SettingDivider()
-            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(if (webServerUrl.isNotEmpty()) webServerUrl else tr(R.string.msg_243),
-                    fontSize = 14.sp, fontFamily = FontFamily.Monospace, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
-                if (webServerUrl.isNotEmpty()) Text(tr(R.string.msg_244), fontSize = 12.sp, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
+            ActionSettingRow(
+                if (webServerUrl.isNotEmpty()) webServerUrl else tr(R.string.msg_243),
+                if (webServerUrl.isNotEmpty()) tr(R.string.msg_244) else tr(R.string.msg_244),
+                enabled = webServerUrl.isNotEmpty(),
+                onClick = { if (webServerUrl.isNotEmpty()) showQr = true },
+            )
+        }
+    }
+    if (showQr && webServerUrl.isNotEmpty()) {
+        QrDialog(url = webServerUrl, onDismiss = { showQr = false })
+    }
+}
+
+@Composable
+private fun QrDialog(url: String, onDismiss: () -> Unit) {
+    com.applemusicktv.ui.components.MotionDialog(onDismissRequest = onDismiss) {
+        Column(
+            Modifier.width(440.dp).clip(RoundedCornerShape(24.dp))
+                .background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFF2F2F7), Color(0xFF1C1C1E)))
+                .padding(horizontal = 32.dp, vertical = 30.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+        ) {
+            Text("手机扫码配置", fontSize = 22.sp, fontWeight = FontWeight.Bold,
+                color = com.applemusicktv.ui.theme.AppPalette.primary)
+            Spacer(Modifier.height(6.dp))
+            Text("用手机扫描二维码，在浏览器里导入歌单、调整播放设置",
+                fontSize = 13.sp, lineHeight = 19.sp, textAlign = TextAlign.Center,
+                color = com.applemusicktv.ui.theme.AppPalette.secondary)
+            Spacer(Modifier.height(24.dp))
+            com.applemusicktv.ui.components.QrCode(content = url, size = 236.dp, cornerRadius = 18.dp, padding = 16.dp)
+            Spacer(Modifier.height(20.dp))
+            Text(url, fontSize = 12.sp, fontFamily = FontFamily.Monospace, textAlign = TextAlign.Center,
+                color = com.applemusicktv.ui.theme.AppPalette.secondary)
+            Spacer(Modifier.height(26.dp))
+            Surface(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = com.applemusicktv.ui.theme.AppPalette.accent,
+                    focusedContainerColor = Color(0xFFFF4757),
+                ),
+                scale = ClickableSurfaceDefaults.scale(focusedScale = 1.04f),
+            ) {
+                Text("关闭", fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                    color = Color.White, textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp))
             }
         }
     }
@@ -562,19 +583,6 @@ internal fun ClearCacheDialog(onDismiss: () -> Unit, onClear: () -> Unit) {
 }
 
 @Composable
-internal fun DeveloperAccountSettings(hasBearer: Boolean, hasMUT: Boolean, onRefresh: () -> Unit, onReset: () -> Unit) {
-    SettingsSection(tr(R.string.msg_269)) {
-        StatusChip(tr(R.string.msg_270),hasBearer,if(hasBearer) tr(R.string.msg_271) else tr(R.string.msg_272))
-        SettingDivider()
-        StatusChip(tr(R.string.msg_273),hasMUT,if(hasMUT) tr(R.string.msg_050) else tr(R.string.msg_274))
-        SettingDivider()
-        ActionSettingRow(tr(R.string.msg_275),tr(R.string.msg_276),onClick=onRefresh)
-        SettingDivider()
-        ActionSettingRow(tr(R.string.msg_277),tr(R.string.msg_278),onClick=onReset)
-    }
-}
-
-@Composable
 internal fun LanguageSettingsSection() {
     SettingsSection(tr(R.string.msg_310)) {
         val choice = com.applemusicktv.i18n.AppLanguage.choice
@@ -589,5 +597,135 @@ internal fun LanguageSettingsSection() {
         }
         Stepper(tr(R.string.msg_313), label, tr(R.string.msg_314),
             { changeLanguage(-1) }, { changeLanguage(1) })
+    }
+}
+
+/**
+ * 开发者模式「配置音源」二级菜单：列出内置音源，支持连通性检测、停用/启用、删除。
+ * 用 MotionDialog 弹出，与 App 其余弹窗风格一致；列表项用方向键上下移动、确认执行。
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun SourceManagerDialog(
+    scripts: List<com.applemusicktv.luoxue.LxPlayback.ScriptView>,
+    onDismiss: () -> Unit,
+    onToggle: (String, Boolean) -> Unit,
+    onDelete: (String) -> Unit,
+    onProbe: suspend (String, String) -> com.applemusicktv.luoxue.LxPlayback.SourceProbe,
+) {
+    val scope = rememberCoroutineScope()
+    var probingFile by remember { mutableStateOf<String?>(null) }
+    var probeResult by remember { mutableStateOf<String?>(null) }
+    val initialFocus = remember { FocusRequester() }
+
+    com.applemusicktv.ui.components.MotionDialog(onDismissRequest = onDismiss) {
+        Column(
+            Modifier.menuInitialFocus(initialFocus).width(680.dp)
+                .background(
+                    com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFF5F5F7), Color(0xFF222225)),
+                    RoundedCornerShape(20.dp),
+                ).padding(28.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(tx_dialog("配置音源", "Configure sources"), fontSize = 22.sp, fontWeight = FontWeight.Bold,
+                    color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF1D1D1F), Color(0xFFF5F5F7)))
+                Text("${scripts.size} 个音源", fontSize = 12.sp,
+                    color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA)))
+            }
+            LazyColumn(
+                Modifier.fillMaxWidth().heightIn(max = 480.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(scripts, key = { it.file }) { s ->
+                    SourceManagerRow(
+                        script = s,
+                        probing = probingFile == s.file,
+                        probeResult = if (probingFile == s.file) probeResult else null,
+                        onProbe = { src ->
+                            if (probingFile != null) return@SourceManagerRow
+                            probingFile = s.file
+                            probeResult = null
+                            scope.launch {
+                                val r = onProbe(s.file, src)
+                                probeResult = if (r.ok) "连通 ${r.ms}ms" else "失败 ${r.detail}"
+                                probingFile = null
+                            }
+                        },
+                        onToggle = { onToggle(s.file, !s.disabled) },
+                        onDelete = { onDelete(s.file) },
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+            Surface(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.End).focusRequester(initialFocus),
+                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFE8E8ED), Color(0xFF38383D)),
+                    focusedContainerColor = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFD9D9DE), Color(0xFF4A4A50)),
+                ),
+            ) {
+                Text(tx_dialog("关闭", "Close"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                    color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF1D1D1F), Color(0xFFF5F5F7)),
+                    modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp))
+            }
+        }
+    }
+}
+
+private fun tx_dialog(zh: String, en: String) =
+    if (com.applemusicktv.i18n.AppLanguage.code == "en") en else zh
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun SourceManagerRow(
+    script: com.applemusicktv.luoxue.LxPlayback.ScriptView,
+    probing: Boolean,
+    probeResult: String?,
+    onProbe: (String) -> Unit,
+    onToggle: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    val display = script.displayName.ifBlank {
+        script.file.removeSuffix(".js").removePrefix("lx-")
+    }
+    val sources = script.sources.takeIf { it.isNotEmpty() }?.joinToString("/") ?: "—"
+    Column(
+        Modifier.fillMaxWidth()
+            .background(
+                com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFFFFFFF), Color(0xFF2A2A2E)),
+                RoundedCornerShape(12.dp),
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(display, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                        color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF1D1D1F), Color(0xFFF5F5F7)))
+                    if (script.disabled) {
+                        Text("已停用", fontSize = 11.sp, color = Color(0xFFB22222))
+                    } else if (script.loaded) {
+                        Text("已加载", fontSize = 11.sp, color = Color(0xFF2E9E44))
+                    }
+                }
+                Text("源 $sources", fontSize = 11.sp,
+                    color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF8E8E93), Color(0xFFA3A3AA)))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                ActionBtn(tx_dialog("检测", "Probe"), Color(0xFF3B7DD8), small = true) {
+                    script.sources.firstOrNull()?.let(onProbe)
+                }
+                ActionBtn(tx_dialog(if (script.disabled) "启用" else "停用", if (script.disabled) "Enable" else "Disable"),
+                    if (script.disabled) Color(0xFF2E9E44) else Color(0xFF8A6500), small = true, onClick = onToggle)
+                ActionBtn(tx_dialog("删除", "Delete"), Color(0xFFB22222), small = true, onClick = onDelete)
+            }
+            if (probeResult != null) {
+                Text(probeResult, fontSize = 11.sp, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
+            } else if (probing) {
+                Text(tx_dialog("检测中…", "Probing…"), fontSize = 11.sp, color = com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFF6E6E73), Color(0xFFB1B1B8)))
+            }
     }
 }

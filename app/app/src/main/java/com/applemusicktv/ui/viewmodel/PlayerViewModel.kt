@@ -352,6 +352,19 @@ class PlayerViewModel @Inject constructor(
     val toasts: SharedFlow<String> = _toasts
     fun toast(msg: String) { _toasts.tryEmit(msg) }
 
+    /** 落雪命中后提示音源与格式，例如「准备播放 明明就-周杰伦 来源裤佬SVIP mp3 320k」。 */
+    private fun announceResolvedSource(song: Song, stream: com.applemusicktv.luoxue.AudioStream) {
+        val fmt = when {
+            stream.kind.contains("flac") -> "flac"
+            stream.kind.contains("aac") || stream.kind.contains("m4a") -> "aac"
+            else -> "mp3"
+        }
+        val sourceName = stream.sourceName.ifBlank {
+            stream.script.removeSuffix(".js").removePrefix("lx-")
+        }
+        toast("准备播放 ${song.title}-${song.artistName} 来源${sourceName} $fmt ${stream.kbps}k")
+    }
+
     private var lastErrorKey: String? = null
     private var hasPlayedSomething = false
     var nowPlayingVisible = false
@@ -1397,6 +1410,7 @@ class PlayerViewModel @Inject constructor(
                     attachedSourceGeneration = myGen
                     lxSongId = r.song.id; lxRetriedSongId = null
                     webServer.addLog("LX", "恢复播放 ${r.song.title} · ${stream.kind} ${stream.kbps}kbps")
+                    announceResolvedSource(r.song, stream)
                     player.setMediaItem(buildLxMediaItem(r.song, stream), r.posMs)
                     player.prepare(); player.playWhenReady = play
                     _state.update { it.copy(standaloneActive = false) }
@@ -1795,6 +1809,7 @@ class PlayerViewModel @Inject constructor(
                     attachedSourceGeneration = myGen
                     lxSongId = song.id; lxRetriedSongId = null
                     webServer.addLog("LX", "播放 ${song.title} · ${stream.kind} ${stream.kbps}kbps · ${stream.source}/${stream.quality} · ${stream.resolveMs}ms")
+                    announceResolvedSource(song, stream)
                     player.setMediaItem(buildLxMediaItem(song, stream))
                     player.prepare()
                     startPlayback(shouldPlay)
@@ -2660,6 +2675,7 @@ class PlayerViewModel @Inject constructor(
         repo.getSong(songId).getOrNull()?.let { it.artistId to it.albumId } ?: (null to null)
 
     private var lastAutoSaveMs = 0L
+    private var recentRecordedSongId: String? = null
     private var lastProgressPushMs = 0L
 
     private fun pollProgress() = viewModelScope.launch {
@@ -2707,6 +2723,15 @@ class PlayerViewModel @Inject constructor(
             if (playState == Player.STATE_ENDED && !crossfadeInProgress && awaitingSongStart == null) advanceQueue()
             // Auto-save position every 10s while playing so restore lands at the right spot
             if (playing && now - lastAutoSaveMs > 10_000L) { lastAutoSaveMs = now; saveState() }
+            // 有效播放（>10s）记入「最近播放」：每首歌只记一次，换曲后重新计时。
+            if (playing && sourcePos >= 10_000L) {
+                val cur = _state.value.currentSong
+                if (cur != null && cur.id != recentRecordedSongId && !cur.isMusicVideo) {
+                    recentRecordedSongId = cur.id
+                    localLibrary.recordRecent(cur)
+                    webServer.addLog("RECENT", "记入最近播放 ${cur.title}")
+                }
+            }
             val timerEnd = _state.value.sleepTimerEndsAt
             if (timerEnd != null) {
                 val remaining = timerEnd - System.currentTimeMillis()

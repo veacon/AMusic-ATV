@@ -31,12 +31,22 @@ class LocalLibraryStoreTest {
         File(context.filesDir, "local_library.json").delete()
     }
 
-    /** 写入走单线程执行器，测试里必须等文件真正落盘再新建实例。 */
-    private fun awaitFile(): File {
+    /** 写入走单线程执行器，测试里必须等文件真正落盘再新建实例。
+     *  [expectContains] 用于等待「最后一次写入」也落盘：多次 toggle 是异步排队，
+     *  只等文件非空会读到中间态（如第一次写入的 [a] 而非 [b,a]）。 */
+    private fun awaitFile(expectContains: String? = null, expectMissing: String? = null): File {
         val file = File(context.filesDir, "local_library.json")
         val deadline = System.nanoTime() + 5_000_000_000L
-        while ((!file.exists() || file.length() == 0L) && System.nanoTime() < deadline) Thread.sleep(10)
-        assertTrue("local_library.json 没有落盘", file.exists() && file.length() > 0)
+        while (System.nanoTime() < deadline) {
+            val ready = file.exists() && file.length() > 0L
+            if (!ready) { Thread.sleep(10); continue }
+            val text = runCatching { file.readText() }.getOrDefault("")
+            val okContains = expectContains == null || text.contains(expectContains)
+            val okMissing = expectMissing == null || !text.contains(expectMissing)
+            if (okContains && okMissing) return file
+            Thread.sleep(10)
+        }
+        assertTrue("local_library.json 没有落盘（期望含：$expectContains 不含：$expectMissing）", file.exists() && file.length() > 0)
         return file
     }
 
@@ -47,7 +57,7 @@ class LocalLibraryStoreTest {
         assertEquals(listOf("b", "a"), s.favorites.value.map { it.id })
         assertTrue(s.isFavorite("a"))
 
-        awaitFile()
+        awaitFile("\"b\"")
         val reopened = store()
         assertEquals(listOf("b", "a"), reopened.favorites.value.map { it.id })
     }
@@ -56,7 +66,7 @@ class LocalLibraryStoreTest {
         val s = store()
         s.toggleFavorite(song("a"))
         assertFalse(s.toggleFavorite(song("a")))
-        awaitFile()
+        awaitFile(expectMissing = "\"id\":\"a\"")
         assertTrue(store().favorites.value.isEmpty())
     }
 
@@ -87,11 +97,13 @@ class LocalLibraryStoreTest {
         s.removeSongFromPlaylist(playlist.id, "a")
         assertEquals(listOf("b"), s.playlist(playlist.id)!!.songs.map { it.id })
 
-        awaitFile()
+        // 移除 song("a") 后，文件里不应再有 id "a"（等待最后一次删除写入落盘）
+        awaitFile(expectMissing = "\"id\":\"a\"")
         assertEquals(listOf("b"), store().playlist(playlist.id)!!.songs.map { it.id })
 
         s.deletePlaylist(playlist.id)
         assertNull(s.playlist(playlist.id))
+        awaitFile(expectMissing = "imp-qq-2")
         assertTrue(store().playlists.value.isEmpty())
     }
 

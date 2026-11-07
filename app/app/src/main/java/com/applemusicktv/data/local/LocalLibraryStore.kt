@@ -52,7 +52,14 @@ class LocalLibraryStore @Inject constructor(
     private data class Payload(
         val favorites: List<Song> = emptyList(),
         val playlists: List<LocalPlaylist> = emptyList(),
+        val recents: List<RecentPlay> = emptyList(),
         val version: Int = 1,
+    )
+
+    /** 最近播放：有效播放（>10s）过的曲目，带时间戳，最新的在前。 */
+    data class RecentPlay(
+        val song: Song,
+        val playedAt: Long,
     )
 
     private val file = File(context.filesDir, "local_library.json")
@@ -68,13 +75,17 @@ class LocalLibraryStore @Inject constructor(
     private val _playlists = MutableStateFlow<List<LocalPlaylist>>(emptyList())
     val playlists: StateFlow<List<LocalPlaylist>> = _playlists.asStateFlow()
 
+    private val _recents = MutableStateFlow<List<RecentPlay>>(emptyList())
+    val recents: StateFlow<List<RecentPlay>> = _recents.asStateFlow()
+
     init {
         runCatching {
             if (file.exists()) {
                 val payload = adapter.fromJson(file.readText()) ?: Payload()
                 _favorites.value = payload.favorites
                 _playlists.value = payload.playlists
-                Log.i(TAG, "loaded favorites=${payload.favorites.size} playlists=${payload.playlists.size}")
+                _recents.value = payload.recents
+                Log.i(TAG, "loaded favorites=${payload.favorites.size} playlists=${payload.playlists.size} recents=${payload.recents.size}")
             }
         }.onFailure { Log.w(TAG, "load failed: ${it.message}") }
     }
@@ -168,6 +179,24 @@ class LocalLibraryStore @Inject constructor(
 
     fun playlist(playlistId: String): LocalPlaylist? = _playlists.value.firstOrNull { it.id == playlistId }
 
+    // ── 最近播放 ────────────────────────────────────────────────────────────
+
+    /** 记录一次有效播放（>10s）。同曲去重置顶，最多保留 [RECENT_MAX]。 */
+    fun recordRecent(song: Song) = synchronized(lock) {
+        val now = System.currentTimeMillis()
+        _recents.value = listOf(RecentPlay(song, now)) +
+            _recents.value.filterNot { it.song.id == song.id }
+        if (_recents.value.size > RECENT_MAX) {
+            _recents.value = _recents.value.take(RECENT_MAX)
+        }
+        persistLocked()
+    }
+
+    fun clearRecents() = synchronized(lock) {
+        _recents.value = emptyList()
+        persistLocked()
+    }
+
     // ── 聚合（专辑/艺人页用收藏与歌单派生，不碰 Apple library） ──────────────
 
     /** 收藏 + 所有歌单曲目，按 id 去重。 */
@@ -179,7 +208,7 @@ class LocalLibraryStore @Inject constructor(
     // ── 持久化 ──────────────────────────────────────────────────────────────
 
     private fun persistLocked() {
-        val payload = Payload(favorites = _favorites.value, playlists = _playlists.value)
+        val payload = Payload(favorites = _favorites.value, playlists = _playlists.value, recents = _recents.value)
         val json = runCatching { adapter.toJson(payload) }.getOrNull() ?: return
         writer.execute {
             runCatching {
@@ -200,5 +229,7 @@ class LocalLibraryStore @Inject constructor(
         const val SOURCE_NETEASE = "netease"
         const val SOURCE_KUGOU = "kugou"
         const val SOURCE_TEXT = "text"
+        /** 最近播放最多保留条数。 */
+        const val RECENT_MAX = 100
     }
 }

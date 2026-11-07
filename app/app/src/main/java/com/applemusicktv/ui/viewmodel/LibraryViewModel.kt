@@ -30,6 +30,8 @@ data class LibraryState(
     val playlists: List<LocalLibraryStore.LocalPlaylist> = emptyList(),
     val albums: List<Album> = emptyList(),
     val artists: List<Artist> = emptyList(),
+    /** 最近播放（有效播放 >10s），最新的在前。 */
+    val recents: List<Song> = emptyList(),
     val error: String? = null,
     val sort: SortState = SortState(),
 )
@@ -44,7 +46,11 @@ class LibraryViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val store: LocalLibraryStore,
     private val importer: PlaylistImporter,
+    private val webServer: com.applemusicktv.media.InAppWebServer,
 ) : ViewModel() {
+
+    /** 手机配置网页地址，用于导入歌单弹窗的二维码。 */
+    fun serverUrl(): String = webServer.serverUrl()
 
     // 必须在 _state 之前初始化：loadSavedSort() 会读它。
     private val cachePrefs = context.getSharedPreferences("library_cache", Context.MODE_PRIVATE)
@@ -58,23 +64,24 @@ class LibraryViewModel @Inject constructor(
     private var importJob: Job? = null
 
     init {
-        // 收藏/歌单任一变化都重算派生数据；数据量小，直接重建列表。
+        // 收藏/歌单/最近播放任一变化都重算派生数据；数据量小，直接重建列表。
         viewModelScope.launch {
-            combine(store.favorites, store.playlists) { favorites, playlists ->
-                favorites to playlists
-            }.collect { (favorites, playlists) ->
-                rebuild(favorites, playlists)
+            combine(store.favorites, store.playlists, store.recents) { favorites, playlists, recents ->
+                Triple(favorites, playlists, recents)
+            }.collect { (favorites, playlists, recents) ->
+                rebuild(favorites, playlists, recents)
             }
         }
     }
 
-    private fun rebuild(favorites: List<Song>, playlists: List<LocalLibraryStore.LocalPlaylist>) {
+    private fun rebuild(favorites: List<Song>, playlists: List<LocalLibraryStore.LocalPlaylist>, recents: List<LocalLibraryStore.RecentPlay> = emptyList()) {
         _state.update {
             it.copy(
                 songs = favorites,
                 playlists = playlists,
                 albums = aggregateAlbums(favorites),
                 artists = aggregateArtists(favorites),
+                recents = recents.map { it.song },
                 isLoading = false,
             )
         }
@@ -119,7 +126,7 @@ class LibraryViewModel @Inject constructor(
     fun preloadAfterLogin() = Unit
 
     fun refresh() {
-        rebuild(store.favorites.value, store.playlists.value)
+        rebuild(store.favorites.value, store.playlists.value, store.recents.value)
     }
 
     // ── 收藏 ────────────────────────────────────────────────────────────────

@@ -36,7 +36,7 @@ android {
         targetSdk = 35
         versionCode = releaseVersion.getProperty("versionCode").toInt()
         versionName = releaseVersion.getProperty("versionName")
-        buildConfigField("String", "UPDATE_BASE_URL", "\"https://applemusictv.pages.dev\"")
+        buildConfigField("String", "UPDATE_BASE_URL", "\"https://github.com/veacon/AMusic-ATV\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Set your proxy server IP here
         // Proxy server URL. Set `proxyBaseUrl` in local.properties (gitignored)
@@ -161,6 +161,9 @@ dependencies {
 
     // Images
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // QR 码（导入歌单弹窗 / 手机配置网页展示二维码）
+    implementation("com.google.zxing:core:3.5.3")
 
     // Palette (artwork → accent color)
     implementation("androidx.palette:palette-ktx:1.0.0")

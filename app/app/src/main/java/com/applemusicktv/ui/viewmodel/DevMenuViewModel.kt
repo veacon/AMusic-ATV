@@ -261,6 +261,26 @@ class DevMenuViewModel @Inject constructor(
 
     fun clearLogs() = _state.update { it.copy(logs = emptyList()) }
 
+    // ── 音源管理（开发者模式「配置音源」） ────────────────────────────────
+
+    /** 内置/导入的音源脚本清单（含禁用状态、显示名、支持的平台）。 */
+    fun sourceScripts(): List<com.applemusicktv.luoxue.LxPlayback.ScriptView> =
+        lxPlayback.scriptViews()
+
+    fun setScriptDisabled(file: String, disabled: Boolean) {
+        lxPlayback.setScriptDisabled(file, disabled)
+        log("OK", "音源 ${if (disabled) "停用" else "启用"} $file")
+    }
+
+    fun deleteScript(file: String) = viewModelScope.launch {
+        val msg = runCatching { lxPlayback.deleteScript(file) }.getOrElse { it.message ?: "删除失败" }
+        log("OK", "音源：$msg")
+    }
+
+    /** 连通性检测：对指定脚本+平台试取一条直链。 */
+    suspend fun probeScript(file: String, source: String): com.applemusicktv.luoxue.LxPlayback.SourceProbe =
+        lxPlayback.probeSource(file, source)
+
     private fun log(level: String, message: String) {
         val time = SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
         _state.update { it.copy(logs = it.logs + LogEntry(level, "[$time] $message")) }

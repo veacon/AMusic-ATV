@@ -6,7 +6,8 @@ import com.applemusicktv.R
 import android.os.SystemClock
 
 enum class LibrarySection(private val labelId: Int) {
-    Songs(R.string.msg_068), Playlists(R.string.msg_069), Albums(R.string.msg_070), Artists(R.string.msg_071);
+    Songs(R.string.msg_068), Playlists(R.string.msg_069), Albums(R.string.msg_070), Artists(R.string.msg_071),
+    Recents(R.string.msg_recent);
     val label: String get() = tr(labelId)
 
 

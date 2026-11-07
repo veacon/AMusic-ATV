@@ -332,4 +332,6 @@
     <string name="fluid_quality_high">高画质</string>
     <string name="msg_326" formatted="false">"去浏览音乐"</string>
     <string name="msg_327" formatted="false">"导入歌单"</string>
+    <string name="msg_recent" formatted="false">"最近播放"</string>
+    <string name="msg_recent_empty" formatted="false">"还没有播放记录，播放超过 10 秒的歌曲会出现在这里"</string>
 </resources>

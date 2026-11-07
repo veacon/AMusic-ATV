@@ -172,19 +172,6 @@ class V23LayoutTest {
     @Test fun listRightReachesWorkingSortAndBypassesDefaultListEntry()=libraryFixture(false)
     @Test fun gridKeepsHorizontalBrowsingAndRightEdgeReachesSort()=libraryFixture(true)
 
-    @Test fun developerAccountSectionRetainsAccountActionsWithoutPcConfiguration() {
-        var refresh=0;var reset=0
-        compose.setContent {DeveloperAccountSettings(true,false,{refresh++},{reset++})}
-        compose.onNodeWithText("开发者令牌").assertIsDisplayed()
-        compose.onNodeWithText("用户令牌").assertIsDisplayed()
-        for(text in listOf("电脑服务器","服务器地址","重新检查服务器","点击填写 IP 地址"))
-            compose.onNodeWithText(text).assertDoesNotExist()
-        compose.onNodeWithText("刷新账号状态").performClick()
-        compose.onNodeWithText("重新配置应用").performClick()
-        assertEquals(1,refresh);assertEquals(1,reset)
-        save("developer-account-section")
-    }
-
     @Test fun fullScreenGlyphRendersAndRemainsDistinctFromLyrics() {
         compose.setContent {Row(Modifier.fillMaxSize().background(Color.White).padding(60.dp),horizontalArrangement=Arrangement.spacedBy(48.dp)) {
             Column(horizontalAlignment=Alignment.CenterHorizontally) {

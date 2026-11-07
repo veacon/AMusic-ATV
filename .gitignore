@@ -38,3 +38,8 @@ app/gradle/gradle-daemon-jvm.properties.bak
 /shot*.png
 tools/dpad.sh
 tools/uiinfo.py
+
+# 音源选型临时产物（bench 跑测目录与拉取脚本）
+/bench_run/
+/bench_ascii/
+/lx_candidates/

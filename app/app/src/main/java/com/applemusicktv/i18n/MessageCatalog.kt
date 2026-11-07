@@ -337,5 +337,7 @@ internal object MessageCatalog {
         R.string.playback_section to ("播放" to "Playback"),
         R.string.msg_326 to ("去浏览音乐" to "Browse music"),
         R.string.msg_327 to ("导入歌单" to "Import a playlist"),
+        R.string.msg_recent to ("最近播放" to "Recently Played"),
+        R.string.msg_recent_empty to ("还没有播放记录，播放超过 10 秒的歌曲会出现在这里" to "No play history yet. Songs you listen to for over 10 seconds will appear here."),
     )
 }

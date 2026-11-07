@@ -332,4 +332,6 @@
     <string name="fluid_quality_high">High quality</string>
     <string name="msg_326" formatted="false">"Browse music"</string>
     <string name="msg_327" formatted="false">"Import a playlist"</string>
+    <string name="msg_recent" formatted="false">"Recently Played"</string>
+    <string name="msg_recent_empty" formatted="false">"No play history yet. Songs you listen to for over 10 seconds will appear here."</string>
 </resources>

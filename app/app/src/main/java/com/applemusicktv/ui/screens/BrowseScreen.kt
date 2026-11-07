@@ -7,6 +7,7 @@ import com.applemusicktv.ui.components.focusedArtworkBorder
 import com.applemusicktv.data.cache.AppDiskCache
 import android.content.Context
 import com.applemusicktv.ui.components.pageHorizontalInset
+import com.applemusicktv.ui.components.navAwareViewport
 import com.applemusicktv.ui.components.FadeThrough
 import com.applemusicktv.ui.components.TouchSurface as Surface
 
@@ -219,8 +220,8 @@ fun BrowseScreen(
         val firstContentRow = state.shelves.indexOfFirst { it.albums.isNotEmpty() || it.videos.isNotEmpty() }
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = 100.dp, bottom = 102.dp),
+            // 见 NavViewport.kt：顶部导航条高度必须算在视口外，否则焦点行被压住。
+            modifier = Modifier.fillMaxSize().navAwareViewport(),
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
             itemsIndexed(state.shelves, key = { _, item -> item.title }) { index, shelf ->

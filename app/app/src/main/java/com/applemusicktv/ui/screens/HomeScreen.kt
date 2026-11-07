@@ -4,6 +4,7 @@ import com.applemusicktv.i18n.tr
 import com.applemusicktv.R
 
 import com.applemusicktv.ui.components.pageHorizontalInset
+import com.applemusicktv.ui.components.navAwareViewport
 import com.applemusicktv.ui.components.FadeThrough
 import com.applemusicktv.ui.components.TouchSurface as Surface
 
@@ -84,8 +85,9 @@ fun HomeScreen(
         val firstContentRow = state.sections.indexOfFirst { it.albums.isNotEmpty() }
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = 100.dp, bottom = 102.dp),
+            // 视口内缩，别用 contentPadding(top)：焦点滚动会把第一行顶到 y=0
+            // 被导航条压住（见 NavViewport.kt）。
+            modifier = Modifier.fillMaxSize().navAwareViewport(),
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
             itemsIndexed(state.sections, key = { _, item -> item.title }) { index, section ->

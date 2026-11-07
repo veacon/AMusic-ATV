@@ -72,6 +72,16 @@ internal fun CategoryContent(
     tabBarFocused: Boolean = false,
 ) {
     val listState = rememberTabAwareListState(tabBarFocused)
+    // 其余详情页进入即聚焦「播放全部」，分类页没有播放键，导致遥控器第一次进页面时
+    // 焦点仍停在顶部导航条、必须多按一次「下」。这里让第一张可点卡片接管首次焦点。
+    val firstPlayableIndex = state.sections.indexOfFirst {
+        it.albums.isNotEmpty() || (it.videos.isNotEmpty() && playerVm != null)
+    }
+    val entryFocus = com.applemusicktv.ui.navigation.rememberDetailPlayEntryFocus(
+        ready = !state.isLoading && state.error == null && firstPlayableIndex >= 0,
+        loading = state.isLoading,
+        beforeFocus = { listState.scrollToItem(0) },
+    )
     FadeThrough(state, modifier = modifier.fillMaxSize(), contentKey = { when { it.isLoading -> "loading"; it.error != null -> "error"; else -> "content" } }) { state ->
         Box(Modifier.fillMaxSize().background(com.applemusicktv.ui.theme.AppPalette.adaptive(Color(0xFFFFFFFF), Color(0xFF101012)))) {
             when {
@@ -118,6 +128,7 @@ internal fun CategoryContent(
                                         val art = (v.artworkUrl ?: "").replace("{w}", "480").replace("{h}", "270").replace("{f}", "jpg")
                                         Surface(
                                             onClick = { playerVm.playVideos(section.videos, idx) },
+                                            modifier = if (index == firstPlayableIndex && idx == 0) entryFocus else Modifier,
                                             // RectangleShape so the surface never clips the title/artist
                                             // text below the thumbnail (a rounded surface rounded them off).
                                             shape = ClickableSurfaceDefaults.shape(androidx.compose.ui.graphics.RectangleShape),
@@ -142,7 +153,7 @@ internal fun CategoryContent(
                                 // Room on all sides so the focus glow/scale never clips.
                                 contentPadding = PaddingValues(horizontal = pageHorizontalInset, vertical = 12.dp),
                             ) {
-                                items(section.albums, key = { it.id }) { dto ->
+                                itemsIndexed(section.albums, key = { _, dto -> dto.id }) { itemIndex, dto ->
                                     val isPlaylist = dto.id.startsWith("pl.") || dto.id.startsWith("p.")
                                     val isCurator = dto.id.startsWith("ac-") || dto.id.startsWith("c-") || dto.id.startsWith("mr-")
                                     val isStation = dto.id.startsWith("ra.")
@@ -155,6 +166,7 @@ internal fun CategoryContent(
                                             type = dto.type,
                                         ),
                                         size = 150,
+                                        modifier = if (index == firstPlayableIndex && itemIndex == 0) entryFocus else Modifier,
                                         onClick = {
                                             when {
                                                 isCurator  -> onCuratorClick(dto.id)
