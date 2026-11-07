@@ -32,7 +32,11 @@ internal class DiskBudgetStore(
     fun unprotect(owner: String) = synchronized(lock) { owners.remove(owner); Unit }
 
     fun file(relative: String): File {
-        require(relative.isNotBlank() && !File(relative).isAbsolute && relative.split('/').none { it == ".." })
+        // Windows 上 "/tmp/x" 的 File.isAbsolute 是 false（被当成「当前盘符相对路径」），
+        // 单靠 isAbsolute 挡不住；显式拒绝任何前导分隔符。
+        require(relative.isNotBlank() && !File(relative).isAbsolute &&
+            !relative.startsWith("/") && !relative.startsWith("\\") &&
+            relative.split('/').none { it == ".." })
         val file = File(root, relative)
         require(file.canonicalPath.startsWith(rootPath + File.separator))
         require(relative.substringBefore('/') != "image_cache")
@@ -84,7 +88,17 @@ internal class DiskBudgetStore(
         try {
             target.parentFile?.mkdirs()
             pending.writeBytes(bytes)
-            if (!pending.renameTo(target)) throw java.io.IOException("Cache atomic rename failed")
+            // 原子替换：目标已存在时 File.renameTo 在部分平台直接失败（Windows），
+            // Files.move + ATOMIC_MOVE/REPLACE_EXISTING 在 Android 上仍是原子 rename。
+            val source = pending.toPath()
+            val destination = target.toPath()
+            try {
+                java.nio.file.Files.move(source, destination,
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                    java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+            } catch (_: Exception) {
+                java.nio.file.Files.move(source, destination, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            }
             target.setLastModified(usedAt)
             target
         } catch (_: Exception) {

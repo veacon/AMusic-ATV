@@ -13,18 +13,19 @@ import org.json.JSONObject
 @Config(sdk = [23, 28], manifest = Config.NONE)
 class AppUpdatesTest {
     private val ctx get() = ApplicationProvider.getApplicationContext<Context>()
-    private fun updater() = AppUpdates(ctx, "https://update-test.applemusictv.pages.dev/update.json")
+    private val MANIFEST = "https://github.com/veacon/veil-test/releases/latest/download/update.json"
+    private fun updater() = AppUpdates(ctx, MANIFEST)
     private fun valid() = JSONObject().put("channel", "user").put("packageName", ctx.packageName)
         .put("versionName", "3.0-V51").put("versionCode", 51).put("sizeBytes", 7_000_000)
         .put("minSdk", 23).put("sha256", "a".repeat(64)).put("notes", "Test")
-        .put("apkUrl", "https://update-test.applemusictv.pages.dev/downloads/Apple%20Music%20TV%20V51.apk")
+        .put("apkUrl", "https://github.com/veacon/veil-test/releases/download/v3.0/Veil%20Music%20V51.apk")
     @Test fun validManifestParsesAcrossAndroidVersions() {
         val i = updater().parse(valid().toString())
         assertEquals(51, i.code); assertEquals("3.0-V51", i.version); assertEquals(7_000_000L, i.size)
     }
     @Test fun publicVersionAndUpgradeCodeAreIndependent() {
         val manifest = valid().put("versionName", "3.0-V72").put("versionCode", 89)
-            .put("apkUrl", "https://update-test.applemusictv.pages.dev/downloads/Apple%20Music%20TV%20V72.apk")
+            .put("apkUrl", "https://github.com/veacon/veil-test/releases/download/v3.0/Veil%20Music%20V72.apk")
         val info = updater().parse(manifest.toString())
         assertEquals("3.0-V72", info.version)
         assertEquals(89, info.code)
@@ -35,7 +36,13 @@ class AppUpdatesTest {
         }
     }
     @Test fun rejectsUntrustedUrlsAndUnexpectedQuery() {
-        for (url in listOf("http://update-test.applemusictv.pages.dev/downloads/a.apk", "https://update-test.applemusictv.pages.dev.evil.test/downloads/a.apk", "https://update-test.applemusictv.pages.dev/other/a.apk", "https://update-test.applemusictv.pages.dev/downloads/a.apk?token=secret", "https://update-test.applemusictv.pages.dev:444/downloads/a.apk")) {
+        for (url in listOf(
+            "http://github.com/veacon/veil-test/releases/download/v3.0/a.apk",
+            "https://github.com.evil.test/veacon/veil-test/releases/download/v3.0/a.apk",
+            "https://github.com/veacon/other/releases/download/v3.0/a.apk",
+            "https://github.com/veacon/veil-test/releases/download/v3.0/a.apk?token=secret",
+            "https://github.com/veacon/veil-test/releases/download/v3.0/a.zip",
+        )) {
             try { updater().parse(valid().put("apkUrl", url).toString()); fail(url) } catch (_: IllegalArgumentException) { }
         }
     }
